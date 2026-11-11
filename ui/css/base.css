@@ -1,0 +1,113 @@
+/* Tema oscuro fijo, sin alternancia: LUNA se usa en una segunda pantalla
+   mientras el juego ocupa la principal, casi siempre de noche. Una ventana
+   clara al lado de una cabina oscura deslumbra. */
+
+:root {
+  --fondo: #111418;
+  --superficie: #181c22;
+  --borde: #3b4350;
+  --texto: #e7eaee;
+  --texto-suave: #a5aeba;
+
+  /* Único acento: ámbar, el color del HUD del juego, para que la herramienta
+     se sienta contigua a él. Se usa solo en el foco y en el nombre. */
+  --acento: #f0a52b;
+
+  --gutter: 1rem;
+  --radio: 6px;
+
+  /* Tipografía del sistema: nativa en Windows 10/11, sin descargas y nítida
+     a cualquier escala. */
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  /* Barra fija y contenido elástico: nada se corta al reducir al mínimo. */
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* El foco se marca con el acento porque es el único elemento que debe
+   destacar sobre el fondo oscuro. */
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem var(--gutter);
+  padding: var(--gutter);
+  border-bottom: 1px solid var(--borde);
+  background: var(--superficie);
+}
+
+.barra__nombre {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--acento);
+}
+
+.barra__descripcion {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 0.9375rem;
+}
+
+.contenido {
+  padding: var(--gutter);
+  /* min-width: 0 evita que un texto largo empuje la columna y genere scroll
+     horizontal, que la sección 9.1 prohíbe. */
+  min-width: 0;
+}
+
+.tarjeta {
+  max-width: 70ch;
+  padding: calc(var(--gutter) * 1.25);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+
+.tarjeta h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.tarjeta p {
+  margin: 0;
+  color: var(--texto-suave);
+  overflow-wrap: break-word;
+}
+
+.medidas {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem var(--gutter);
+  margin: var(--gutter) 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.medidas dt {
+  color: var(--texto-suave);
+}
+
+.medidas dd {
+  margin: 0;
+}

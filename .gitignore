@@ -1,0 +1,53 @@
+# --- Entorno Python ---
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- Datos del usuario (nunca al repositorio) ---
+# Journals y archivos del juego: la aplicación los localiza en
+# %USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous
+# en tiempo de ejecución. Nada de esto se versiona.
+*.log
+Journal.*
+Status.json
+Cargo.json
+Market.json
+Shipyard.json
+Outfitting.json
+ModulesInfo.json
+NavRoute.json
+ShipLocker.json
+Backpack.json
+FCMaterials.json
+
+# Base de datos local y configuración del usuario
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+config.json
+
+# Descarga de Spansh (4,3 GiB) y datos derivados
+descargas/
+*.json.gz
+galaxy*.json
+
+# --- Empaquetado ---
+build/
+dist/
+*.spec
+
+# --- Windows / editores ---
+Desktop.ini
+Thumbs.db
+.vscode/
+.idea/
+
+# Excepción: los fixtures recortados y anonimizados SÍ se versionan.
+!tests/fixtures/**
+
+# Datos del usuario en modo portable durante el desarrollo.
+*.tmp
+config.json*
+luna.log

@@ -1,0 +1,27 @@
+# Configuracion del linter. Las reglas de estilo que el proyecto ya se impuso
+# en CLAUDE.md (funciones cortas, comentarios del porque) no las puede medir un
+# linter; esto caza lo mecanico.
+
+target-version = "py312"
+line-length = 100
+
+[lint]
+select = [
+    "F",   # errores reales de Pyflakes
+    "E",   # estilo de pycodestyle
+    "W",
+    "I",   # orden de los imports
+    "UP",  # sintaxis anticuada para Python 3.12
+    "B",   # trampas de bugbear
+    "C4",  # comprensiones
+    "SIM", # simplificaciones
+    "RET", # returns
+    "PTH", # os.path en vez de pathlib
+    "S",   # seguridad (bandit)
+]
+
+[lint.per-file-ignores]
+# Las pruebas usan assert, que es su herramienta.
+"tests/*" = ["S101"]
+# Los nombres de WinForms son PascalCase y no se pueden cambiar.
+"core/plataforma.py" = ["N802", "N815"]

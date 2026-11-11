@@ -1,0 +1,550 @@
+{
+  "fuente": "https://github.com/EDCD/coriolis-data (modules/standard/frame_shift_drive.json, modules/internal/guardian_fsd_booster.json)",
+  "potenciadores": {
+    "int_guardianfsdbooster_size1": {
+      "bono_ly": 4
+    },
+    "int_guardianfsdbooster_size2": {
+      "bono_ly": 6
+    },
+    "int_guardianfsdbooster_size3": {
+      "bono_ly": 7.75
+    },
+    "int_guardianfsdbooster_size4": {
+      "bono_ly": 9.25
+    },
+    "int_guardianfsdbooster_size5": {
+      "bono_ly": 10.5
+    }
+  },
+  "propulsores": {
+    "int_hyperdrive_overcharge_size2_class1": {
+      "calidad": "E",
+      "clase": 2,
+      "combustible_por_salto": 0.6,
+      "exponente": 2.0,
+      "masa_optima": 60,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size2_class2": {
+      "calidad": "D",
+      "clase": 2,
+      "combustible_por_salto": 0.9,
+      "exponente": 2.0,
+      "masa_optima": 90,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size2_class3": {
+      "calidad": "C",
+      "clase": 2,
+      "combustible_por_salto": 0.9,
+      "exponente": 2.0,
+      "masa_optima": 90,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size2_class4": {
+      "calidad": "B",
+      "clase": 2,
+      "combustible_por_salto": 0.9,
+      "exponente": 2.0,
+      "masa_optima": 90,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size2_class5": {
+      "calidad": "A",
+      "clase": 2,
+      "combustible_por_salto": 1,
+      "exponente": 2.0,
+      "masa_optima": 100,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size3_class1": {
+      "calidad": "E",
+      "clase": 3,
+      "combustible_por_salto": 1.2,
+      "exponente": 2.15,
+      "masa_optima": 100,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size3_class2": {
+      "calidad": "D",
+      "clase": 3,
+      "combustible_por_salto": 1.8,
+      "exponente": 2.15,
+      "masa_optima": 150,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size3_class3": {
+      "calidad": "C",
+      "clase": 3,
+      "combustible_por_salto": 1.8,
+      "exponente": 2.15,
+      "masa_optima": 150,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size3_class4": {
+      "calidad": "B",
+      "clase": 3,
+      "combustible_por_salto": 1.8,
+      "exponente": 2.15,
+      "masa_optima": 150,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size3_class5": {
+      "calidad": "A",
+      "clase": 3,
+      "combustible_por_salto": 1.9,
+      "exponente": 2.15,
+      "masa_optima": 167,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size4_class1": {
+      "calidad": "E",
+      "clase": 4,
+      "combustible_por_salto": 2,
+      "exponente": 2.3,
+      "masa_optima": 350,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size4_class2": {
+      "calidad": "D",
+      "clase": 4,
+      "combustible_por_salto": 3,
+      "exponente": 2.3,
+      "masa_optima": 525,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size4_class3": {
+      "calidad": "C",
+      "clase": 4,
+      "combustible_por_salto": 3,
+      "exponente": 2.3,
+      "masa_optima": 525,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size4_class4": {
+      "calidad": "B",
+      "clase": 4,
+      "combustible_por_salto": 3,
+      "exponente": 2.3,
+      "masa_optima": 525,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size4_class5": {
+      "calidad": "A",
+      "clase": 4,
+      "combustible_por_salto": 3.2,
+      "exponente": 2.3,
+      "masa_optima": 585,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size5_class1": {
+      "calidad": "E",
+      "clase": 5,
+      "combustible_por_salto": 3.3,
+      "exponente": 2.45,
+      "masa_optima": 700,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size5_class2": {
+      "calidad": "D",
+      "clase": 5,
+      "combustible_por_salto": 5,
+      "exponente": 2.45,
+      "masa_optima": 1050,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size5_class3": {
+      "calidad": "C",
+      "clase": 5,
+      "combustible_por_salto": 5,
+      "exponente": 2.45,
+      "masa_optima": 1050,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size5_class4": {
+      "calidad": "B",
+      "clase": 5,
+      "combustible_por_salto": 5,
+      "exponente": 2.45,
+      "masa_optima": 1050,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size5_class5": {
+      "calidad": "A",
+      "clase": 5,
+      "combustible_por_salto": 5.2,
+      "exponente": 2.45,
+      "masa_optima": 1175,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size6_class1": {
+      "calidad": "E",
+      "clase": 6,
+      "combustible_por_salto": 5.3,
+      "exponente": 2.6,
+      "masa_optima": 1200,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size6_class2": {
+      "calidad": "D",
+      "clase": 6,
+      "combustible_por_salto": 8,
+      "exponente": 2.6,
+      "masa_optima": 1800,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size6_class3": {
+      "calidad": "C",
+      "clase": 6,
+      "combustible_por_salto": 8,
+      "exponente": 2.6,
+      "masa_optima": 1800,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size6_class4": {
+      "calidad": "B",
+      "clase": 6,
+      "combustible_por_salto": 8,
+      "exponente": 2.6,
+      "masa_optima": 1800,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size6_class5": {
+      "calidad": "A",
+      "clase": 6,
+      "combustible_por_salto": 8.3,
+      "exponente": 2.6,
+      "masa_optima": 2000,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size7_class1": {
+      "calidad": "E",
+      "clase": 7,
+      "combustible_por_salto": 8.5,
+      "exponente": 2.75,
+      "masa_optima": 1800,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size7_class2": {
+      "calidad": "D",
+      "clase": 7,
+      "combustible_por_salto": 12.8,
+      "exponente": 2.75,
+      "masa_optima": 2700,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size7_class3": {
+      "calidad": "C",
+      "clase": 7,
+      "combustible_por_salto": 12.8,
+      "exponente": 2.75,
+      "masa_optima": 2700,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size7_class4": {
+      "calidad": "B",
+      "clase": 7,
+      "combustible_por_salto": 12.8,
+      "exponente": 2.75,
+      "masa_optima": 2700,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size7_class5": {
+      "calidad": "A",
+      "clase": 7,
+      "combustible_por_salto": 13.1,
+      "exponente": 2.75,
+      "masa_optima": 3000,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size8_class1": {
+      "calidad": "E",
+      "clase": 8,
+      "combustible_por_salto": 13.6,
+      "exponente": 2.9,
+      "masa_optima": 2800,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_overcharge_size8_class2": {
+      "calidad": "D",
+      "clase": 8,
+      "combustible_por_salto": 20.4,
+      "exponente": 2.9,
+      "masa_optima": 4200,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size8_class3": {
+      "calidad": "C",
+      "clase": 8,
+      "combustible_por_salto": 20.4,
+      "exponente": 2.9,
+      "masa_optima": 4200,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size8_class4": {
+      "calidad": "B",
+      "clase": 8,
+      "combustible_por_salto": 20.4,
+      "exponente": 2.9,
+      "masa_optima": 4200,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_overcharge_size8_class5": {
+      "calidad": "A",
+      "clase": 8,
+      "combustible_por_salto": 20.7,
+      "exponente": 2.9,
+      "masa_optima": 4670,
+      "multiplicador": 0.013
+    },
+    "int_hyperdrive_overcharge_size8_class5_overchargebooster_mkii": {
+      "calidad": "A",
+      "clase": 8,
+      "combustible_por_salto": 6.8,
+      "exponente": 2.5025,
+      "masa_optima": 4670,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size2_class1": {
+      "calidad": "E",
+      "clase": 2,
+      "combustible_por_salto": 0.6,
+      "exponente": 2,
+      "masa_optima": 48,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size2_class2": {
+      "calidad": "D",
+      "clase": 2,
+      "combustible_por_salto": 0.6,
+      "exponente": 2,
+      "masa_optima": 54,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size2_class3": {
+      "calidad": "C",
+      "clase": 2,
+      "combustible_por_salto": 0.6,
+      "exponente": 2,
+      "masa_optima": 60,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size2_class4": {
+      "calidad": "B",
+      "clase": 2,
+      "combustible_por_salto": 0.8,
+      "exponente": 2,
+      "masa_optima": 75,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size2_class5": {
+      "calidad": "A",
+      "clase": 2,
+      "combustible_por_salto": 0.9,
+      "exponente": 2,
+      "masa_optima": 90,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_size3_class1": {
+      "calidad": "E",
+      "clase": 3,
+      "combustible_por_salto": 1.2,
+      "exponente": 2.15,
+      "masa_optima": 80,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size3_class2": {
+      "calidad": "D",
+      "clase": 3,
+      "combustible_por_salto": 1.2,
+      "exponente": 2.15,
+      "masa_optima": 90,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size3_class3": {
+      "calidad": "C",
+      "clase": 3,
+      "combustible_por_salto": 1.2,
+      "exponente": 2.15,
+      "masa_optima": 100,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size3_class4": {
+      "calidad": "B",
+      "clase": 3,
+      "combustible_por_salto": 1.5,
+      "exponente": 2.15,
+      "masa_optima": 125,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size3_class5": {
+      "calidad": "A",
+      "clase": 3,
+      "combustible_por_salto": 1.8,
+      "exponente": 2.15,
+      "masa_optima": 150,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_size4_class1": {
+      "calidad": "E",
+      "clase": 4,
+      "combustible_por_salto": 2,
+      "exponente": 2.3,
+      "masa_optima": 280,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size4_class2": {
+      "calidad": "D",
+      "clase": 4,
+      "combustible_por_salto": 2,
+      "exponente": 2.3,
+      "masa_optima": 315,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size4_class3": {
+      "calidad": "C",
+      "clase": 4,
+      "combustible_por_salto": 2,
+      "exponente": 2.3,
+      "masa_optima": 350,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size4_class4": {
+      "calidad": "B",
+      "clase": 4,
+      "combustible_por_salto": 2.5,
+      "exponente": 2.3,
+      "masa_optima": 437.5,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size4_class5": {
+      "calidad": "A",
+      "clase": 4,
+      "combustible_por_salto": 3,
+      "exponente": 2.3,
+      "masa_optima": 525,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_size5_class1": {
+      "calidad": "E",
+      "clase": 5,
+      "combustible_por_salto": 3.3,
+      "exponente": 2.45,
+      "masa_optima": 560,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size5_class2": {
+      "calidad": "D",
+      "clase": 5,
+      "combustible_por_salto": 3.3,
+      "exponente": 2.45,
+      "masa_optima": 630,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size5_class3": {
+      "calidad": "C",
+      "clase": 5,
+      "combustible_por_salto": 3.3,
+      "exponente": 2.45,
+      "masa_optima": 700,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size5_class4": {
+      "calidad": "B",
+      "clase": 5,
+      "combustible_por_salto": 4.1,
+      "exponente": 2.45,
+      "masa_optima": 875,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size5_class5": {
+      "calidad": "A",
+      "clase": 5,
+      "combustible_por_salto": 5,
+      "exponente": 2.45,
+      "masa_optima": 1050,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_size6_class1": {
+      "calidad": "E",
+      "clase": 6,
+      "combustible_por_salto": 5.3,
+      "exponente": 2.6,
+      "masa_optima": 960,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size6_class2": {
+      "calidad": "D",
+      "clase": 6,
+      "combustible_por_salto": 5.3,
+      "exponente": 2.6,
+      "masa_optima": 1080,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size6_class3": {
+      "calidad": "C",
+      "clase": 6,
+      "combustible_por_salto": 5.3,
+      "exponente": 2.6,
+      "masa_optima": 1200,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size6_class4": {
+      "calidad": "B",
+      "clase": 6,
+      "combustible_por_salto": 6.6,
+      "exponente": 2.6,
+      "masa_optima": 1500,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size6_class5": {
+      "calidad": "A",
+      "clase": 6,
+      "combustible_por_salto": 8,
+      "exponente": 2.6,
+      "masa_optima": 1800,
+      "multiplicador": 0.012
+    },
+    "int_hyperdrive_size7_class1": {
+      "calidad": "E",
+      "clase": 7,
+      "combustible_por_salto": 8.5,
+      "exponente": 2.75,
+      "masa_optima": 1440,
+      "multiplicador": 0.011
+    },
+    "int_hyperdrive_size7_class2": {
+      "calidad": "D",
+      "clase": 7,
+      "combustible_por_salto": 8.5,
+      "exponente": 2.75,
+      "masa_optima": 1620,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size7_class3": {
+      "calidad": "C",
+      "clase": 7,
+      "combustible_por_salto": 8.5,
+      "exponente": 2.75,
+      "masa_optima": 1800,
+      "multiplicador": 0.008
+    },
+    "int_hyperdrive_size7_class4": {
+      "calidad": "B",
+      "clase": 7,
+      "combustible_por_salto": 10.6,
+      "exponente": 2.75,
+      "masa_optima": 2250,
+      "multiplicador": 0.01
+    },
+    "int_hyperdrive_size7_class5": {
+      "calidad": "A",
+      "clase": 7,
+      "combustible_por_salto": 12.8,
+      "exponente": 2.75,
+      "masa_optima": 2700,
+      "multiplicador": 0.012
+    }
+  }
+}

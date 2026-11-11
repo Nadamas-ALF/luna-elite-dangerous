@@ -1,0 +1,22 @@
+# Dependencias de desarrollo: las de ejecución más pytest.
+# Instalar con: .venv\Scripts\python.exe -m pip install --require-hashes -r requirements-dev.txt
+
+-r requirements.txt
+
+pytest==8.3.5 \
+    --hash=sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820
+
+# Transitivas de pytest.
+colorama==0.4.6 \
+    --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
+iniconfig==2.3.1 \
+    --hash=sha256:9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7
+packaging==26.3 \
+    --hash=sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c
+pluggy==1.7.0 \
+    --hash=sha256:7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec
+
+# Linter y formateador. Solo desarrollo: no se importa, asi que PyInstaller no
+# lo empaqueta. Un unico binario, sin dependencias transitivas.
+ruff==0.17.4 \
+    --hash=sha256:67c5a894fc054cf41f75f7afa24815de5a74329d97634126c2a1015740ff4e8c

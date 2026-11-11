@@ -1,0 +1,26 @@
+{
+  "app": {
+    "nombre": "LUNA",
+    "descripcion": "Rutas de comercio para Elite Dangerous"
+  },
+  "ventana": {
+    "titulo": "LUNA"
+  },
+  "errores": {
+    "arranque": "LUNA no pudo abrir su ventana: {error}",
+    "sin_webview2": "Falta el componente WebView2 de Microsoft, que LUNA necesita para su ventana. Es gratuito: búscalo como \"WebView2 Runtime\" en la web de Microsoft, instálalo y vuelve a abrir LUNA. (Motor detectado: {error})"
+  },
+  "datos": {
+    "sin_permiso_de_escritura": "LUNA no puede escribir en su propia carpeta, así que guarda tus datos en la carpeta local de tu usuario.",
+    "unidad_de_red": "La carpeta de LUNA está en una unidad de red, donde su base de datos no funciona. Tus datos se guardan en la carpeta local de tu usuario.",
+    "carpeta_sincronizada": "La carpeta de LUNA está dentro de una carpeta sincronizada, que subiría la base de datos entera cada vez que cambia un precio. Tus datos se guardan en la carpeta local de tu usuario.",
+    "unidad_extraible": "La carpeta de LUNA está en una unidad extraíble: funciona, pero la descarga inicial será lenta.",
+    "respaldo_tambien_falla": "La carpeta local de tu usuario tampoco parece apta para la base de datos. Revisa sus permisos o mueve LUNA a un disco local."
+  },
+  "fase0": {
+    "encabezado": "Ventana de prueba",
+    "explicacion": "Esta es la carcasa de la fase 0: ventana nativa, sin servidor HTTP y sin puertos abiertos. Las pantallas Estado, Ahora, Rutas y Rendimiento llegan en las fases siguientes.",
+    "etiqueta_pantalla": "Tamaño de la ventana",
+    "etiqueta_escala": "Escala del monitor"
+  }
+}

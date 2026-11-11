@@ -1,0 +1,146 @@
+r"""Arranque de LUNA: ubicación de los datos, ventana nativa e interfaz.
+
+Todo fallo anterior a la ventana acaba en el registro y en un aviso nativo:
+empaquetado con PyInstaller no hay consola donde ver una traza.
+"""
+
+from __future__ import annotations
+
+import logging
+import sys
+from pathlib import Path
+
+import webview
+
+from core import plataforma, recursos, textos
+from core.config import rutas, ventana
+from core.config.rutas import Ubicacion
+
+registro = logging.getLogger("luna")
+
+MOTOR_ESPERADO = "edgechromium"
+
+# Único texto fuera de es.json: es el mensaje para cuando es.json no se puede
+# leer, que es justo cuando no hay de dónde sacarlo.
+SIN_TEXTOS = "LUNA no pudo leer sus textos. La instalacion esta incompleta."
+
+
+class FaltaWebView2(RuntimeError):
+    """Sin el runtime, pywebview cae a MSHTML y la interfaz queda en blanco."""
+
+
+def configurar_registro(carpeta: Path) -> None:
+    """El registro no incluye contenido del journal (sección 10.3)."""
+    carpeta.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename=carpeta / "luna.log",
+        encoding="utf-8",
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    )
+
+
+def comprobar_motor() -> None:
+    """Sin WebView2, pywebview no falla: usa MSHTML, que no ejecuta módulos ES.
+
+    La ventana se abriría en blanco y el proceso terminaría con éxito, así que
+    hay que detectarlo a mano (riesgo de la sección 12).
+    """
+    motor = webview.initialize()
+    if getattr(motor, "renderer", None) != MOTOR_ESPERADO:
+        raise FaltaWebView2(getattr(motor, "renderer", "desconocido"))
+
+
+def guardar_al_cerrar(win: webview.Window, config: Path) -> None:
+    def al_cerrar() -> None:
+        try:
+            ventana.guardar(config, plataforma.geometria_de_forma(win.native))
+        except Exception:  # noqa: BLE001 - al cerrar ya no hay donde avisar
+            registro.exception("no se pudo guardar la geometria de la ventana")
+
+    win.events.closing += al_cerrar
+
+
+def restaurar_al_abrir(win: webview.Window, geometria: ventana.Geometria) -> None:
+    """La geometría se aplica con la ventana ya creada, en píxeles físicos.
+
+    Pasarla a `create_window` la haría pasar por la escala de pywebview y por
+    el autoescalado de WinForms, que no son simétricos al leerla de vuelta.
+    """
+
+    def al_mostrar() -> None:
+        try:
+            plataforma.aplicar_geometria(win.native, geometria)
+            if geometria.maximizada:
+                win.maximize()
+        except Exception:  # noqa: BLE001 - una ventana mal colocada no es fatal
+            registro.exception("no se pudo restaurar la geometria")
+
+    win.events.shown += al_mostrar
+
+
+def crear_ventana(ubicacion: Ubicacion, titulo: str) -> webview.Window:
+    config = rutas.archivo_de_config(ubicacion)
+    guardada = ventana.cargar(config, webview.screens)
+    win = webview.create_window(
+        titulo,
+        url=recursos.url_de_la_interfaz(),
+        width=guardada.ancho,
+        height=guardada.alto,
+        min_size=ventana.TAMANO_MINIMO,
+        resizable=True,
+        frameless=False,
+    )
+    restaurar_al_abrir(win, guardada)
+    guardar_al_cerrar(win, config)
+    return win
+
+
+def arrancar(funcion=None, argumentos=None) -> None:
+    """http_server=False y la URL file:// dejan el proceso sin puertos abiertos."""
+    webview.start(funcion, argumentos, http_server=False, private_mode=True)
+
+
+def preparar() -> tuple[Ubicacion, dict]:
+    ubicacion = rutas.resolver()
+    configurar_registro(ubicacion.carpeta)
+    registro.info(
+        "datos en %s (portable=%s, motivo=%s, avisos=%s)",
+        ubicacion.carpeta,
+        ubicacion.portable,
+        ubicacion.motivo,
+        ubicacion.avisos,
+    )
+    return ubicacion, textos.cargar()
+
+
+def main() -> int:
+    try:
+        ubicacion, diccionario = preparar()
+    except (OSError, ValueError):
+        registro.exception("no se pudieron cargar los textos")
+        plataforma.mostrar_error("LUNA", SIN_TEXTOS)
+        return 1
+
+    titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
+    try:
+        comprobar_motor()
+        crear_ventana(ubicacion, titulo)
+        arrancar()
+    except FaltaWebView2 as error:
+        registro.error("motor de la interfaz inesperado: %s", error)
+        plataforma.mostrar_error(
+            titulo, textos.con_detalle(textos.CLAVE_SIN_WEBVIEW2, diccionario, error)
+        )
+        return 1
+    except Exception as error:  # noqa: BLE001 - cualquier fallo debe verse
+        registro.exception("fallo al abrir la ventana")
+        plataforma.mostrar_error(
+            titulo, textos.con_detalle(textos.CLAVE_ERROR_ARRANQUE, diccionario, error)
+        )
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
