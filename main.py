@@ -12,9 +12,12 @@ from pathlib import Path
 
 import webview
 
-from core import plataforma, recursos, textos
+from core import events, plataforma, recursos, textos
+from core.api import Api
 from core.config import rutas, ventana
 from core.config.rutas import Ubicacion
+from core.db.escritor import Escritor, NoSePudoAbrir
+from core.nucleo import Nucleo
 
 registro = logging.getLogger("luna")
 
@@ -79,7 +82,7 @@ def restaurar_al_abrir(win: webview.Window, geometria: ventana.Geometria) -> Non
     win.events.shown += al_mostrar
 
 
-def crear_ventana(ubicacion: Ubicacion, titulo: str) -> webview.Window:
+def crear_ventana(ubicacion: Ubicacion, titulo: str, api: Api | None = None) -> webview.Window:
     config = rutas.archivo_de_config(ubicacion)
     guardada = ventana.cargar(config, webview.screens)
     win = webview.create_window(
@@ -90,10 +93,27 @@ def crear_ventana(ubicacion: Ubicacion, titulo: str) -> webview.Window:
         min_size=ventana.TAMANO_MINIMO,
         resizable=True,
         frameless=False,
+        js_api=api,
     )
     restaurar_al_abrir(win, guardada)
     guardar_al_cerrar(win, config)
     return win
+
+
+def abrir_base(ubicacion: Ubicacion) -> Escritor | None:
+    """Sin base de datos la app sigue mostrando el estado; Estado avisa de ello."""
+    escritor = Escritor(rutas.archivo_de_base(ubicacion))
+    try:
+        escritor.iniciar()
+    except NoSePudoAbrir:
+        registro.exception("no se pudo abrir la base de datos")
+        return None
+    return escritor
+
+
+def elegir_carpeta() -> str | None:
+    seleccion = webview.windows[0].create_file_dialog(webview.FOLDER_DIALOG)
+    return seleccion[0] if seleccion else None
 
 
 def arrancar(funcion=None, argumentos=None) -> None:
@@ -123,9 +143,19 @@ def main() -> int:
         return 1
 
     titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
+    escritor = abrir_base(ubicacion)
+    nucleo = Nucleo(rutas.archivo_de_config(ubicacion), events.Bus(), escritor)
+    api = Api(
+        nucleo,
+        ubicacion,
+        rutas.archivo_de_config(ubicacion),
+        base_disponible=escritor is not None,
+        elegir_carpeta=elegir_carpeta,
+    )
     try:
         comprobar_motor()
-        crear_ventana(ubicacion, titulo)
+        crear_ventana(ubicacion, titulo, api)
+        nucleo.iniciar()
         arrancar()
     except FaltaWebView2 as error:
         registro.error("motor de la interfaz inesperado: %s", error)
@@ -139,6 +169,10 @@ def main() -> int:
             titulo, textos.con_detalle(textos.CLAVE_ERROR_ARRANQUE, diccionario, error)
         )
         return 1
+    finally:
+        nucleo.detener()
+        if escritor is not None:
+            escritor.detener()
     return 0
 
 

@@ -1,0 +1,4 @@
+{"timestamp":"2021-03-01T10:00:00Z","event":"Fileheader","part":1,"language":"English/UK","gameversion":"3.8.0.407","build":"r000000/r0 "}
+{"timestamp":"2021-03-01T10:00:05Z","event":"Commander","FID":"F0000002","Name":"CMDR Legacy"}
+{"timestamp":"2021-03-01T10:00:05Z","event":"LoadGame","FID":"F0000002","Commander":"CMDR Legacy","Ship":"Python","Ship_Localised":"Python","ShipID":3,"Credits":5000000,"gameversion":"3.8.0.407"}
+{"timestamp":"2021-03-01T10:00:09Z","event":"Location","Docked":true,"StationName":"Jameson Memorial","StationType":"Orbis","MarketID":128666762,"StarSystem":"Shinrarta Dezhra","SystemAddress":3932277478105,"StarPos":[55.71875,17.59375,27.15625]}

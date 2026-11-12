@@ -142,3 +142,7 @@ def resolver(programa: Path | None = None, respaldo: Path | None = None) -> Ubic
 
 def archivo_de_config(ubicacion: Ubicacion) -> Path:
     return ubicacion.carpeta / "config.json"
+
+
+def archivo_de_base(ubicacion: Ubicacion) -> Path:
+    return ubicacion.carpeta / "luna.db"

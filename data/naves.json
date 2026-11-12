@@ -1,0 +1,180 @@
+{
+  "naves": {
+    "adder": {
+      "nombre": "Adder",
+      "plataforma": "S"
+    },
+    "anaconda": {
+      "nombre": "Anaconda",
+      "plataforma": "L"
+    },
+    "asp": {
+      "nombre": "Asp Explorer",
+      "plataforma": "M"
+    },
+    "asp_scout": {
+      "nombre": "Asp Scout",
+      "plataforma": "M"
+    },
+    "belugaliner": {
+      "nombre": "Beluga Liner",
+      "plataforma": "L"
+    },
+    "cobramkiii": {
+      "nombre": "Cobra Mk III",
+      "plataforma": "S"
+    },
+    "cobramkiv": {
+      "nombre": "Cobra Mk IV",
+      "plataforma": "S"
+    },
+    "cobramkv": {
+      "nombre": "Cobra Mk V",
+      "plataforma": "S"
+    },
+    "cutter": {
+      "nombre": "Imperial Cutter",
+      "plataforma": "L"
+    },
+    "diamondback": {
+      "nombre": "Diamondback Scout",
+      "plataforma": "S"
+    },
+    "diamondbackxl": {
+      "nombre": "Diamondback Explorer",
+      "plataforma": "S"
+    },
+    "dolphin": {
+      "nombre": "Dolphin",
+      "plataforma": "S"
+    },
+    "eagle": {
+      "nombre": "Eagle",
+      "plataforma": "S"
+    },
+    "empire_courier": {
+      "nombre": "Imperial Courier",
+      "plataforma": "S"
+    },
+    "empire_eagle": {
+      "nombre": "Imperial Eagle",
+      "plataforma": "S"
+    },
+    "empire_trader": {
+      "nombre": "Imperial Clipper",
+      "plataforma": "L"
+    },
+    "explorer_nx": {
+      "nombre": "Caspian Explorer",
+      "plataforma": "L"
+    },
+    "federation_corvette": {
+      "nombre": "Federal Corvette",
+      "plataforma": "L"
+    },
+    "federation_dropship": {
+      "nombre": "Federal Dropship",
+      "plataforma": "M"
+    },
+    "federation_dropship_mkii": {
+      "nombre": "Federal Assault Ship",
+      "plataforma": "M"
+    },
+    "federation_gunship": {
+      "nombre": "Federal Gunship",
+      "plataforma": "M"
+    },
+    "ferdelance": {
+      "nombre": "Fer-de-Lance",
+      "plataforma": "M"
+    },
+    "hauler": {
+      "nombre": "Hauler",
+      "plataforma": "S"
+    },
+    "independant_trader": {
+      "nombre": "Keelback",
+      "plataforma": "M"
+    },
+    "krait_light": {
+      "nombre": "Krait Phantom",
+      "plataforma": "M"
+    },
+    "krait_mkii": {
+      "nombre": "Krait Mk II",
+      "plataforma": "M"
+    },
+    "mamba": {
+      "nombre": "Mamba",
+      "plataforma": "M"
+    },
+    "mandalay": {
+      "nombre": "Mandalay",
+      "plataforma": "M"
+    },
+    "orca": {
+      "nombre": "Orca",
+      "plataforma": "L"
+    },
+    "panthermkii": {
+      "nombre": "Panther Clipper Mk II",
+      "plataforma": "L"
+    },
+    "python": {
+      "nombre": "Python",
+      "plataforma": "M"
+    },
+    "python_nx": {
+      "nombre": "Python Mk II",
+      "plataforma": "M"
+    },
+    "sidewinder": {
+      "nombre": "Sidewinder",
+      "plataforma": "S"
+    },
+    "type6": {
+      "nombre": "Type-6 Transporter",
+      "plataforma": "M"
+    },
+    "type7": {
+      "nombre": "Type-7 Transporter",
+      "plataforma": "L"
+    },
+    "type8": {
+      "nombre": "Type-8 Transporter",
+      "plataforma": "M"
+    },
+    "type9": {
+      "nombre": "Type-9 Heavy",
+      "plataforma": "L"
+    },
+    "type9_military": {
+      "nombre": "Type-10 Defender",
+      "plataforma": "L"
+    },
+    "typex": {
+      "nombre": "Alliance Chieftain",
+      "plataforma": "M"
+    },
+    "typex_2": {
+      "nombre": "Alliance Crusader",
+      "plataforma": "M"
+    },
+    "typex_3": {
+      "nombre": "Alliance Challenger",
+      "plataforma": "M"
+    },
+    "viper": {
+      "nombre": "Viper",
+      "plataforma": "S"
+    },
+    "viper_mk4": {
+      "nombre": "Viper Mk IV",
+      "plataforma": "S"
+    },
+    "vulture": {
+      "nombre": "Vulture",
+      "plataforma": "S"
+    }
+  }
+}

@@ -129,3 +129,14 @@ def test_leer_o_vacio_tolera_cualquier_problema(tmp_path):
     config.write_text("{ roto", encoding="utf-8")
     assert archivo.leer_o_vacio(config) == {}
     assert archivo.leer_o_vacio(tmp_path / "no-existe.json") == {}
+
+
+def test_fusionar_dice_si_escribio(tmp_path, monkeypatch):
+    config = tmp_path / "config.json"
+    assert archivo.fusionar(config, "ventana", {"ancho": 1}) is True
+
+    def ocupado(self, *args, **kwargs):
+        raise PermissionError("abierto por otro programa")
+
+    monkeypatch.setattr(type(config), "read_text", ocupado)
+    assert archivo.fusionar(config, "ventana", {"ancho": 2}) is False

@@ -8,28 +8,150 @@
        CSP es la red de seguridad para cuando entren nombres de estación y
        mercancía de EDDN y Spansh. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+        content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>LUNA</title>
   <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/estado.css">
 </head>
 <body>
-  <header class="barra">
-    <h1 class="barra__nombre" data-texto="app.nombre"></h1>
-    <p class="barra__descripcion" data-texto="app.descripcion"></p>
-  </header>
+  <div class="app">
+    <nav class="lateral" data-i18n-aria-label="navegacion.etiqueta">
+      <div class="lateral__marca">
+        <svg class="lateral__luna" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path>
+        </svg>
+        <span class="lateral__nombre" data-i18n="app.nombre"></span>
+      </div>
+      <ul class="lateral__lista">
+        <li>
+          <button type="button" class="lateral__enlace" data-vista="estado" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle></svg>
+            <span data-i18n="navegacion.estado"></span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="lateral__enlace" data-vista="configuracion">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
+            <span data-i18n="navegacion.configuracion"></span>
+          </button>
+        </li>
+      </ul>
+    </nav>
 
-  <main class="contenido">
-    <section class="tarjeta" aria-labelledby="titulo-fase">
-      <h2 id="titulo-fase" data-texto="fase0.encabezado"></h2>
-      <p data-texto="fase0.explicacion"></p>
-      <dl class="medidas">
-        <dt data-texto="fase0.etiqueta_pantalla"></dt>
-        <dd id="medida-ventana"></dd>
-        <dt data-texto="fase0.etiqueta_escala"></dt>
-        <dd id="medida-escala"></dd>
-      </dl>
-    </section>
-  </main>
+    <main class="contenido">
+      <section id="vista-estado" class="vista" aria-labelledby="titulo-estado">
+        <header class="cabecera">
+          <div class="cabecera__identidad">
+            <h1 id="titulo-estado" class="cabecera__comandante" data-campo="comandante"></h1>
+            <span class="etiqueta" data-campo="modo"></span>
+          </div>
+          <p class="cabecera__saldo" data-campo="saldo_bloque">
+            <span class="cabecera__saldo-etiqueta" data-i18n="estado.saldo.etiqueta"></span>
+            <span class="cifra" data-campo="saldo"></span>
+          </p>
+        </header>
+
+        <p class="motivo" data-campo="comandante_motivo" hidden></p>
+
+        <p class="franja franja--advertencia" role="alert" data-campo="franja" hidden></p>
+
+        <div class="paneles" data-campo="paneles">
+          <section class="panel" data-solo-live aria-labelledby="titulo-ubicacion">
+            <h2 id="titulo-ubicacion" class="panel__titulo" data-i18n="estado.ubicacion.titulo"></h2>
+            <p class="motivo" data-campo="ubicacion_motivo" hidden></p>
+            <dl class="datos" data-campo="ubicacion_datos">
+              <dt data-i18n="estado.ubicacion.sistema"></dt>
+              <dd class="datos__con-accion">
+                <span class="seleccionable" data-campo="sistema"></span>
+                <button type="button" class="boton boton--vidrio" data-campo="copiar"
+                        data-i18n="estado.ubicacion.copiar"
+                        data-i18n-aria-label="estado.ubicacion.copiar_aria" hidden></button>
+              </dd>
+              <dt data-i18n="estado.ubicacion.estacion"></dt>
+              <dd data-campo="estacion"></dd>
+              <dt data-i18n="estado.ubicacion.coordenadas"></dt>
+              <dd class="cifra" data-campo="coordenadas"></dd>
+              <dt data-i18n="estado.ubicacion.al_centro"></dt>
+              <dd data-campo="al_centro"></dd>
+            </dl>
+          </section>
+
+          <section class="panel" data-solo-live aria-labelledby="titulo-nave">
+            <h2 id="titulo-nave" class="panel__titulo" data-i18n="estado.nave.titulo"></h2>
+            <p class="motivo" data-campo="nave_motivo" hidden></p>
+            <dl class="datos" data-campo="nave_datos">
+              <dt data-i18n="estado.nave.modelo"></dt>
+              <dd data-campo="nave_modelo"></dd>
+              <dt data-i18n="estado.nave.bodega"></dt>
+              <dd class="cifra" data-campo="nave_bodega"></dd>
+              <dt data-i18n="estado.nave.plataforma"></dt>
+              <dd data-campo="nave_plataforma"></dd>
+              <dt data-i18n="estado.nave.rango_vacia"></dt>
+              <dd class="cifra" data-campo="nave_rango_vacia"></dd>
+              <dt data-i18n="estado.nave.rango_cargada"></dt>
+              <dd class="cifra" data-campo="nave_rango_cargada"></dd>
+              <dt data-i18n="estado.nave.combustible"></dt>
+              <dd class="cifra" data-campo="nave_combustible"></dd>
+            </dl>
+          </section>
+
+          <section class="panel" data-solo-live aria-labelledby="titulo-carga">
+            <h2 id="titulo-carga" class="panel__titulo" data-i18n="estado.carga.titulo"></h2>
+            <p class="panel__resumen cifra" data-campo="carga_total"></p>
+            <ul class="lista" data-campo="carga_lista"></ul>
+            <p class="vacio" data-campo="carga_vacia" hidden></p>
+          </section>
+
+          <section class="panel" aria-labelledby="titulo-fuentes">
+            <h2 id="titulo-fuentes" class="panel__titulo" data-i18n="estado.fuentes.titulo"></h2>
+            <dl class="datos">
+              <dt data-i18n="estado.fuentes.journal"></dt>
+              <dd><span class="indicador" data-campo="fuente_journal"></span></dd>
+              <dt data-i18n="estado.fuentes.eddn"></dt>
+              <dd><span class="indicador indicador--apagado" data-campo="fuente_eddn"></span></dd>
+              <dt data-i18n="estado.fuentes.spansh"></dt>
+              <dd><span class="indicador indicador--apagado" data-campo="fuente_spansh"></span></dd>
+            </dl>
+          </section>
+        </div>
+
+        <ul class="avisos" data-campo="avisos"></ul>
+      </section>
+
+      <section id="vista-configuracion" class="vista" aria-labelledby="titulo-configuracion" hidden>
+        <header class="cabecera">
+          <h1 id="titulo-configuracion" class="cabecera__comandante" data-i18n="configuracion.titulo"></h1>
+        </header>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-journal">
+          <h2 id="titulo-config-journal" class="panel__titulo" data-i18n="configuracion.journal.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.journal.ayuda"></p>
+          <dl class="datos">
+            <dt data-i18n="configuracion.journal.carpeta"></dt>
+            <dd class="seleccionable" data-campo="config_journal"></dd>
+            <dt data-i18n="configuracion.journal.origen"></dt>
+            <dd data-campo="config_origen"></dd>
+          </dl>
+          <p class="franja franja--advertencia" data-campo="config_no_existe" hidden></p>
+          <p class="franja franja--advertencia" role="alert" data-campo="config_no_guardado" hidden></p>
+          <div class="acciones">
+            <button type="button" class="boton boton--primario" data-campo="elegir_carpeta"
+                    data-i18n="configuracion.journal.elegir"></button>
+            <button type="button" class="boton boton--vidrio" data-campo="carpeta_automatica"
+                    data-i18n="configuracion.journal.automatica"></button>
+          </div>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-datos">
+          <h2 id="titulo-config-datos" class="panel__titulo" data-i18n="configuracion.datos.titulo"></h2>
+          <dl class="datos">
+            <dt data-i18n="configuracion.datos.carpeta"></dt>
+            <dd class="seleccionable" data-campo="config_datos"></dd>
+          </dl>
+        </section>
+      </section>
+    </main>
+  </div>
 
   <script type="module" src="js/app.js"></script>
 </body>

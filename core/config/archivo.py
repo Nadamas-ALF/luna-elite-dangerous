@@ -87,22 +87,26 @@ def _escribir_sin_candado(archivo: Path, datos: dict) -> None:
         raise
 
 
-def fusionar(archivo: Path, clave: str, valor: object) -> None:
-    """Cambia una clave sin perder el resto de la configuración del usuario."""
+def fusionar(archivo: Path, clave: str, valor: object) -> bool:
+    """Cambia una clave sin perder el resto de la configuración del usuario.
+
+    Devuelve False cuando no escribió nada, para que quien lo pidió pueda avisar.
+    """
     with _candado:
         try:
             datos = leer(archivo)
         except ConfigCorrupta:
             if apartar_roto(archivo) is None:
                 registro.error("no se pudo apartar %s; no se escribe nada", archivo)
-                return
+                return False
             datos = {}
         except OSError:
             registro.exception("%s no se pudo leer; no se escribe nada", archivo)
-            return
+            return False
 
         datos[clave] = valor
         _escribir_sin_candado(archivo, datos)
+        return True
 
 
 def apartar_roto(archivo: Path) -> Path | None:

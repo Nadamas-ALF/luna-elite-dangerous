@@ -8,19 +8,127 @@
   },
   "errores": {
     "arranque": "LUNA no pudo abrir su ventana: {error}",
-    "sin_webview2": "Falta el componente WebView2 de Microsoft, que LUNA necesita para su ventana. Es gratuito: búscalo como \"WebView2 Runtime\" en la web de Microsoft, instálalo y vuelve a abrir LUNA. (Motor detectado: {error})"
+    "sin_webview2": "Falta el componente WebView2 de Microsoft, que LUNA necesita para su ventana. Es gratuito: búscalo como \"WebView2 Runtime\" en la web de Microsoft, instálalo y vuelve a abrir LUNA. (Motor detectado: {error})",
+    "sin_puente": "LUNA no pudo conectar la interfaz con su núcleo. Cierra y vuelve a abrir la aplicación.",
+    "sin_respuesta": "El núcleo de LUNA no responde. Los datos que se ven pueden no estar al día."
   },
   "datos": {
     "sin_permiso_de_escritura": "LUNA no puede escribir en su propia carpeta, así que guarda tus datos en la carpeta local de tu usuario.",
     "unidad_de_red": "La carpeta de LUNA está en una unidad de red, donde su base de datos no funciona. Tus datos se guardan en la carpeta local de tu usuario.",
     "carpeta_sincronizada": "La carpeta de LUNA está dentro de una carpeta sincronizada, que subiría la base de datos entera cada vez que cambia un precio. Tus datos se guardan en la carpeta local de tu usuario.",
     "unidad_extraible": "La carpeta de LUNA está en una unidad extraíble: funciona, pero la descarga inicial será lenta.",
-    "respaldo_tambien_falla": "La carpeta local de tu usuario tampoco parece apta para la base de datos. Revisa sus permisos o mueve LUNA a un disco local."
+    "respaldo_tambien_falla": "La carpeta local de tu usuario tampoco parece apta para la base de datos. Revisa sus permisos o mueve LUNA a un disco local.",
+    "base_no_disponible": "LUNA no pudo abrir su base de datos. Sigue mostrando el estado de tu comandante, pero no guarda tus naves."
   },
-  "fase0": {
-    "encabezado": "Ventana de prueba",
-    "explicacion": "Esta es la carcasa de la fase 0: ventana nativa, sin servidor HTTP y sin puertos abiertos. Las pantallas Estado, Ahora, Rutas y Rendimiento llegan en las fases siguientes.",
-    "etiqueta_pantalla": "Tamaño de la ventana",
-    "etiqueta_escala": "Escala del monitor"
+  "navegacion": {
+    "etiqueta": "Secciones de LUNA",
+    "estado": "Estado",
+    "configuracion": "Configuración"
+  },
+  "formato": {
+    "toneladas": "{valor} t",
+    "ly": "{valor} ly",
+    "creditos": "{valor} Cr",
+    "coordenadas": "{x} · {y} · {z}",
+    "hace_segundos": "hace {n} s",
+    "hace_minutos": "hace {n} min",
+    "hace_horas": "hace {n} h",
+    "hace_dias": "hace {n} d",
+    "proporcion": "{parte} / {total}",
+    "sin_dato": "Sin dato"
+  },
+  "motivos": {
+    "sin_comandante": "Sin comandante: el journal aún no trae el evento Commander",
+    "sin_saldo": "Falta el evento LoadGame del journal",
+    "sin_loadout": "Falta el evento Loadout: cambia de nave o reinicia el juego para que lo escriba",
+    "loadout_incompleto": "El Loadout de esta nave no trae el propulsor o sus datos",
+    "propulsor_desconocido": "El propulsor de esta nave es nuevo y LUNA aún no lo conoce",
+    "nave_no_conocida": "LUNA no tiene esta nave en su tabla de plataformas",
+    "sin_combustible": "Falta el nivel de combustible: se lee del archivo Status.json del juego",
+    "sin_ubicacion": "Falta el evento Location o FSDJump del journal",
+    "sin_lectura": "Falta leer Cargo.json: se actualiza al abrir la bodega o al comerciar",
+    "sin_coordenadas": "El journal no trae las coordenadas de este sistema",
+    "sin_journal": "LUNA no encuentra ningún journal que leer. Revisa la carpeta en Configuración."
+  },
+  "estado": {
+    "modo": {
+      "live": "Live",
+      "legacy": "Legacy"
+    },
+    "legacy": "Este journal es de Legacy (versión {version}). LUNA solo trabaja con el juego Live y no muestra datos de Legacy.",
+    "saldo": {
+      "etiqueta": "Saldo"
+    },
+    "ubicacion": {
+      "titulo": "Ubicación",
+      "sistema": "Sistema",
+      "estacion": "Estación",
+      "coordenadas": "Coordenadas",
+      "al_centro": "Al centro",
+      "al_centro_valor": "{distancia} de {centro}",
+      "en_vuelo": "En vuelo, sin atracar",
+      "copiar": "Copiar",
+      "copiado": "Copiado",
+      "copiar_aria": "Copiar el nombre del sistema"
+    },
+    "nave": {
+      "titulo": "Nave",
+      "modelo": "Modelo",
+      "modelo_con_nombre": "{modelo} «{nombre}»",
+      "bodega": "Bodega",
+      "plataforma": "Plataforma",
+      "rango_vacia": "Rango vacía",
+      "rango_cargada": "Rango cargada",
+      "combustible": "Combustible",
+      "plataformas": {
+        "S": "Pequeña",
+        "M": "Mediana",
+        "L": "Grande"
+      }
+    },
+    "carga": {
+      "titulo": "Carga",
+      "vacia": "La bodega está vacía",
+      "resumen": "{total} / {capacidad} t",
+      "resumen_sin_capacidad": "{total} t"
+    },
+    "fuentes": {
+      "titulo": "Fuentes",
+      "journal": "Journal",
+      "eddn": "EDDN",
+      "spansh": "Spansh",
+      "journal_estado": {
+        "leyendo": "Leyendo",
+        "sin_carpeta": "No se encontró la carpeta del journal",
+        "sin_archivos": "Carpeta sin journals"
+      },
+      "journal_ultimo": "{estado} · último evento {hace}",
+      "eddn_estado": {
+        "no_conectado": "No conectado"
+      },
+      "spansh_estado": {
+        "sin_descarga": "Sin descarga"
+      }
+    }
+  },
+  "configuracion": {
+    "titulo": "Configuración",
+    "journal": {
+      "titulo": "Journal del juego",
+      "ayuda": "LUNA lee el journal de Elite Dangerous en modo solo lectura. Si moviste tu carpeta de Partidas guardadas, elige aquí la del journal.",
+      "carpeta": "Carpeta",
+      "origen": "Origen",
+      "origen_automatico": "Detectada automáticamente",
+      "origen_manual": "Elegida por ti",
+      "sin_carpeta": "No se encontró ninguna carpeta de journal",
+      "no_existe": "La carpeta que elegiste ya no existe; se usa la detección automática.",
+      "no_guardado": "LUNA no pudo guardar el cambio, probablemente porque otro programa tiene abierto su archivo de configuración. Cierra ese programa e inténtalo de nuevo.",
+      "elegir": "Elegir carpeta…",
+      "automatica": "Usar la detección automática"
+    },
+    "datos": {
+      "titulo": "Datos de LUNA",
+      "carpeta": "Carpeta"
+    }
   }
 }

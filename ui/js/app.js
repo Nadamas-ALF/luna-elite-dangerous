@@ -1,41 +1,80 @@
-// Los textos viven solo en i18n/es.json. WebView2 permite importarlo como
-// módulo JSON incluso desde file:// (docs/verificaciones.md, verificación 3).
-import textos from '../i18n/es.json' with { type: 'json' };
+import * as api from './api.js';
+import { crearVistaConfiguracion } from './configuracion.js';
+import { crearVistaEstado } from './estado.js';
+import { aplicarTextos, texto, textosFaltantes } from './i18n.js';
 
-/** Devuelve el texto de una clave con puntos, o null si no existe. */
-function texto(clave) {
-  return clave.split('.').reduce((nodo, parte) => (nodo == null ? null : nodo[parte]), textos);
+// Con el estado cambiando a ritmo de juego, 750 ms dejan el retraso máximo por
+// debajo de los 2 s de la fase 1 (0,5 s del núcleo + 0,75 s de esta consulta).
+const INTERVALO_DE_CONSULTA = 750;
+const VISTA_INICIAL = 'estado';
+
+function mostrarVista(nombre) {
+  for (const vista of document.querySelectorAll('.vista')) {
+    vista.hidden = vista.id !== `vista-${nombre}`;
+  }
+  for (const enlace of document.querySelectorAll('.lateral__enlace')) {
+    if (enlace.dataset.vista === nombre) enlace.setAttribute('aria-current', 'page');
+    else enlace.removeAttribute('aria-current');
+  }
 }
 
-function aplicarTextos(raiz) {
-  const faltantes = [];
-  for (const elemento of raiz.querySelectorAll('[data-texto]')) {
-    const clave = elemento.dataset.texto;
-    const valor = texto(clave);
-    if (typeof valor === 'string') {
-      // textContent y nunca innerHTML: WebView2 corre con
-      // --allow-file-access-from-files, así que inyectar HTML ajeno daría
-      // acceso de lectura a archivos locales.
-      elemento.textContent = valor;
-    } else {
-      faltantes.push(clave);
+function conectarNavegacion(alCambiar) {
+  for (const enlace of document.querySelectorAll('.lateral__enlace')) {
+    enlace.addEventListener('click', () => {
+      mostrarVista(enlace.dataset.vista);
+      alCambiar(enlace.dataset.vista);
+    });
+  }
+}
+
+function avisarDeError(clave) {
+  const aviso = document.createElement('p');
+  aviso.className = 'franja franja--advertencia';
+  aviso.setAttribute('role', 'alert');
+  aviso.textContent = texto(clave);
+  document.querySelector('.contenido').prepend(aviso);
+  return aviso;
+}
+
+/** Consulta el estado en bucle sin solapar llamadas; avisa si el núcleo no responde. */
+function consultarEstado(vista) {
+  let avisoDeError = null;
+  let enCurso = false;
+
+  async function una() {
+    if (enCurso) return;
+    enCurso = true;
+    try {
+      vista.mostrar(await api.estado());
+      avisoDeError?.remove();
+      avisoDeError = null;
+    } catch (error) {
+      console.error(error);
+      avisoDeError ??= avisarDeError('errores.sin_respuesta');
+    } finally {
+      enCurso = false;
     }
   }
-  return faltantes;
+
+  una();
+  setInterval(una, INTERVALO_DE_CONSULTA);
 }
 
-function mostrarMedidas() {
-  const ventana = document.getElementById('medida-ventana');
-  const escala = document.getElementById('medida-escala');
-  ventana.textContent = `${window.innerWidth} x ${window.innerHeight}`;
-  escala.textContent = `${Math.round(window.devicePixelRatio * 100)} %`;
+async function arrancar() {
+  aplicarTextos(document);
+  const estado = crearVistaEstado(document.getElementById('vista-estado'));
+  const configuracion = crearVistaConfiguracion(document.getElementById('vista-configuracion'));
+
+  conectarNavegacion((nombre) => {
+    if (nombre === 'configuracion') configuracion.cargar();
+  });
+  mostrarVista(VISTA_INICIAL);
+
+  // Lo lee main.py al verificar la ventana; no afecta al funcionamiento normal.
+  window.__luna = { textosFaltantes: textosFaltantes(), modulosEs: true };
+
+  await api.esperarPuente();
+  consultarEstado(estado);
 }
 
-// El título de la ventana nativa lo pone Python desde es.json; cambiar
-// document.title no llega a la barra de título.
-const faltantes = aplicarTextos(document);
-mostrarMedidas();
-window.addEventListener('resize', mostrarMedidas);
-
-// Lo lee main.py al verificar la fase 0; no afecta al funcionamiento normal.
-window.__luna = { textosFaltantes: faltantes, modulosEs: true };
+arrancar();

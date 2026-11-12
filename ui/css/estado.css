@@ -1,0 +1,130 @@
+/* Pantalla Estado y Configuración: paneles de lectura sobre superficie opaca
+   (DESIGN.md §2: el vidrio solo para navegación y controles). */
+
+.paneles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--espacio) * 4);
+}
+
+.paneles[hidden] {
+  display: none;
+}
+
+.panel {
+  min-width: 0;
+  padding: calc(var(--espacio) * 4) calc(var(--espacio) * 5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radio-panel);
+  background: var(--surface);
+}
+
+.panel--ancho {
+  max-width: 48rem;
+}
+
+.panel__titulo {
+  margin: 0 0 calc(var(--espacio) * 3);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel__resumen {
+  margin: 0 0 calc(var(--espacio) * 2);
+  color: var(--text);
+}
+
+.ayuda {
+  margin: 0 0 calc(var(--espacio) * 3);
+  color: var(--text-muted);
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--espacio) * 2) calc(var(--espacio) * 5);
+  margin: 0;
+}
+
+.datos dt {
+  color: var(--text-muted);
+}
+
+.datos dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.datos__con-accion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--espacio) * 2) calc(var(--espacio) * 3);
+}
+
+.motivo {
+  color: var(--text-subtle);
+  font-size: 0.875rem;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--espacio) * 1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: calc(var(--espacio) * 4);
+}
+
+.vacio {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.vacio[hidden] {
+  display: none;
+}
+
+.indicador::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: calc(var(--espacio) * 2);
+  border-radius: 50%;
+  background: var(--positive);
+}
+
+.indicador--apagado::before {
+  background: var(--text-subtle);
+}
+
+.indicador--alerta::before {
+  background: var(--warning);
+}
+
+.avisos {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--espacio) * 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--espacio) * 3);
+  margin-top: calc(var(--espacio) * 4);
+}
