@@ -1,0 +1,111 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-12T22:29:18Z",
+    "event": "Scan",
+    "ScanType": "Detailed",
+    "BodyName": "Sifeae VI-E b14-0 3 e",
+    "BodyID": 30,
+    "Parents": [
+      {
+        "Planet": 24
+      },
+      {
+        "Star": 0
+      }
+    ],
+    "StarSystem": "Sifeae VI-E b14-0",
+    "SystemAddress": 714442614393,
+    "DistanceFromArrivalLS": 1321.19358,
+    "TidalLock": true,
+    "TerraformState": "",
+    "PlanetClass": "Icy body",
+    "Atmosphere": "",
+    "AtmosphereType": "None",
+    "Volcanism": "",
+    "MassEM": 0.000361,
+    "Radius": 629410.625,
+    "SurfaceGravity": 0.363141,
+    "SurfaceTemperature": 51.446709,
+    "SurfacePressure": 66.292015,
+    "Landable": true,
+    "Materials": [
+      {
+        "Name": "sulphur",
+        "Percent": 26.628786
+      },
+      {
+        "Name": "carbon",
+        "Percent": 22.392052
+      },
+      {
+        "Name": "phosphorus",
+        "Percent": 14.335777
+      },
+      {
+        "Name": "iron",
+        "Percent": 12.079898
+      },
+      {
+        "Name": "nickel",
+        "Percent": 9.136729
+      },
+      {
+        "Name": "chromium",
+        "Percent": 5.432731
+      },
+      {
+        "Name": "manganese",
+        "Percent": 4.988874
+      },
+      {
+        "Name": "vanadium",
+        "Percent": 2.966403
+      },
+      {
+        "Name": "cadmium",
+        "Percent": 0.938059
+      },
+      {
+        "Name": "molybdenum",
+        "Percent": 0.78881
+      },
+      {
+        "Name": "polonium",
+        "Percent": 0.31188
+      }
+    ],
+    "Composition": {
+      "Ice": 0.824205,
+      "Rock": 0.159922,
+      "Metal": 0.015872
+    },
+    "SemiMajorAxis": 2535319328.308105,
+    "Eccentricity": 0.005253,
+    "OrbitalInclination": 3.574962,
+    "Periapsis": 42.327362,
+    "OrbitalPeriod": 4808484.6735,
+    "AscendingNode": -43.984909,
+    "MeanAnomaly": 175.670477,
+    "RotationPeriod": 4808771.184009,
+    "AxialTilt": -0.278551,
+    "WasDiscovered": false,
+    "WasMapped": false,
+    "WasFootfalled": false,
+    "horizons": true,
+    "odyssey": true,
+    "StarPos": [
+      3239.46875,
+      479.34375,
+      519.40625
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "34aae22f98097ff801f137aea2a1bfd71d285b86f7f2a168ed76050f0fbcabdb",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:29:19.258817Z"
+  }
+}

@@ -104,7 +104,11 @@
       },
       "journal_ultimo": "{estado} · último evento {hace}",
       "eddn_estado": {
-        "no_conectado": "No conectado"
+        "desactivado": "Desactivado",
+        "conectando": "Conectando",
+        "conectado": "Conectado",
+        "sin_datos": "Conectado, sin mensajes",
+        "reintentando": "Sin conexión, reintentando"
       },
       "spansh_estado": {
         "sin_descarga": "Sin descarga"

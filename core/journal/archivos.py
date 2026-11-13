@@ -12,6 +12,7 @@ from pathlib import Path
 
 CARGO = "Cargo.json"
 STATUS = "Status.json"
+MERCADO = "Market.json"
 
 
 def leer(carpeta: Path, nombre: str) -> dict | None:

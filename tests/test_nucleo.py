@@ -269,3 +269,118 @@ def test_un_config_corrupto_cae_a_la_carpeta_automatica(tmp_path, juego, monkeyp
     nucleo, _ = arrancar(ruta)
 
     assert esperar(lambda: nucleo.estado().comandante == "CMDR Prueba")
+
+
+@pytest.fixture
+def atracado(tmp_path, juego, config, arrancar):
+    """Un núcleo con base de datos, atracado en la estación del fixture de Market.json."""
+    shutil.copy(FIXTURES / "sesion_comercio.log", juego / NOMBRE)
+    ruta = tmp_path / "luna.db"
+    escritor = Escritor(ruta)
+    escritor.iniciar()
+    nucleo, bus = arrancar(config, escritor)
+    assert esperar(lambda: nucleo.estado().estacion is not None)
+    yield nucleo, bus, ruta, juego
+    nucleo.detener()
+    escritor.detener()
+
+
+def consultar(ruta: Path, consulta: str) -> list[tuple]:
+    conexion = abrir_lectura(ruta)
+    try:
+        return conexion.execute(consulta).fetchall()
+    finally:
+        conexion.close()
+
+
+def test_abrir_el_mercado_guarda_los_precios_con_origen_propio(atracado):
+    nucleo, bus, ruta, juego = atracado
+    avisos = []
+    bus.suscribir(events.MERCADO_ACTUALIZADO, avisos.append)
+
+    shutil.copy(FIXTURES / "Market.json", juego / archivos.MERCADO)
+
+    assert esperar(lambda: avisos == [4220195075])
+    precios = consultar(
+        ruta, "SELECT commodity, buy_price, origen, observado FROM market_prices ORDER BY 1"
+    )
+    assert ("palladium", 48293, "propio", "2026-11-10T05:13:02Z") in precios
+    assert "platinum" not in {f[0] for f in precios}
+    estacion = consultar(ruta, "SELECT nombre, categoria, plataforma, distancia_ls FROM stations")
+    assert estacion[0][:3] == ("St4r F0x's Salt Shack", "orbital", "L")
+    assert consultar(ruta, "SELECT nombre_es FROM commodities WHERE simbolo = 'gold'") == [("Oro",)]
+    assert consultar(ruta, "SELECT nombre FROM systems") == [("Col 285 Sector HB-C b14-2",)]
+
+
+def test_un_market_json_de_otra_estacion_no_se_guarda(atracado):
+    _, _, ruta, juego = atracado
+    ajeno = json.loads((FIXTURES / "Market.json").read_text(encoding="utf-8"))
+    ajeno["MarketID"] = 1
+
+    (juego / archivos.MERCADO).write_text(json.dumps(ajeno), encoding="utf-8")
+    time.sleep(1.2)
+
+    assert consultar(ruta, "SELECT COUNT(*) FROM market_prices") == [(0,)]
+
+
+def test_el_mismo_market_json_no_avisa_dos_veces(atracado):
+    _, bus, _, juego = atracado
+    avisos = []
+    bus.suscribir(events.MERCADO_ACTUALIZADO, avisos.append)
+
+    shutil.copy(FIXTURES / "Market.json", juego / archivos.MERCADO)
+    assert esperar(lambda: len(avisos) == 1)
+    time.sleep(1.2)
+
+    assert len(avisos) == 1
+
+
+def test_un_market_json_a_medio_escribir_se_reintenta(atracado):
+    _, _, ruta, juego = atracado
+    completo = (FIXTURES / "Market.json").read_text(encoding="utf-8")
+
+    (juego / archivos.MERCADO).write_text(completo[:200], encoding="utf-8")
+    time.sleep(1.2)
+    (juego / archivos.MERCADO).write_text(completo, encoding="utf-8")
+
+    assert esperar(lambda: consultar(ruta, "SELECT COUNT(*) FROM market_prices") != [(0,)])
+
+
+def test_el_market_json_de_antes_de_arrancar_se_guarda_si_sigues_atracado(
+    tmp_path, juego, config, arrancar
+):
+    shutil.copy(FIXTURES / "sesion_comercio.log", juego / NOMBRE)
+    shutil.copy(FIXTURES / "Market.json", juego / archivos.MERCADO)
+    ruta = tmp_path / "luna.db"
+    escritor = Escritor(ruta)
+    escritor.iniciar()
+
+    arrancar(config, escritor)
+
+    assert esperar(lambda: consultar(ruta, "SELECT COUNT(*) FROM market_prices") != [(0,)])
+    escritor.detener()
+
+
+def test_la_distancia_de_un_sistema_propio_se_mide_desde_el_centro_configurado(
+    tmp_path, juego, config, arrancar
+):
+    config.write_text(
+        '{"esfera": {"centro": {"nombre": "C", "x": 1, "y": 2, "z": 2}, "radio": 50}}',
+        encoding="utf-8",
+    )
+    shutil.copy(FIXTURES / "sesion_comercio.log", juego / NOMBRE)
+    ruta = tmp_path / "luna.db"
+    escritor = Escritor(ruta)
+    escritor.iniciar()
+    nucleo, bus = arrancar(config, escritor)
+    avisos = []
+    bus.suscribir(events.MERCADO_ACTUALIZADO, avisos.append)
+    assert esperar(lambda: nucleo.estado().estacion is not None)
+    try:
+        shutil.copy(FIXTURES / "Market.json", juego / archivos.MERCADO)
+        assert esperar(lambda: avisos)
+        x, y, z, distancia = consultar(ruta, "SELECT x, y, z, distancia_centro FROM systems")[0]
+        assert distancia == pytest.approx(((x - 1) ** 2 + (y - 2) ** 2 + (z - 2) ** 2) ** 0.5)
+    finally:
+        nucleo.detener()
+        escritor.detener()

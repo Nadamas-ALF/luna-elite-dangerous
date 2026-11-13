@@ -1,0 +1,33 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-12T22:29:18Z",
+    "event": "SAASignalsFound",
+    "BodyName": "Clookia QV-B d14-17 A 1 a",
+    "SystemAddress": 593888218747,
+    "BodyID": 10,
+    "Signals": [
+      {
+        "Type": "$PlanetaryMiningLocation_Name;",
+        "Count": 9
+      }
+    ],
+    "Genuses": [],
+    "horizons": true,
+    "odyssey": true,
+    "StarSystem": "Clookia QV-B d14-17",
+    "StarPos": [
+      -3422.1875,
+      -273,
+      13004.3125
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "cfb4083ab00c9af10d320b1512c20bb8a9a36882940546b5354dbb18a4fd2a7b",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:29:19.533602Z"
+  }
+}

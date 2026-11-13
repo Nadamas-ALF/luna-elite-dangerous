@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 
+from core import estacion as clasificacion
 from core import nave as modelo_nave
 
 # El juego Legacy (3.8) y el Live (4.x) comparten carpeta de journal; la
@@ -30,6 +31,8 @@ class Estacion:
     nombre: str
     market_id: int | None
     tipo: str | None
+    plataforma: str | None = None
+    distancia_ls: float | None = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,7 @@ class NaveActual:
 class Estado:
     legacy: bool | None = None
     version: str | None = None
+    idioma: str | None = None
     fid: str | None = None
     comandante: str | None = None
     creditos: int | None = None
@@ -101,7 +105,12 @@ def _al_abrir_journal(estado: Estado, evento: dict) -> Estado:
     if es_legacy(version):
         # Los datos de Legacy no valen para Live: se descarta lo anterior.
         return Estado(legacy=True, version=version)
-    return replace(estado, legacy=es_legacy(version), version=version)
+    return replace(
+        estado,
+        legacy=es_legacy(version),
+        version=version,
+        idioma=_texto(evento.get("language")),
+    )
 
 
 def _al_cargar_partida(estado: Estado, evento: dict) -> Estado:
@@ -161,7 +170,13 @@ def _estacion(evento: dict) -> Estacion | None:
     nombre = _texto(evento.get("StationName"))
     if nombre is None:
         return None
-    return Estacion(nombre, _entero(evento.get("MarketID")), _texto(evento.get("StationType")))
+    return Estacion(
+        nombre,
+        _entero(evento.get("MarketID")),
+        _texto(evento.get("StationType")),
+        clasificacion.plataforma_maxima(evento.get("LandingPads")),
+        _numero(evento.get("DistFromStarLS")),
+    )
 
 
 def _llegada(estado: Estado, evento: dict) -> Estado:

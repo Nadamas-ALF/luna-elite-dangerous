@@ -18,7 +18,8 @@ from core.db import esquema
 
 registro = logging.getLogger("luna.db")
 
-Trabajo = Callable[[sqlite3.Connection], None]
+Trabajo = Callable[[sqlite3.Connection], object]
+Despues = Callable[[object], None]
 
 _FIN = None
 ESPERA_DE_ARRANQUE = 10.0
@@ -50,7 +51,7 @@ def abrir_lectura(ruta: Path) -> sqlite3.Connection:
 class Escritor:
     def __init__(self, ruta: Path) -> None:
         self._ruta = ruta
-        self._cola: queue.Queue[Trabajo | None] = queue.Queue()
+        self._cola: queue.Queue[tuple[Trabajo, Despues | None] | None] = queue.Queue()
         self._hilo = threading.Thread(target=self._bucle, name="escritor-sqlite", daemon=True)
         self._listo = threading.Event()
         self._error: Exception | None = None
@@ -62,8 +63,9 @@ class Escritor:
         if self._error is not None:
             raise NoSePudoAbrir(str(self._error)) from self._error
 
-    def encolar(self, trabajo: Trabajo) -> None:
-        self._cola.put(trabajo)
+    def encolar(self, trabajo: Trabajo, despues: Despues | None = None) -> None:
+        """`despues` recibe el resultado del trabajo cuando su transacción ya se confirmó."""
+        self._cola.put((trabajo, despues))
 
     def detener(self) -> None:
         """Termina lo ya encolado y cierra la conexión."""
@@ -85,16 +87,22 @@ class Escritor:
             conexion.close()
 
     def _atender(self, conexion: sqlite3.Connection) -> None:
-        while (trabajo := self._cola.get()) is not _FIN:
-            self._ejecutar(conexion, trabajo)
+        while (tarea := self._cola.get()) is not _FIN:
+            self._ejecutar(conexion, *tarea)
 
     @staticmethod
-    def _ejecutar(conexion: sqlite3.Connection, trabajo: Trabajo) -> None:
+    def _ejecutar(conexion: sqlite3.Connection, trabajo: Trabajo, despues: Despues | None) -> None:
         try:
             conexion.execute("BEGIN IMMEDIATE")
-            trabajo(conexion)
+            resultado = trabajo(conexion)
             conexion.execute("COMMIT")
         except Exception:  # noqa: BLE001 - un trabajo roto no debe parar al escritor
             registro.exception("fallo un trabajo de escritura")
             if conexion.in_transaction:
                 conexion.execute("ROLLBACK")
+            return
+        if despues is not None:
+            try:
+                despues(resultado)
+            except Exception:  # noqa: BLE001 - un aviso roto no debe parar al escritor
+                registro.exception("fallo el aviso posterior a un trabajo")

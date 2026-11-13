@@ -1,6 +1,6 @@
-"""Datos estáticos de las naves: nombre y plataforma (sección 4.4).
+"""Datos estáticos de naves y mercancías: nombres y plataforma (sección 4.4).
 
-La tabla sale de `tools/generar_tabla_naves.py`. Una nave que no esté en ella no
+Las tablas salen de `tools/generar_tabla_*.py`. Una nave que no esté en ella no
 es un error: el llamador decide qué mostrar cuando devuelve None.
 """
 
@@ -22,6 +22,13 @@ class FichaCatalogo:
 @lru_cache(maxsize=1)
 def _naves() -> dict:
     return json.loads(recursos.ruta("data", "naves.json").read_text(encoding="utf-8"))["naves"]
+
+
+@lru_cache(maxsize=1)
+def mercancias() -> dict[str, tuple[str | None, str | None]]:
+    """Símbolo de EDDN -> (nombre inglés, nombre español); cualquiera puede faltar."""
+    tabla = json.loads(recursos.ruta("data", "mercancias.json").read_text(encoding="utf-8"))
+    return {k: (v["en"], v["es"]) for k, v in tabla["mercancias"].items()}
 
 
 def nave(simbolo: str) -> FichaCatalogo | None:

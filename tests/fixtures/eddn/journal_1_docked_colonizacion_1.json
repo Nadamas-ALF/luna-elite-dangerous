@@ -1,0 +1,63 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-12T22:33:51Z",
+    "event": "Docked",
+    "StationName": "$EXT_PANEL_ColonisationShip; Bowman Horizons",
+    "StationType": "SurfaceStation",
+    "Taxi": false,
+    "Multicrew": false,
+    "StarSystem": "IC 2602 Sector XE-Z c11",
+    "SystemAddress": 3108314813154,
+    "MarketID": 3964907778,
+    "StationFaction": {
+      "Name": "Brewer Corporation"
+    },
+    "StationGovernment": "$government_Megaconstruction;",
+    "StationServices": [
+      "dock",
+      "autodock",
+      "commodities",
+      "contacts",
+      "missions",
+      "rearm",
+      "refuel",
+      "repair",
+      "engineer",
+      "facilitator",
+      "flightcontroller",
+      "stationoperations",
+      "searchrescue",
+      "stationMenu",
+      "colonisationcontribution"
+    ],
+    "StationEconomy": "$economy_Colony;",
+    "StationEconomies": [
+      {
+        "Name": "$economy_Colony;",
+        "Proportion": 1
+      }
+    ],
+    "DistFromStarLS": 26898.598187,
+    "LandingPads": {
+      "Small": 8,
+      "Medium": 8,
+      "Large": 16
+    },
+    "horizons": true,
+    "odyssey": true,
+    "StarPos": [
+      470.53125,
+      -19.09375,
+      81.34375
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "ce6ae26cec1c4a90d41be03499792380992c36da972c3f0ec3f11b4fc7d473fa",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:33:52.890554Z"
+  }
+}

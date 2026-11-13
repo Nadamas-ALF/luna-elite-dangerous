@@ -14,9 +14,12 @@ import webview
 
 from core import events, plataforma, recursos, textos
 from core.api import Api
-from core.config import rutas, ventana
+from core.config import ajustes, rutas, ventana
 from core.config.rutas import Ubicacion
 from core.db.escritor import Escritor, NoSePudoAbrir
+from core.eddn.ingesta import Ingesta
+from core.eddn.sistemas import Conocidos
+from core.eddn.suscriptor import DESACTIVADO, Suscriptor
 from core.nucleo import Nucleo
 
 registro = logging.getLogger("luna")
@@ -111,6 +114,18 @@ def abrir_base(ubicacion: Ubicacion) -> Escritor | None:
     return escritor
 
 
+def preparar_eddn(
+    ubicacion: Ubicacion, escritor: Escritor | None, bus: events.Bus
+) -> Suscriptor | None:
+    """Sin base de datos no hay dónde guardar lo que llegue, así que no se escucha."""
+    config = rutas.archivo_de_config(ubicacion)
+    if escritor is None or not ajustes.eddn_activado(config):
+        return None
+    esfera = ajustes.esfera(config)
+    conocidos = Conocidos(esfera, rutas.archivo_de_base(ubicacion))
+    return Suscriptor(Ingesta(escritor, bus, esfera, conocidos))
+
+
 def elegir_carpeta() -> str | None:
     seleccion = webview.windows[0].create_file_dialog(webview.FOLDER_DIALOG)
     return seleccion[0] if seleccion else None
@@ -144,18 +159,23 @@ def main() -> int:
 
     titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
     escritor = abrir_base(ubicacion)
-    nucleo = Nucleo(rutas.archivo_de_config(ubicacion), events.Bus(), escritor)
+    bus = events.Bus()
+    nucleo = Nucleo(rutas.archivo_de_config(ubicacion), bus, escritor)
+    eddn = preparar_eddn(ubicacion, escritor, bus)
     api = Api(
         nucleo,
         ubicacion,
         rutas.archivo_de_config(ubicacion),
         base_disponible=escritor is not None,
         elegir_carpeta=elegir_carpeta,
+        estado_eddn=eddn.estado if eddn else lambda: DESACTIVADO,
     )
     try:
         comprobar_motor()
         crear_ventana(ubicacion, titulo, api)
         nucleo.iniciar()
+        if eddn:
+            eddn.iniciar()
         arrancar()
     except FaltaWebView2 as error:
         registro.error("motor de la interfaz inesperado: %s", error)
@@ -170,6 +190,8 @@ def main() -> int:
         )
         return 1
     finally:
+        if eddn:
+            eddn.detener()
         nucleo.detener()
         if escritor is not None:
             escritor.detener()

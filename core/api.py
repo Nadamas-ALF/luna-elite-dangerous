@@ -31,12 +31,14 @@ class Api:
         config: Path,
         base_disponible: bool,
         elegir_carpeta: Selector,
+        estado_eddn: Callable[[], str] = lambda: "desactivado",
     ) -> None:
         self._nucleo = nucleo
         self._ubicacion = ubicacion
         self._config = config
         self._base_disponible = base_disponible
         self._elegir_carpeta = elegir_carpeta
+        self._estado_eddn = estado_eddn
 
     def estado(self) -> dict:
         contexto = vista.Contexto(
@@ -44,6 +46,7 @@ class Api:
             motivo_datos=self._ubicacion.motivo,
             avisos_datos=self._ubicacion.avisos,
             base_disponible=self._base_disponible,
+            eddn=self._estado_eddn(),
         )
         return vista.a_diccionario(self._nucleo.estado(), contexto)
 

@@ -160,7 +160,10 @@ function pintarCarga(c, carga) {
 function pintarFuentes(c, fuentes) {
   const journal = fuentes.journal.estado;
   c.fuente_journal.classList.toggle('indicador--alerta', journal !== 'leyendo');
-  c.fuente_eddn.textContent = texto(`estado.fuentes.eddn_estado.${fuentes.eddn.estado}`);
+  const eddn = fuentes.eddn.estado;
+  c.fuente_eddn.classList.toggle('indicador--apagado', eddn === 'desactivado' || eddn === 'conectando');
+  c.fuente_eddn.classList.toggle('indicador--alerta', eddn === 'sin_datos' || eddn === 'reintentando');
+  c.fuente_eddn.textContent = texto(`estado.fuentes.eddn_estado.${eddn}`);
   c.fuente_spansh.textContent = texto(`estado.fuentes.spansh_estado.${fuentes.spansh.estado}`);
 }
 

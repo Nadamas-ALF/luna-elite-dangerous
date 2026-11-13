@@ -6,11 +6,19 @@ import pytest
 import webview.util
 
 from core import recursos, textos
+from core.eddn import suscriptor
 
 RAIZ = recursos.carpeta_de_recursos()
 INDEX = RAIZ / "ui" / "index.html"
 ES_JSON = RAIZ / "ui" / "i18n" / "es.json"
 JS = sorted((RAIZ / "ui" / "js").glob("*.js"))
+ESTADOS_EDDN = (
+    suscriptor.DESACTIVADO,
+    suscriptor.CONECTANDO,
+    suscriptor.CONECTADO,
+    suscriptor.SIN_DATOS,
+    suscriptor.REINTENTANDO,
+)
 
 # Formas de meter HTML ajeno en la página. Con
 # --allow-file-access-from-files activo, una de estas con texto de EDDN o del
@@ -134,7 +142,7 @@ def test_hay_texto_para_cada_codigo_que_el_nucleo_puede_enviar():
         f"estado.fuentes.journal_estado.{e}"
         for e in (vista.JOURNAL_LEYENDO, vista.JOURNAL_SIN_CARPETA, vista.JOURNAL_SIN_ARCHIVOS)
     ]
-    claves += ["estado.fuentes.eddn_estado.no_conectado"]
+    claves += [f"estado.fuentes.eddn_estado.{e}" for e in ESTADOS_EDDN]
     claves += ["estado.fuentes.spansh_estado.sin_descarga"]
     claves += [f"estado.nave.plataformas.{p}" for p in ("S", "M", "L")]
     assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []

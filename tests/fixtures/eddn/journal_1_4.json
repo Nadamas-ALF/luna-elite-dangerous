@@ -1,0 +1,114 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-12T22:29:18Z",
+    "event": "Scan",
+    "ScanType": "Detailed",
+    "BodyName": "Clookia QV-B d14-17 A 1 a",
+    "BodyID": 10,
+    "Parents": [
+      {
+        "Planet": 9
+      },
+      {
+        "Star": 1
+      },
+      {
+        "Null": 0
+      }
+    ],
+    "StarSystem": "Clookia QV-B d14-17",
+    "SystemAddress": 593888218747,
+    "DistanceFromArrivalLS": 256.146413,
+    "TidalLock": true,
+    "TerraformState": "",
+    "PlanetClass": "Rocky body",
+    "Atmosphere": "",
+    "AtmosphereType": "None",
+    "Volcanism": "",
+    "MassEM": 0.009571,
+    "Radius": 1462678,
+    "SurfaceGravity": 1.783032,
+    "SurfaceTemperature": 536.526184,
+    "SurfacePressure": 0,
+    "Landable": true,
+    "Materials": [
+      {
+        "Name": "iron",
+        "Percent": 19.969978
+      },
+      {
+        "Name": "sulphur",
+        "Percent": 17.686569
+      },
+      {
+        "Name": "nickel",
+        "Percent": 15.104455
+      },
+      {
+        "Name": "carbon",
+        "Percent": 14.872573
+      },
+      {
+        "Name": "phosphorus",
+        "Percent": 9.521677
+      },
+      {
+        "Name": "manganese",
+        "Percent": 8.247397
+      },
+      {
+        "Name": "zinc",
+        "Percent": 5.427093
+      },
+      {
+        "Name": "vanadium",
+        "Percent": 4.903932
+      },
+      {
+        "Name": "cadmium",
+        "Percent": 1.550759
+      },
+      {
+        "Name": "niobium",
+        "Percent": 1.364841
+      },
+      {
+        "Name": "tellurium",
+        "Percent": 1.350718
+      }
+    ],
+    "Composition": {
+      "Ice": 0,
+      "Rock": 0.858469,
+      "Metal": 0.141531
+    },
+    "SemiMajorAxis": 90951442.718506,
+    "Eccentricity": 0,
+    "OrbitalInclination": 26.969221,
+    "Periapsis": 34.403728,
+    "OrbitalPeriod": 674889.880419,
+    "AscendingNode": 160.967772,
+    "MeanAnomaly": 319.095946,
+    "RotationPeriod": 695540.399004,
+    "AxialTilt": -0.35562,
+    "WasDiscovered": false,
+    "WasMapped": false,
+    "WasFootfalled": false,
+    "horizons": true,
+    "odyssey": true,
+    "StarPos": [
+      -3422.1875,
+      -273,
+      13004.3125
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "cfb4083ab00c9af10d320b1512c20bb8a9a36882940546b5354dbb18a4fd2a7b",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:29:19.599042Z"
+  }
+}

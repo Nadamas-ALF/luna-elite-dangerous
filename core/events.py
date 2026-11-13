@@ -18,6 +18,7 @@ NAVE_CAMBIADA = "nave_cambiada"
 ATRACADO = "atracado"
 DESATRACADO = "desatracado"
 CARGA_CAMBIADA = "carga_cambiada"
+MERCADO_ACTUALIZADO = "mercado_actualizado"
 
 Manejador = Callable[[object], None]
 

@@ -1,0 +1,1989 @@
+{
+ "mercancias": {
+  "advancedcatalysers": {
+   "en": "Advanced Catalysers",
+   "es": "Catalizadores avanzados",
+   "categoria": "Technology"
+  },
+  "advancedmedicines": {
+   "en": "Advanced Medicines",
+   "es": "Medicinas avanzadas",
+   "categoria": "Medicines"
+  },
+  "advert1": {
+   "en": null,
+   "es": "Prototipos de procesador ultracompactos",
+   "categoria": null
+  },
+  "aerialedenapple": {
+   "en": null,
+   "es": "Manzanas del Edén de Aerial",
+   "categoria": null
+  },
+  "agriculturalmedicines": {
+   "en": "Agri-Medicines",
+   "es": "Medicinas agrícolas",
+   "categoria": "Medicines"
+  },
+  "agronomictreatment": {
+   "en": "Agronomic Treatment",
+   "es": "Tratamiento agronómico",
+   "categoria": "Chemicals"
+  },
+  "airelics": {
+   "en": "AI Relics",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "alacarakmoskinart": {
+   "en": null,
+   "es": "Tatuajes de Alacarakmo",
+   "categoria": null
+  },
+  "albinoquechuamammoth": {
+   "en": null,
+   "es": "Carne mamut albino Quechua",
+   "categoria": null
+  },
+  "alexandrite": {
+   "en": "Alexandrite",
+   "es": "Alejandrita",
+   "categoria": "Minerals"
+  },
+  "algae": {
+   "en": "Algae",
+   "es": "Algas",
+   "categoria": "Foods"
+  },
+  "alieneggs": {
+   "en": null,
+   "es": "Huevos ornamentales",
+   "categoria": null
+  },
+  "altairianskin": {
+   "en": null,
+   "es": "Piel altairiana",
+   "categoria": null
+  },
+  "aluminium": {
+   "en": "Aluminium",
+   "es": "Aluminio",
+   "categoria": "Metals"
+  },
+  "alyabodilysoap": {
+   "en": null,
+   "es": "Jabón corporal de Alya",
+   "categoria": null
+  },
+  "ancientcasket": {
+   "en": "Guardian Casket",
+   "es": "Cofre guardián",
+   "categoria": "Salvage"
+  },
+  "ancientkey": {
+   "en": "Ancient Key",
+   "es": "Llave antigua",
+   "categoria": "Salvage"
+  },
+  "ancientorb": {
+   "en": "Guardian Orb",
+   "es": "Orbe guardián",
+   "categoria": "Salvage"
+  },
+  "ancientrelic": {
+   "en": "Guardian Relic",
+   "es": "Reliquia guardián",
+   "categoria": "Salvage"
+  },
+  "ancientrelictg": {
+   "en": "Unclassified Relic",
+   "es": "Reliquia no clasificada",
+   "categoria": "Salvage"
+  },
+  "ancienttablet": {
+   "en": "Guardian Tablet",
+   "es": "Tablilla guardián",
+   "categoria": "Salvage"
+  },
+  "ancienttotem": {
+   "en": "Guardian Totem",
+   "es": "Tótem guardián",
+   "categoria": "Salvage"
+  },
+  "ancienturn": {
+   "en": "Guardian Urn",
+   "es": "Urna guardián",
+   "categoria": "Salvage"
+  },
+  "anduligafireworks": {
+   "en": null,
+   "es": "Fuegos artificiales de Anduliga",
+   "categoria": null
+  },
+  "animalmeat": {
+   "en": "Animal Meat",
+   "es": "Carne de animales",
+   "categoria": "Foods"
+  },
+  "animalmonitors": {
+   "en": "Animal Monitors",
+   "es": "Monitores de animales",
+   "categoria": "Technology"
+  },
+  "antimattercontainmentunit": {
+   "en": "Antimatter Containment Unit",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "antiquejewellery": {
+   "en": "Antique Jewellery",
+   "es": "Joyería antigua",
+   "categoria": "Salvage"
+  },
+  "antiquities": {
+   "en": "Antiquities",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "anynacoffee": {
+   "en": null,
+   "es": "Café de Any Na",
+   "categoria": null
+  },
+  "apavietii": {
+   "en": null,
+   "es": "Apa Vietii",
+   "categoria": null
+  },
+  "aquaponicsystems": {
+   "en": "Aquaponic Systems",
+   "es": "Sistemas de hidroponía",
+   "categoria": "Technology"
+  },
+  "aroucaconventualsweets": {
+   "en": null,
+   "es": "Dulces conventuales de Arouca",
+   "categoria": null
+  },
+  "articulationmotors": {
+   "en": "Articulation Motors",
+   "es": "Motores de articulación",
+   "categoria": "Machinery"
+  },
+  "assaultplans": {
+   "en": "Assault Plans",
+   "es": "Planes de asalto",
+   "categoria": "Salvage"
+  },
+  "atmosphericextractors": {
+   "en": "Atmospheric Processors",
+   "es": "Procesadores atmosféricos",
+   "categoria": "Machinery"
+  },
+  "autofabricators": {
+   "en": "Auto-Fabricators",
+   "es": "Autofabricantes",
+   "categoria": "Technology"
+  },
+  "azcancriformula42": {
+   "en": null,
+   "es": "Fórmula 42 de AZ Cancri",
+   "categoria": null
+  },
+  "bakedgreebles": {
+   "en": null,
+   "es": "Cocido de greebles",
+   "categoria": null
+  },
+  "baltahsinevacuumkrill": {
+   "en": null,
+   "es": "Krill del vacío de Baltah'Sine",
+   "categoria": null
+  },
+  "bankiamphibiousleather": {
+   "en": null,
+   "es": "Cuero anfibio de Banki",
+   "categoria": null
+  },
+  "basicmedicines": {
+   "en": "Basic Medicines",
+   "es": "Medicinas básicas",
+   "categoria": "Medicines"
+  },
+  "basicnarcotics": {
+   "en": "Narcotics",
+   "es": null,
+   "categoria": "Legal Drugs"
+  },
+  "bastnasite": {
+   "en": "Bastnasite",
+   "es": "Bastnasita",
+   "categoria": "Minerals"
+  },
+  "bastsnakegin": {
+   "en": null,
+   "es": "Elixir de serpiente de Bast",
+   "categoria": null
+  },
+  "battleweapons": {
+   "en": "Battle Weapons",
+   "es": null,
+   "categoria": "Weapons"
+  },
+  "bauxite": {
+   "en": "Bauxite",
+   "es": "Bauxita",
+   "categoria": "Minerals"
+  },
+  "beer": {
+   "en": "Beer",
+   "es": "Cerveza",
+   "categoria": "Legal Drugs"
+  },
+  "belalansrayleather": {
+   "en": null,
+   "es": "Cuero de raya de Belalans",
+   "categoria": null
+  },
+  "benitoite": {
+   "en": "Benitoite",
+   "es": "Benitoíta",
+   "categoria": "Minerals"
+  },
+  "bertrandite": {
+   "en": "Bertrandite",
+   "es": "Bertrandita",
+   "categoria": "Minerals"
+  },
+  "beryllium": {
+   "en": "Beryllium",
+   "es": "Berilio",
+   "categoria": "Metals"
+  },
+  "bioreducinglichen": {
+   "en": "Bioreducing Lichen",
+   "es": "Líquenes biorreductores",
+   "categoria": "Technology"
+  },
+  "biowaste": {
+   "en": "Biowaste",
+   "es": "Residuos biológicos",
+   "categoria": "Waste"
+  },
+  "bismuth": {
+   "en": "Bismuth",
+   "es": "Bismuto",
+   "categoria": "Metals"
+  },
+  "bluemilk": {
+   "en": null,
+   "es": "Leche de azure",
+   "categoria": null
+  },
+  "bootlegliquor": {
+   "en": "Bootleg Liquor",
+   "es": null,
+   "categoria": "Legal Drugs"
+  },
+  "bromellite": {
+   "en": "Bromellite",
+   "es": "Bromellita",
+   "categoria": "Minerals"
+  },
+  "buckyballbeermats": {
+   "en": null,
+   "es": "Posavasos Buckyball",
+   "categoria": null
+  },
+  "buildingfabricators": {
+   "en": "Building Fabricators",
+   "es": "Constructores",
+   "categoria": "Machinery"
+  },
+  "burnhambiledistillate": {
+   "en": null,
+   "es": "Licor bilioso de Burnham",
+   "categoria": null
+  },
+  "cd75catcoffee": {
+   "en": null,
+   "es": "Café marca Kitten de CD-75",
+   "categoria": null
+  },
+  "centaurimegagin": {
+   "en": null,
+   "es": "Ginebra Mega de Alpha Centauri",
+   "categoria": null
+  },
+  "ceramiccomposites": {
+   "en": "Ceramic Composites",
+   "es": "Compuestos cerámicos",
+   "categoria": "Industrial Materials"
+  },
+  "ceremonialheiketea": {
+   "en": null,
+   "es": "Té ceremonial de Heike",
+   "categoria": null
+  },
+  "cetiaepyornisegg": {
+   "en": null,
+   "es": "Huevo de aepyornis",
+   "categoria": null
+  },
+  "cetirabbits": {
+   "en": null,
+   "es": "Conejos de 47 Ceti",
+   "categoria": null
+  },
+  "chameleoncloth": {
+   "en": null,
+   "es": "Ropa mimética",
+   "categoria": null
+  },
+  "chateaudeaegaeon": {
+   "en": null,
+   "es": "Cheateau de Aegaeon",
+   "categoria": null
+  },
+  "chemicalwaste": {
+   "en": "Chemical Waste",
+   "es": "Residuos químicos",
+   "categoria": "Waste"
+  },
+  "cherbonesbloodcrystals": {
+   "en": null,
+   "es": "Cristales sangre de Cherbones",
+   "categoria": null
+  },
+  "chieridanimarinepaste": {
+   "en": null,
+   "es": "Pasta marina de Chi Eridani",
+   "categoria": null
+  },
+  "classifiedexperimentalequipment": {
+   "en": null,
+   "es": "Equipamiento experimental clasificado",
+   "categoria": null
+  },
+  "clothing": {
+   "en": "Clothing",
+   "es": "Ropa",
+   "categoria": "Consumer Items"
+  },
+  "cmmcomposite": {
+   "en": "CMM Composite",
+   "es": "Compuestos CMM",
+   "categoria": "Industrial Materials"
+  },
+  "cobalt": {
+   "en": "Cobalt",
+   "es": "Cobalto",
+   "categoria": "Metals"
+  },
+  "coffee": {
+   "en": "Coffee",
+   "es": "Café",
+   "categoria": "Foods"
+  },
+  "coltan": {
+   "en": "Coltan",
+   "es": "Coltán",
+   "categoria": "Minerals"
+  },
+  "combatstabilisers": {
+   "en": "Combat Stabilisers",
+   "es": null,
+   "categoria": "Medicines"
+  },
+  "comercialsamples": {
+   "en": "Commercial Samples",
+   "es": "Muestras comerciales",
+   "categoria": "Salvage"
+  },
+  "computercomponents": {
+   "en": "Computer Components",
+   "es": "Componentes informáticos",
+   "categoria": "Technology"
+  },
+  "conductivefabrics": {
+   "en": "Conductive Fabrics",
+   "es": "Tejidos conductivos",
+   "categoria": "Textiles"
+  },
+  "consumertechnology": {
+   "en": "Consumer Technology",
+   "es": "Tecnología de consumo",
+   "categoria": "Consumer Items"
+  },
+  "coolinghoses": {
+   "en": "Micro-weave Cooling Hoses",
+   "es": "Mangueras de microtejidos",
+   "categoria": "Industrial Materials"
+  },
+  "copper": {
+   "en": "Copper",
+   "es": "Cobre",
+   "categoria": "Metals"
+  },
+  "coquimspongiformvictuals": {
+   "en": null,
+   "es": "Víveres espongiformes de Coquim",
+   "categoria": null
+  },
+  "coralsap": {
+   "en": "Coral Sap",
+   "es": "Savia de coral",
+   "categoria": "Salvage"
+  },
+  "cropharvesters": {
+   "en": "Crop Harvesters",
+   "es": "Segadoras de cultivos",
+   "categoria": "Machinery"
+  },
+  "cryolite": {
+   "en": "Cryolite",
+   "es": "Criolita",
+   "categoria": "Minerals"
+  },
+  "crystallinespheres": {
+   "en": null,
+   "es": "Esferas cristalinas",
+   "categoria": null
+  },
+  "curatedcommodity": {
+   "en": "Curated Commodity Package",
+   "es": "Paquete de mercancías seleccionadas",
+   "categoria": "Industrial Materials"
+  },
+  "damagedescapepod": {
+   "en": "Damaged Escape Pod",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "damnacarapaces": {
+   "en": null,
+   "es": "Caparazones de Damna",
+   "categoria": null
+  },
+  "datacore": {
+   "en": "Data Core",
+   "es": "Núcleo de datos",
+   "categoria": "Salvage"
+  },
+  "deltaphoenicispalms": {
+   "en": null,
+   "es": "Palmeras de Delta Phoenicis",
+   "categoria": null
+  },
+  "deuringastruffles": {
+   "en": null,
+   "es": "Trufas de Deuringas",
+   "categoria": null
+  },
+  "deuterium": {
+   "en": "Deuterium",
+   "es": "Deuterio",
+   "categoria": "Minerals"
+  },
+  "diagnosticsensor": {
+   "en": "Hardware Diagnostic Sensor",
+   "es": "Sensor diagnóstico de hardware",
+   "categoria": "Technology"
+  },
+  "diamond": {
+   "en": "Diamond",
+   "es": "Diamante",
+   "categoria": "Minerals"
+  },
+  "diplomaticbag": {
+   "en": "Diplomatic Bag",
+   "es": "Valija diplomática",
+   "categoria": "Salvage"
+  },
+  "disomacorn": {
+   "en": null,
+   "es": "Maíz ma de Diso",
+   "categoria": null
+  },
+  "domesticappliances": {
+   "en": "Domestic Appliances",
+   "es": "Electrodomésticos",
+   "categoria": "Consumer Items"
+  },
+  "drones": {
+   "en": "Limpets",
+   "es": null,
+   "categoria": "NonMarketable"
+  },
+  "duradrives": {
+   "en": null,
+   "es": "Duradrives",
+   "categoria": null
+  },
+  "earthrelics": {
+   "en": "Earth Relics",
+   "es": "Reliquias de la vieja Tierra",
+   "categoria": "Salvage"
+  },
+  "eleuthermals": {
+   "en": null,
+   "es": "Tejidos térmicos de eleu",
+   "categoria": null
+  },
+  "emergencypowercells": {
+   "en": "Emergency Power Cells",
+   "es": "Células energía auxiliar",
+   "categoria": "Machinery"
+  },
+  "encripteddatastorage": {
+   "en": "Encrypted Data Storage",
+   "es": "Datos encriptados",
+   "categoria": "Salvage"
+  },
+  "encryptedcorrespondence": {
+   "en": "Encrypted Correspondence",
+   "es": "Correspondencia encriptada",
+   "categoria": "Salvage"
+  },
+  "eraninpearlwhisky": {
+   "en": null,
+   "es": "Whisky perlado de Eranin",
+   "categoria": null
+  },
+  "eshuumbrellas": {
+   "en": null,
+   "es": "Paraguas de Eshu",
+   "categoria": null
+  },
+  "esusekucaviar": {
+   "en": null,
+   "es": "Caviar de Esuseku",
+   "categoria": null
+  },
+  "ethgrezeteabuds": {
+   "en": null,
+   "es": "Brotes de té de Ethgreze",
+   "categoria": null
+  },
+  "evacuationshelter": {
+   "en": "Evacuation Shelter",
+   "es": "Refugio de evacuación",
+   "categoria": "Consumer Items"
+  },
+  "exhaustmanifold": {
+   "en": "Exhaust Manifold",
+   "es": "Colector de escape",
+   "categoria": "Machinery"
+  },
+  "explosives": {
+   "en": "Explosives",
+   "es": "Explosivos",
+   "categoria": "Chemicals"
+  },
+  "fish": {
+   "en": "Fish",
+   "es": "Pescado",
+   "categoria": "Foods"
+  },
+  "foodcartridges": {
+   "en": "Food Cartridges",
+   "es": "Cartuchos de alimentos",
+   "categoria": "Foods"
+  },
+  "fossilremnants": {
+   "en": "Fossil Remnants",
+   "es": "Restos de fósiles",
+   "categoria": "Salvage"
+  },
+  "fruitandvegetables": {
+   "en": "Fruit and Vegetables",
+   "es": "Frutas y verduras",
+   "categoria": "Foods"
+  },
+  "fujintea": {
+   "en": null,
+   "es": "Té de Fujin",
+   "categoria": null
+  },
+  "galactictravelguide": {
+   "en": null,
+   "es": "Guía de viaje galáctico",
+   "categoria": null
+  },
+  "gallite": {
+   "en": "Gallite",
+   "es": "Galita",
+   "categoria": "Minerals"
+  },
+  "gallium": {
+   "en": "Gallium",
+   "es": "Galio",
+   "categoria": "Metals"
+  },
+  "genebank": {
+   "en": "Gene Bank",
+   "es": "Bancos de genes",
+   "categoria": "Salvage"
+  },
+  "geologicalequipment": {
+   "en": "Geological Equipment",
+   "es": "Equipamiento geológico",
+   "categoria": "Machinery"
+  },
+  "geologicalsamples": {
+   "en": "Geological Samples",
+   "es": "Muestras geológicas",
+   "categoria": "Salvage"
+  },
+  "gerasiangueuzebeer": {
+   "en": null,
+   "es": "Cerveza gerasiana Gueuze",
+   "categoria": null
+  },
+  "giantirukamasnails": {
+   "en": null,
+   "es": "Caracoles gigantes de Irukama",
+   "categoria": null
+  },
+  "giantverrix": {
+   "en": null,
+   "es": "Verrix gigante",
+   "categoria": null
+  },
+  "gold": {
+   "en": "Gold",
+   "es": "Oro",
+   "categoria": "Metals"
+  },
+  "gomanyauponcoffee": {
+   "en": null,
+   "es": "Café Yaupon de Goman",
+   "categoria": null
+  },
+  "goslarite": {
+   "en": "Goslarite",
+   "es": "Goslarita",
+   "categoria": "Minerals"
+  },
+  "grain": {
+   "en": "Grain",
+   "es": "Grano",
+   "categoria": "Foods"
+  },
+  "grandidierite": {
+   "en": "Grandidierite",
+   "es": "Grandidierita",
+   "categoria": "Minerals"
+  },
+  "haematite": {
+   "en": "Haematite",
+   "es": "Hematita",
+   "categoria": "Minerals"
+  },
+  "hafnium178": {
+   "en": "Hafnium 178",
+   "es": null,
+   "categoria": "Metals"
+  },
+  "haidneblackbrew": {
+   "en": null,
+   "es": "Infusión negra de Haiden",
+   "categoria": null
+  },
+  "harmasilversearum": {
+   "en": null,
+   "es": "Ron Harma Silver Sea",
+   "categoria": null
+  },
+  "havasupaidreamcatcher": {
+   "en": null,
+   "es": "Atrapasueños de Havasupai",
+   "categoria": null
+  },
+  "hazardousenvironmentsuits": {
+   "en": "H.E. Suits",
+   "es": "Trajes de protección",
+   "categoria": "Technology"
+  },
+  "heatsinkinterlink": {
+   "en": "Heatsink Interlink",
+   "es": "Interconect. de eyector térmico",
+   "categoria": "Machinery"
+  },
+  "heliostaticfurnaces": {
+   "en": "Microbial Furnaces",
+   "es": "Hornos microbianos",
+   "categoria": "Machinery"
+  },
+  "helium": {
+   "en": "Helium",
+   "es": "Helio",
+   "categoria": "Chemicals"
+  },
+  "helium3": {
+   "en": "Helium-3",
+   "es": "Helio-3",
+   "categoria": "Chemicals"
+  },
+  "helvetitjpearls": {
+   "en": null,
+   "es": "Perlas de Helvetitj",
+   "categoria": null
+  },
+  "hip10175bushmeat": {
+   "en": null,
+   "es": "Carne herbácea de HIP 10175",
+   "categoria": null
+  },
+  "hip41181squid": {
+   "en": null,
+   "es": "Protocalamar de HIP 41181",
+   "categoria": null
+  },
+  "hiporganophosphates": {
+   "en": null,
+   "es": "Organofosfatos de HIP 80364",
+   "categoria": null
+  },
+  "hnshockmount": {
+   "en": "HN Shock Mount",
+   "es": "Suspensión HN",
+   "categoria": "Machinery"
+  },
+  "honestypills": {
+   "en": null,
+   "es": "Píldoras de la Honestidad",
+   "categoria": null
+  },
+  "hostage": {
+   "en": "Hostages",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "hr7221wheat": {
+   "en": null,
+   "es": "Trigo de HR 7221",
+   "categoria": null
+  },
+  "hydrogenfuel": {
+   "en": "Hydrogen Fuel",
+   "es": "Combustible de hidrógeno",
+   "categoria": "Chemicals"
+  },
+  "hydrogenperoxide": {
+   "en": "Hydrogen Peroxide",
+   "es": "Peróxido de hidrógeno",
+   "categoria": "Chemicals"
+  },
+  "imperialslaves": {
+   "en": "Imperial Slaves",
+   "es": null,
+   "categoria": "Slavery"
+  },
+  "indibourbon": {
+   "en": null,
+   "es": "Bourbon de Epsilon Indi",
+   "categoria": null
+  },
+  "indite": {
+   "en": "Indite",
+   "es": "Indita",
+   "categoria": "Minerals"
+  },
+  "indium": {
+   "en": "Indium",
+   "es": "Indio",
+   "categoria": "Metals"
+  },
+  "insulatingmembrane": {
+   "en": "Insulating Membrane",
+   "es": "Membrana aislante",
+   "categoria": "Industrial Materials"
+  },
+  "iondistributor": {
+   "en": "Ion Distributor",
+   "es": "Distribuidor de iones",
+   "categoria": "Machinery"
+  },
+  "iridium": {
+   "en": "Iridium",
+   "es": "Iridio",
+   "categoria": "Metals"
+  },
+  "jadeite": {
+   "en": "Jadeite",
+   "es": "Jadeíta",
+   "categoria": "Minerals"
+  },
+  "jaquesquinentianstill": {
+   "en": null,
+   "es": "Alambique Jaques Quinentian",
+   "categoria": null
+  },
+  "jaradharrepuzzlebox": {
+   "en": null,
+   "es": "Rompecabezas de Jaradharre",
+   "categoria": null
+  },
+  "jarouarice": {
+   "en": null,
+   "es": "Arroz de Jaroua",
+   "categoria": null
+  },
+  "jotunmookah": {
+   "en": null,
+   "es": "Mookah de Jotun",
+   "categoria": null
+  },
+  "kachiriginleaches": {
+   "en": null,
+   "es": "Sanguijuelas filtradoras de Kachigirin",
+   "categoria": null
+  },
+  "kamitracigars": {
+   "en": null,
+   "es": "Puros de Kamitra",
+   "categoria": null
+  },
+  "karetiicouture": {
+   "en": null,
+   "es": "Alta costura de Karetii",
+   "categoria": null
+  },
+  "karsukilocusts": {
+   "en": null,
+   "es": "Langostas de Karsuki Ti",
+   "categoria": null
+  },
+  "kinagoinstruments": {
+   "en": null,
+   "es": "Violines de Kinago",
+   "categoria": null
+  },
+  "konggaale": {
+   "en": null,
+   "es": "Cerveza de Kongga",
+   "categoria": null
+  },
+  "korrokungpellets": {
+   "en": null,
+   "es": "Gránulos de Korro Kung",
+   "categoria": null
+  },
+  "landmines": {
+   "en": "Landmines",
+   "es": null,
+   "categoria": "Weapons"
+  },
+  "lanthanum": {
+   "en": "Lanthanum",
+   "es": "Lantano",
+   "categoria": "Metals"
+  },
+  "largeexplorationdatacash": {
+   "en": "Large Survey Data Cache",
+   "es": "Memorias de reconocimiento grandes",
+   "categoria": "Salvage"
+  },
+  "lavianbrandy": {
+   "en": null,
+   "es": "Brandy laviano",
+   "categoria": null
+  },
+  "leather": {
+   "en": "Leather",
+   "es": "Cuero",
+   "categoria": "Textiles"
+  },
+  "leestianeviljuice": {
+   "en": null,
+   "es": "Zumo diabólico leestiano",
+   "categoria": null
+  },
+  "lepidolite": {
+   "en": "Lepidolite",
+   "es": "Lepidolita",
+   "categoria": "Minerals"
+  },
+  "lftvoidextractcoffee": {
+   "en": null,
+   "es": "Extracto de café al vacío",
+   "categoria": null
+  },
+  "liquidoxygen": {
+   "en": "Liquid oxygen",
+   "es": "Oxígeno líquido",
+   "categoria": "Chemicals"
+  },
+  "liquor": {
+   "en": "Liquor",
+   "es": "Licores",
+   "categoria": "Legal Drugs"
+  },
+  "lithium": {
+   "en": "Lithium",
+   "es": "Litio",
+   "categoria": "Metals"
+  },
+  "lithiumhydroxide": {
+   "en": "Lithium Hydroxide",
+   "es": "Hidróxido de litio",
+   "categoria": "Minerals"
+  },
+  "livehecateseaworms": {
+   "en": null,
+   "es": "Gusanos marinos de Hecate",
+   "categoria": null
+  },
+  "lowtemperaturediamond": {
+   "en": "Low Temperature Diamonds",
+   "es": "Diamantes de baja temperatura",
+   "categoria": "Minerals"
+  },
+  "ltthypersweet": {
+   "en": null,
+   "es": "Hiperdulce LTT",
+   "categoria": null
+  },
+  "m3_tissuesample_membrane": {
+   "en": "Mollusc Membrane",
+   "es": "Membrana de molusco",
+   "categoria": "Salvage"
+  },
+  "m3_tissuesample_mycelium": {
+   "en": "Mollusc Mycelium",
+   "es": "Mycelium de molusco",
+   "categoria": "Salvage"
+  },
+  "m3_tissuesample_spores": {
+   "en": "Mollusc Spores",
+   "es": "Esporas de molusco",
+   "categoria": "Salvage"
+  },
+  "m_tissuesample_fluid": {
+   "en": "Mollusc Fluid",
+   "es": "Fluido de molusco",
+   "categoria": "Salvage"
+  },
+  "m_tissuesample_nerves": {
+   "en": "Mollusc Brain Tissue",
+   "es": "Tejido de cerebro de molusco",
+   "categoria": "Salvage"
+  },
+  "m_tissuesample_soft": {
+   "en": "Mollusc Soft Tissue",
+   "es": "Tejido suave de molusco",
+   "categoria": "Salvage"
+  },
+  "magnesite": {
+   "en": "Magnesite",
+   "es": "Magnesita",
+   "categoria": "Minerals"
+  },
+  "magneticemittercoil": {
+   "en": "Magnetic Emitter Coil",
+   "es": "Bobina de emisión magnética",
+   "categoria": "Machinery"
+  },
+  "marinesupplies": {
+   "en": "Marine Equipment",
+   "es": "Equipamiento marino",
+   "categoria": "Machinery"
+  },
+  "mechucoshightea": {
+   "en": null,
+   "es": "Alto té de Mechucos",
+   "categoria": null
+  },
+  "medbstarlube": {
+   "en": null,
+   "es": "Lubricante de Medb",
+   "categoria": null
+  },
+  "medicaldiagnosticequipment": {
+   "en": "Medical Diagnostic Equipment",
+   "es": "Equipo de diagnóstico médico",
+   "categoria": "Technology"
+  },
+  "metaalloys": {
+   "en": "Meta-Alloys",
+   "es": "Metaaleaciones",
+   "categoria": "Industrial Materials"
+  },
+  "methaneclathrate": {
+   "en": "Methane Clathrate",
+   "es": "Hidrato de metano",
+   "categoria": "Minerals"
+  },
+  "methanolmonohydratecrystals": {
+   "en": "Methanol Monohydrate Crystals",
+   "es": "Cristales de monohidrato de metanol",
+   "categoria": "Minerals"
+  },
+  "microcontrollers": {
+   "en": "Micro Controllers",
+   "es": "Microcontroladores",
+   "categoria": "Technology"
+  },
+  "militarygradefabrics": {
+   "en": "Military Grade Fabrics",
+   "es": "Tejido de categoría militar",
+   "categoria": "Textiles"
+  },
+  "militaryintelligence": {
+   "en": "Military Intelligence",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "mineralextractors": {
+   "en": "Mineral Extractors",
+   "es": "Extractores de minerales",
+   "categoria": "Machinery"
+  },
+  "mineraloil": {
+   "en": "Mineral Oil",
+   "es": "Aceite mineral",
+   "categoria": "Chemicals"
+  },
+  "modularterminals": {
+   "en": "Modular Terminals",
+   "es": "Terminales modulares",
+   "categoria": "Machinery"
+  },
+  "moissanite": {
+   "en": "Moissanite",
+   "es": "Moissanita",
+   "categoria": "Minerals"
+  },
+  "mokojingbeastfeast": {
+   "en": null,
+   "es": "Banquete Bestial de Mokojin",
+   "categoria": null
+  },
+  "momusbogspaniel": {
+   "en": null,
+   "es": "Spaniel de pantano de Momus Reach",
+   "categoria": null
+  },
+  "monazite": {
+   "en": "Monazite",
+   "es": "Monacita",
+   "categoria": "Minerals"
+  },
+  "mukusubiichitinos": {
+   "en": null,
+   "es": "Quitiaros de Mukusubii",
+   "categoria": null
+  },
+  "mulachigiantfungus": {
+   "en": null,
+   "es": "Hongo gigante de Mulachi",
+   "categoria": null
+  },
+  "musgravite": {
+   "en": "Musgravite",
+   "es": "Musgravita",
+   "categoria": "Minerals"
+  },
+  "mutomimager": {
+   "en": "Muon Imager",
+   "es": "Escáner muónico",
+   "categoria": "Technology"
+  },
+  "mysteriousidol": {
+   "en": "Mysterious Idol",
+   "es": "Ídolo misterioso",
+   "categoria": "Salvage"
+  },
+  "nanobreakers": {
+   "en": "Nanobreakers",
+   "es": "Nanorrompedores",
+   "categoria": "Technology"
+  },
+  "nanomedicines": {
+   "en": null,
+   "es": "Nanomedicinas",
+   "categoria": null
+  },
+  "naturalfabrics": {
+   "en": "Natural Fabrics",
+   "es": "Tejidos naturales",
+   "categoria": "Textiles"
+  },
+  "neofabricinsulation": {
+   "en": "Neofabric Insulation",
+   "es": "Neotejido aislante",
+   "categoria": "Industrial Materials"
+  },
+  "neritusberries": {
+   "en": null,
+   "es": "Bayas de Neritus",
+   "categoria": null
+  },
+  "nerveagents": {
+   "en": "Nerve Agents",
+   "es": null,
+   "categoria": "Chemicals"
+  },
+  "ngadandarifireopals": {
+   "en": null,
+   "es": "Ópalos ígneos de Ngandari",
+   "categoria": null
+  },
+  "ngunamodernantiques": {
+   "en": null,
+   "es": "Antigüedades modernas de Nguna",
+   "categoria": null
+  },
+  "njangarisaddles": {
+   "en": null,
+   "es": "Sillas de montar de Njangari",
+   "categoria": null
+  },
+  "noneuclidianexotanks": {
+   "en": null,
+   "es": "Exotanques no euclídeos",
+   "categoria": null
+  },
+  "nonlethalweapons": {
+   "en": "Non-Lethal Weapons",
+   "es": "Armas no letales",
+   "categoria": "Weapons"
+  },
+  "occupiedcryopod": {
+   "en": "Occupied Escape Pod",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "ochoengchillies": {
+   "en": null,
+   "es": "Chiles de Ochoeng",
+   "categoria": null
+  },
+  "olivine": {
+   "en": "Olivine",
+   "es": "Olivino",
+   "categoria": "Minerals"
+  },
+  "onionhead": {
+   "en": null,
+   "es": "Cebollazo",
+   "categoria": null
+  },
+  "onionheada": {
+   "en": null,
+   "es": "Cepa alfa de cebollazo",
+   "categoria": null
+  },
+  "onionheadb": {
+   "en": null,
+   "es": "Cepa beta de cebollazo",
+   "categoria": null
+  },
+  "onionheadc": {
+   "en": "Onionhead Gamma Strain",
+   "es": "Cepa gamma de cebollazo",
+   "categoria": "Legal Drugs"
+  },
+  "opal": {
+   "en": "Void Opal",
+   "es": "Ópalo de vacío",
+   "categoria": "Minerals"
+  },
+  "ophiuchiexinoartefacts": {
+   "en": null,
+   "es": "Artefactos de los Ophiuch Exino",
+   "categoria": null
+  },
+  "orrerianviciousbrew": {
+   "en": null,
+   "es": "Fermento vicioso orreriano",
+   "categoria": null
+  },
+  "osmium": {
+   "en": "Osmium",
+   "es": "Osmio",
+   "categoria": "Metals"
+  },
+  "p_particulatesample": {
+   "en": "Anomaly Particles",
+   "es": "Partículas de anomalía",
+   "categoria": "Salvage"
+  },
+  "painite": {
+   "en": "Painite",
+   "es": "Painita",
+   "categoria": "Minerals"
+  },
+  "palladium": {
+   "en": "Palladium",
+   "es": "Paladio",
+   "categoria": "Metals"
+  },
+  "pantaaprayersticks": {
+   "en": null,
+   "es": "Palos ceremoniales de los Pantaa",
+   "categoria": null
+  },
+  "performanceenhancers": {
+   "en": "Performance Enhancers",
+   "es": "Potenciadores de rendimiento",
+   "categoria": "Medicines"
+  },
+  "periclasedunite": {
+   "en": "Periclase Dunite",
+   "es": "Dunita de periclasa",
+   "categoria": "Minerals"
+  },
+  "personaleffects": {
+   "en": "Personal Effects",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "personalgifts": {
+   "en": null,
+   "es": "Regalos festivos",
+   "categoria": null
+  },
+  "personalweapons": {
+   "en": "Personal Weapons",
+   "es": null,
+   "categoria": "Weapons"
+  },
+  "pesticides": {
+   "en": "Pesticides",
+   "es": "Pesticidas",
+   "categoria": "Chemicals"
+  },
+  "platinum": {
+   "en": "Platinum",
+   "es": "Platino",
+   "categoria": "Metals"
+  },
+  "platinumaloy": {
+   "en": null,
+   "es": "Aleación de platino",
+   "categoria": null
+  },
+  "politicalprisoner": {
+   "en": "Political Prisoners",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "polymers": {
+   "en": "Polymers",
+   "es": "Polímeros",
+   "categoria": "Industrial Materials"
+  },
+  "powerconverter": {
+   "en": "Power Converter",
+   "es": "Convertidor de energía",
+   "categoria": "Machinery"
+  },
+  "powergenerators": {
+   "en": "Power Generators",
+   "es": "Generadores de energía",
+   "categoria": "Machinery"
+  },
+  "powergridassembly": {
+   "en": "Energy Grid Assembly",
+   "es": "Red de energía",
+   "categoria": "Machinery"
+  },
+  "powertransferconduits": {
+   "en": "Power Transfer Bus",
+   "es": "Conductos de transf. de energía",
+   "categoria": "Machinery"
+  },
+  "praseodymium": {
+   "en": "Praseodymium",
+   "es": "Praseodimio",
+   "categoria": "Metals"
+  },
+  "preciousgems": {
+   "en": "Precious Gems",
+   "es": "Piedras preciosas",
+   "categoria": "Salvage"
+  },
+  "progenitorcells": {
+   "en": "Progenitor Cells",
+   "es": "Células madre",
+   "categoria": "Medicines"
+  },
+  "prohibitedresearchmaterials": {
+   "en": "Prohibited Research Materials",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "pyrophyllite": {
+   "en": "Pyrophyllite",
+   "es": "Pirofilita",
+   "categoria": "Minerals"
+  },
+  "quartzpyroxenite": {
+   "en": "Quartz Pyroxenite",
+   "es": "Piroxenita de cuarzo",
+   "categoria": "Minerals"
+  },
+  "radiationbaffle": {
+   "en": "Radiation Baffle",
+   "es": "Deflector de radiación",
+   "categoria": "Machinery"
+  },
+  "rajukrustoves": {
+   "en": null,
+   "es": "Multiestufas de Rajukru",
+   "categoria": null
+  },
+  "rapabaosnakeskins": {
+   "en": null,
+   "es": "Pieles de serpiente de Rapa Bao",
+   "categoria": null
+  },
+  "reactivearmour": {
+   "en": "Reactive Armour",
+   "es": "Blindaje reactivo",
+   "categoria": "Weapons"
+  },
+  "reinforcedmountingplate": {
+   "en": "Reinforced Mounting Plate",
+   "es": "Placa de anclaje reforzada",
+   "categoria": "Machinery"
+  },
+  "resonatingseparators": {
+   "en": "Resonating Separators",
+   "es": "Separadores resonantes",
+   "categoria": "Technology"
+  },
+  "rhodplumsite": {
+   "en": "Rhodplumsite",
+   "es": "Rhodplumsita",
+   "categoria": "Minerals"
+  },
+  "robotics": {
+   "en": "Robotics",
+   "es": "Robótica",
+   "categoria": "Technology"
+  },
+  "rockforthfertiliser": {
+   "en": "Rockforth Fertiliser",
+   "es": "Fertilizante Rockforth",
+   "categoria": "Chemicals"
+  },
+  "ruby": {
+   "en": "Ruby",
+   "es": "Rubí",
+   "categoria": "Minerals"
+  },
+  "rusanioldsmokey": {
+   "en": null,
+   "es": "Old Smokey de Rusani",
+   "categoria": null
+  },
+  "rutile": {
+   "en": "Rutile",
+   "es": "Rutilo",
+   "categoria": "Minerals"
+  },
+  "s6_tissuesample_cells": {
+   "en": "Pod Outer Tissue",
+   "es": "Tejido exterior de cápsula",
+   "categoria": "Salvage"
+  },
+  "s6_tissuesample_coenosarc": {
+   "en": "Pod Shell Tissue",
+   "es": "Tejido de cáscara de cápsula",
+   "categoria": "Salvage"
+  },
+  "s6_tissuesample_mesoglea": {
+   "en": "Pod Mesoglea",
+   "es": "Vaina de mesoglea",
+   "categoria": "Salvage"
+  },
+  "s9_tissuesample_shell": {
+   "en": "Pod Tissue",
+   "es": "Tejido de la vaina",
+   "categoria": "Salvage"
+  },
+  "s_tissuesample_cells": {
+   "en": "Pod Core Tissue",
+   "es": "Tejido de núcleo de cápsula",
+   "categoria": "Salvage"
+  },
+  "s_tissuesample_core": {
+   "en": "Pod Surface Tissue",
+   "es": "Tejido de superficie de cápsula",
+   "categoria": "Salvage"
+  },
+  "s_tissuesample_surface": {
+   "en": "Pod Dead Tissue",
+   "es": "Tejido muerto de cápsula",
+   "categoria": "Salvage"
+  },
+  "samarium": {
+   "en": "Samarium",
+   "es": "Samario",
+   "categoria": "Metals"
+  },
+  "sanumameat": {
+   "en": null,
+   "es": "Carne artística de Sanuma",
+   "categoria": null
+  },
+  "sap8corecontainer": {
+   "en": "SAP 8 Core Container",
+   "es": "Núcleos SAP-8",
+   "categoria": "Salvage"
+  },
+  "sapphire": {
+   "en": "Sapphire",
+   "es": "Zafiro",
+   "categoria": "Minerals"
+  },
+  "saxonwine": {
+   "en": null,
+   "es": "Vino sajón",
+   "categoria": null
+  },
+  "scientificresearch": {
+   "en": "Scientific Research",
+   "es": "Investigaciones científicas",
+   "categoria": "Salvage"
+  },
+  "scientificsamples": {
+   "en": "Scientific Samples",
+   "es": "Muestras científicas",
+   "categoria": "Salvage"
+  },
+  "scrap": {
+   "en": "Scrap",
+   "es": "Chatarra",
+   "categoria": "Waste"
+  },
+  "semiconductors": {
+   "en": "Semiconductors",
+   "es": "Semiconductores",
+   "categoria": "Industrial Materials"
+  },
+  "serendibite": {
+   "en": "Serendibite",
+   "es": "Serendibita",
+   "categoria": "Minerals"
+  },
+  "shanscharisorchid": {
+   "en": null,
+   "es": "Orquídea Charis de Shan",
+   "categoria": null
+  },
+  "silver": {
+   "en": "Silver",
+   "es": "Plata",
+   "categoria": "Metals"
+  },
+  "skimercomponents": {
+   "en": "Skimmer Components",
+   "es": "Componentes de deslizador",
+   "categoria": "Machinery"
+  },
+  "slaves": {
+   "en": "Slaves",
+   "es": null,
+   "categoria": "Slavery"
+  },
+  "smallexplorationdatacash": {
+   "en": "Small Survey Data Cache",
+   "es": "Memorias de reconocimiento pequeñas",
+   "categoria": "Salvage"
+  },
+  "soontillrelics": {
+   "en": null,
+   "es": "Reliquias de Soontill",
+   "categoria": null
+  },
+  "sothiscrystallinegold": {
+   "en": null,
+   "es": "Oro cristalino de Sothis",
+   "categoria": null
+  },
+  "spacepioneerrelics": {
+   "en": "Space Pioneer Relics",
+   "es": "Reliquias de pioneros espaciales",
+   "categoria": "Salvage"
+  },
+  "steel": {
+   "en": "Steel",
+   "es": "Acero",
+   "categoria": "Metals"
+  },
+  "structuralregulators": {
+   "en": "Structural Regulators",
+   "es": "Reguladores estructurales",
+   "categoria": "Technology"
+  },
+  "superconductors": {
+   "en": "Superconductors",
+   "es": "Superconductores",
+   "categoria": "Industrial Materials"
+  },
+  "surfacestabilisers": {
+   "en": "Surface Stabilisers",
+   "es": "Estabilizadores de superficie",
+   "categoria": "Chemicals"
+  },
+  "survivalequipment": {
+   "en": "Survival Equipment",
+   "es": "Equipamiento de supervivencia",
+   "categoria": "Consumer Items"
+  },
+  "syntheticfabrics": {
+   "en": "Synthetic Fabrics",
+   "es": "Tejidos sintéticos",
+   "categoria": "Textiles"
+  },
+  "syntheticmeat": {
+   "en": "Synthetic Meat",
+   "es": "Carne sintética",
+   "categoria": "Foods"
+  },
+  "syntheticreagents": {
+   "en": "Synthetic Reagents",
+   "es": "Reagentes sintéticos",
+   "categoria": "Chemicals"
+  },
+  "taaffeite": {
+   "en": "Taaffeite",
+   "es": "Taaffeíta",
+   "categoria": "Minerals"
+  },
+  "tacticaldata": {
+   "en": "Tactical Data",
+   "es": "Datos tácticos",
+   "categoria": "Salvage"
+  },
+  "tanmarktranquiltea": {
+   "en": null,
+   "es": "Té relajante de Tanmark",
+   "categoria": null
+  },
+  "tantalum": {
+   "en": "Tantalum",
+   "es": "Tantalio",
+   "categoria": "Metals"
+  },
+  "taurichimes": {
+   "en": null,
+   "es": "Carillones de 39 Tauri",
+   "categoria": null
+  },
+  "tea": {
+   "en": "Tea",
+   "es": "Té",
+   "categoria": "Foods"
+  },
+  "telemetrysuite": {
+   "en": "Telemetry Suite",
+   "es": "Paquete de telemetría",
+   "categoria": "Technology"
+  },
+  "terrainenrichmentsystems": {
+   "en": "Land Enrichment Systems",
+   "es": "Enriquecimiento terrestre",
+   "categoria": "Technology"
+  },
+  "thallium": {
+   "en": "Thallium",
+   "es": "Talio",
+   "categoria": "Metals"
+  },
+  "thargoidbonefragments": {
+   "en": "Bone Fragments",
+   "es": "Fragmentos de hueso",
+   "categoria": "Salvage"
+  },
+  "thargoidcystspecimen": {
+   "en": "Cyst Specimen",
+   "es": "Espécimen de quiste",
+   "categoria": "Salvage"
+  },
+  "thargoidgeneratortissuesample": {
+   "en": "Caustic Tissue Sample",
+   "es": "Muestra de tejido cáustico",
+   "categoria": "Salvage"
+  },
+  "thargoidheart": {
+   "en": "Thargoid Heart",
+   "es": "Corazón Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidorgansample": {
+   "en": "Organ Sample",
+   "es": "Muestra de órgano",
+   "categoria": "Salvage"
+  },
+  "thargoidpod": {
+   "en": "Xenobiological Prison Pod",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "thargoidscouttissuesample": {
+   "en": "Thargoid Scout Tissue Sample",
+   "es": "Muestra de tejido de explorador Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype1": {
+   "en": "Thargoid Cyclops Tissue Sample",
+   "es": "Muestra de tejido de Cyclops Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype10a": {
+   "en": "Titan Maw Deep Tissue Sample",
+   "es": "Muestra de tejido profundo de fauces de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype10b": {
+   "en": "Titan Maw Tissue Sample",
+   "es": "Muestra de tejido de fauces de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype10c": {
+   "en": "Titan Maw Partial Tissue Sample",
+   "es": "Muestra de tejido parcial de fauces de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype2": {
+   "en": "Thargoid Basilisk Tissue Sample",
+   "es": "Muestra de tejido de Basilisk Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype3": {
+   "en": "Thargoid Medusa Tissue Sample",
+   "es": "Muestra de tejido de medusa Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype4": {
+   "en": "Thargoid Hydra Tissue Sample",
+   "es": "Muestra de tejido de Hydra Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype5": {
+   "en": "Thargoid Orthrus Tissue Sample",
+   "es": "Muestra de tejido de Orthrus Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype6": {
+   "en": "Thargoid Glaive Tissue Sample",
+   "es": "Muestra de tejido de Glaive Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype7": {
+   "en": "Thargoid Scythe Tissue Sample",
+   "es": "Muestra de tejido de Scythe Thargoide",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype9a": {
+   "en": "Titan Deep Tissue Sample",
+   "es": "Muestra de tejido profundo de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype9b": {
+   "en": "Titan Tissue Sample",
+   "es": "Muestra de tejido de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtissuesampletype9c": {
+   "en": "Titan Partial Tissue Sample",
+   "es": "Muestra de tejido parcial de Titan",
+   "categoria": "Salvage"
+  },
+  "thargoidtitandrivecomponent": {
+   "en": "Titan Drive Component",
+   "es": "Componente de motor de Titan",
+   "categoria": "Salvage"
+  },
+  "thehuttonmug": {
+   "en": null,
+   "es": "Taza de Hutton",
+   "categoria": null
+  },
+  "thermalcoolingunits": {
+   "en": "Thermal Cooling Units",
+   "es": "Unidades de enfriamiento térmico",
+   "categoria": "Machinery"
+  },
+  "thorium": {
+   "en": "Thorium",
+   "es": "Torio",
+   "categoria": "Metals"
+  },
+  "thortveitite": {
+   "en": "Thortveitite",
+   "es": "Thortveitita",
+   "categoria": "Minerals"
+  },
+  "thrutiscream": {
+   "en": null,
+   "es": "Crema de Thrutis",
+   "categoria": null
+  },
+  "tiegfriessynthsilk": {
+   "en": null,
+   "es": "Seda sintética de Tiegfries",
+   "categoria": null
+  },
+  "timecapsule": {
+   "en": "Time Capsule",
+   "es": "Capsulas del tiempo",
+   "categoria": "Salvage"
+  },
+  "tiolcewaste2pasteunits": {
+   "en": null,
+   "es": "Pastaplasta de Tiolce",
+   "categoria": null
+  },
+  "titanium": {
+   "en": "Titanium",
+   "es": "Titanio",
+   "categoria": "Metals"
+  },
+  "tobacco": {
+   "en": "Tobacco",
+   "es": "Tabaco",
+   "categoria": "Legal Drugs"
+  },
+  "toxandjivirocide": {
+   "en": null,
+   "es": "Virocida de Toxandji",
+   "categoria": null
+  },
+  "toxicwaste": {
+   "en": "Toxic Waste",
+   "es": null,
+   "categoria": "Waste"
+  },
+  "transgeniconionhead": {
+   "en": null,
+   "es": "Cebollazo de Lucan",
+   "categoria": null
+  },
+  "trinketsoffortune": {
+   "en": "Trinkets of Hidden Fortune",
+   "es": null,
+   "categoria": "Consumer Items"
+  },
+  "tritium": {
+   "en": "Tritium",
+   "es": "Tritio",
+   "categoria": "Chemicals"
+  },
+  "unknownartifact": {
+   "en": "Thargoid Sensor",
+   "es": "Sensor Thargoide",
+   "categoria": "Salvage"
+  },
+  "unknownartifact2": {
+   "en": "Thargoid Probe",
+   "es": "Sonda Thargoide",
+   "categoria": "Salvage"
+  },
+  "unknownartifact3": {
+   "en": "Thargoid Link",
+   "es": "Enlace Thargoide",
+   "categoria": "Salvage"
+  },
+  "unknownbiologicalmatter": {
+   "en": "Thargoid Biological Matter",
+   "es": "Materia biológica Thargoide",
+   "categoria": "Salvage"
+  },
+  "unknownmineral": {
+   "en": "Impure Spire Mineral",
+   "es": "Mineral de aguja impuro",
+   "categoria": "Salvage"
+  },
+  "unknownrefinedmineral": {
+   "en": "Semi-Refined Spire Mineral",
+   "es": "Mineral de aguja semirrefinado",
+   "categoria": "Salvage"
+  },
+  "unknownresin": {
+   "en": "Thargoid Resin",
+   "es": "Resina Thargoide",
+   "categoria": "Salvage"
+  },
+  "unknownsack": {
+   "en": "Protective Membrane Scrap",
+   "es": "Fragmento de membrana protectora",
+   "categoria": "Salvage"
+  },
+  "unknowntechnologysamples": {
+   "en": "Thargoid Technology Samples",
+   "es": "Muestras de tecnología Thargoide",
+   "categoria": "Salvage"
+  },
+  "unocuppiedescapepod": {
+   "en": "Unoccupied Escape Pod",
+   "es": "Cápsula de escape vacía",
+   "categoria": "Salvage"
+  },
+  "unstabledatacore": {
+   "en": "Unstable Data Core",
+   "es": "Unidad de datos inestable",
+   "categoria": "Salvage"
+  },
+  "uraninite": {
+   "en": "Uraninite",
+   "es": "Uraninita",
+   "categoria": "Minerals"
+  },
+  "uranium": {
+   "en": "Uranium",
+   "es": "Uranio",
+   "categoria": "Metals"
+  },
+  "usscargoancientartefact": {
+   "en": "Ancient Artefact",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargoblackbox": {
+   "en": "Black Box",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargoexperimentalchemicals": {
+   "en": "Experimental Chemicals",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargomilitaryplans": {
+   "en": "Military Plans",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargoprototypetech": {
+   "en": "Prototype Tech",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargorareartwork": {
+   "en": "Rare Artwork",
+   "es": "Arte poco común",
+   "categoria": "Salvage"
+  },
+  "usscargorebeltransmissions": {
+   "en": "Rebel Transmissions",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargotechnicalblueprints": {
+   "en": "Technical Blueprints",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "usscargotradedata": {
+   "en": "Trade Data",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "uszaiantreegrub": {
+   "en": null,
+   "es": "Larva de árbol uszaiana",
+   "categoria": null
+  },
+  "utgaroarmillenialeggs": {
+   "en": null,
+   "es": "Huevos milenarios de Utgaroar",
+   "categoria": null
+  },
+  "uzumokulowgwings": {
+   "en": null,
+   "es": "Alas de baja gravedad de Uzumoku",
+   "categoria": null
+  },
+  "vanayequirhinofur": {
+   "en": null,
+   "es": "Piel de ceratomorfo de Vanayequi",
+   "categoria": null
+  },
+  "vegaslimweed": {
+   "en": null,
+   "es": "Planta parásita de Vega",
+   "categoria": null
+  },
+  "vherculisbodyrub": {
+   "en": null,
+   "es": "Exfoliantes de V1090 Herculis",
+   "categoria": null
+  },
+  "vidavantianlace": {
+   "en": null,
+   "es": "Cordón vidavantino",
+   "categoria": null
+  },
+  "volkhabbeedrones": {
+   "en": null,
+   "es": "Abejas mecánicas de Volkhab",
+   "categoria": null
+  },
+  "water": {
+   "en": "Water",
+   "es": "Agua",
+   "categoria": "Chemicals"
+  },
+  "waterpurifiers": {
+   "en": "Water Purifiers",
+   "es": "Purificadores de agua",
+   "categoria": "Machinery"
+  },
+  "watersofshintara": {
+   "en": null,
+   "es": "Aguas de Shintara",
+   "categoria": null
+  },
+  "wheemetewheatcakes": {
+   "en": null,
+   "es": "Pasteles de trigo de Wheemete",
+   "categoria": null
+  },
+  "wine": {
+   "en": "Wine",
+   "es": "Vino",
+   "categoria": "Legal Drugs"
+  },
+  "witchhaulkobebeef": {
+   "en": null,
+   "es": "Carne de buey kobe de Witchhaul",
+   "categoria": null
+  },
+  "wreckagecomponents": {
+   "en": "Wreckage Components",
+   "es": null,
+   "categoria": "Salvage"
+  },
+  "wulpahyperboresystems": {
+   "en": null,
+   "es": "Sistemas de hipertaladros de Wulpa",
+   "categoria": null
+  },
+  "wuthielokufroth": {
+   "en": null,
+   "es": "Espuma de Wuthielo Ku",
+   "categoria": null
+  },
+  "xihecompanions": {
+   "en": null,
+   "es": "Mascotas biomórficas de Xihe",
+   "categoria": null
+  },
+  "yasokondileaf": {
+   "en": null,
+   "es": "Hojas de Yaso Kondi",
+   "categoria": null
+  },
+  "zeesszeantglue": {
+   "en": null,
+   "es": "Pegamento de larvas de hormiga de Zeessze",
+   "categoria": null
+  }
+ }
+}

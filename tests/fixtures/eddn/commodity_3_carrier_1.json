@@ -1,0 +1,27 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/commodity/3",
+  "message": {
+    "timestamp": "2026-11-12T22:33:40Z",
+    "systemName": "Swoilz LJ-T c6-7",
+    "stationName": "0C22",
+    "marketId": 3707112192,
+    "commodities": [],
+    "horizons": true,
+    "odyssey": true,
+    "economies": [
+      {
+        "name": "Carrier",
+        "proportion": 1
+      }
+    ],
+    "prohibited": []
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "919ea1210ff0a1c48437f557d5518060157443b017784e0c82d62446ef3b2595",
+    "gameversion": "CAPI-Live-market",
+    "gamebuild": "",
+    "gatewayTimestamp": "2026-11-12T22:33:41.773793Z"
+  }
+}

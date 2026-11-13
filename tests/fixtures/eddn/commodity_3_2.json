@@ -1,0 +1,123 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/commodity/3",
+  "message": {
+    "timestamp": "2026-11-12T22:29:23Z",
+    "systemName": "Blu Euq WQ-P c5-1",
+    "stationName": "Orbital Construction Site: Crockett Landing",
+    "marketId": 3966185474,
+    "commodities": [
+      {
+        "name": "agriculturalmedicines",
+        "meanPrice": 1197,
+        "buyPrice": 630,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 629,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "aluminium",
+        "meanPrice": 2540,
+        "buyPrice": 1626,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 1625,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "biowaste",
+        "meanPrice": 271,
+        "buyPrice": 34,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 33,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "ceramiccomposites",
+        "meanPrice": 402,
+        "buyPrice": 86,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 85,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "computercomponents",
+        "meanPrice": 708,
+        "buyPrice": 311,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 310,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "cropharvesters",
+        "meanPrice": 2211,
+        "buyPrice": 1417,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 1416,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "foodcartridges",
+        "meanPrice": 252,
+        "buyPrice": 40,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 39,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "pesticides",
+        "meanPrice": 412,
+        "buyPrice": 145,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 144,
+        "demand": 0,
+        "demandBracket": 0
+      },
+      {
+        "name": "powergenerators",
+        "meanPrice": 2388,
+        "buyPrice": 1527,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 1526,
+        "demand": 0,
+        "demandBracket": 0
+      }
+    ],
+    "horizons": true,
+    "odyssey": true,
+    "economies": [
+      {
+        "name": "Colony",
+        "proportion": 1
+      }
+    ],
+    "prohibited": [
+      "BasicNarcotics",
+      "ImperialSlaves",
+      "Slaves",
+      "Tobacco"
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "4f64c42aeb5caa4f11cccff1381251523661e6c7f329fd399a37832c9d71a4d7",
+    "gameversion": "CAPI-Live-market",
+    "gamebuild": "",
+    "gatewayTimestamp": "2026-11-12T22:29:25.051354Z"
+  }
+}

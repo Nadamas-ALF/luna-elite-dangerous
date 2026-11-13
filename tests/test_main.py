@@ -3,7 +3,9 @@ from dataclasses import dataclass, field
 import pytest
 
 import main
-from core import plataforma, textos
+from core import events, plataforma, textos
+from core.config.rutas import Ubicacion
+from core.db.escritor import Escritor
 
 
 class EstadoFalso:
@@ -72,9 +74,7 @@ def test_en_estado_normal_se_guardan_los_limites_vivos():
 
 def test_maximizada_se_guardan_los_limites_de_antes_de_maximizar():
     """Bounds devuelve un rectangulo que se sale de la pantalla (-8,-8)."""
-    geometria = plataforma.geometria_de_forma(
-        forma("Maximized", bounds=(-8, -8, 1936, 1048))
-    )
+    geometria = plataforma.geometria_de_forma(forma("Maximized", bounds=(-8, -8, 1936, 1048)))
 
     assert (geometria.x, geometria.y) == (300, 140)
     assert (geometria.ancho, geometria.alto) == (1280, 800)
@@ -82,9 +82,7 @@ def test_maximizada_se_guardan_los_limites_de_antes_de_maximizar():
 
 
 def test_minimizada_no_guarda_el_tamano_diminuto():
-    geometria = plataforma.geometria_de_forma(
-        forma("Minimized", bounds=(-32000, -32000, 160, 28))
-    )
+    geometria = plataforma.geometria_de_forma(forma("Minimized", bounds=(-32000, -32000, 160, 28)))
 
     assert (geometria.ancho, geometria.alto) == (1280, 800)
     assert not geometria.maximizada
@@ -119,9 +117,7 @@ def test_el_viaje_completo_de_la_geometria_no_deriva():
         destino = forma()
         plataforma.aplicar_geometria(destino, geometria)
         x, y, ancho, alto = destino.puestos[-1]
-        leida = plataforma.geometria_de_forma(
-            forma("Normal", bounds=(x, y, ancho, alto))
-        )
+        leida = plataforma.geometria_de_forma(forma("Normal", bounds=(x, y, ancho, alto)))
         assert leida == geometria
         geometria = leida
 
@@ -152,3 +148,31 @@ def test_se_avisa_si_el_motor_no_es_webview2(monkeypatch):
     monkeypatch.setattr(main.webview, "initialize", lambda *a, **k: ModuloFalso())
     with pytest.raises(main.FaltaWebView2):
         main.comprobar_motor()
+
+
+def test_eddn_no_arranca_sin_base_de_datos(tmp_path):
+    assert main.preparar_eddn(Ubicacion(tmp_path, portable=True), None, events.Bus()) is None
+
+
+def test_eddn_no_arranca_si_el_usuario_lo_desactivo(tmp_path):
+    (tmp_path / "config.json").write_text('{"eddn": {"activado": false}}', encoding="utf-8")
+    escritor = Escritor(tmp_path / "luna.db")
+    escritor.iniciar()
+    try:
+        assert (
+            main.preparar_eddn(Ubicacion(tmp_path, portable=True), escritor, events.Bus()) is None
+        )
+    finally:
+        escritor.detener()
+
+
+def test_eddn_arranca_por_defecto_y_empieza_conectando(tmp_path):
+    escritor = Escritor(tmp_path / "luna.db")
+    escritor.iniciar()
+    try:
+        suscriptor = main.preparar_eddn(Ubicacion(tmp_path, portable=True), escritor, events.Bus())
+
+        assert suscriptor is not None
+        assert suscriptor.estado() == "conectando"
+    finally:
+        escritor.detener()

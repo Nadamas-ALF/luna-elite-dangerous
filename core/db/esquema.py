@@ -29,6 +29,51 @@ MIGRACIONES: tuple[str, ...] = (
         PRIMARY KEY (fid, ship_id)
     );
     """,
+    """
+    CREATE TABLE systems (
+        system_address    INTEGER PRIMARY KEY,
+        nombre            TEXT NOT NULL,
+        x                 REAL,
+        y                 REAL,
+        z                 REAL,
+        distancia_centro  REAL,
+        actualizado       TEXT NOT NULL
+    );
+    CREATE TABLE stations (
+        market_id       INTEGER PRIMARY KEY,
+        system_address  INTEGER REFERENCES systems(system_address),
+        nombre          TEXT    NOT NULL,
+        categoria       TEXT    NOT NULL,
+        plataforma      TEXT,
+        distancia_ls    REAL,
+        planetaria      INTEGER NOT NULL,
+        actualizado     TEXT    NOT NULL
+    );
+    CREATE TABLE commodities (
+        simbolo     TEXT PRIMARY KEY,
+        nombre_en   TEXT,
+        nombre_es   TEXT,
+        categoria   TEXT,
+        rara        INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE market_prices (
+        market_id      INTEGER NOT NULL REFERENCES stations(market_id) ON DELETE CASCADE,
+        commodity      TEXT    NOT NULL,
+        buy_price      INTEGER NOT NULL,
+        sell_price     INTEGER NOT NULL,
+        stock          INTEGER NOT NULL,
+        demand         INTEGER NOT NULL,
+        stock_bracket  INTEGER NOT NULL,
+        demand_bracket INTEGER NOT NULL,
+        origen         TEXT    NOT NULL,
+        observado      TEXT    NOT NULL,
+        PRIMARY KEY (market_id, commodity)
+    ) WITHOUT ROWID;
+    CREATE INDEX precios_por_venta ON market_prices (commodity, sell_price);
+    CREATE INDEX precios_por_compra ON market_prices (commodity, buy_price);
+    """,
+    # commodity/3 de EDDN trae el nombre del sistema y no su dirección.
+    "CREATE INDEX sistemas_por_nombre ON systems (nombre);",
 )
 
 

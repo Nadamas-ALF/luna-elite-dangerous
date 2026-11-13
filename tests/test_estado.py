@@ -195,3 +195,27 @@ def test_los_eventos_que_no_interesan_dejan_el_estado_igual():
 
     assert modulo.aplicar(inicial, {"event": "Music", "MusicTrack": "x"}) is inicial
     assert modulo.aplicar(inicial, {"sin_evento": 1}) is inicial
+
+
+def test_atracar_recoge_plataforma_y_distancia_a_la_estrella():
+    estado = modulo.aplicar(
+        modulo.Estado(),
+        {
+            "event": "Docked",
+            "StationName": "Salt Shack",
+            "StationType": "Coriolis",
+            "MarketID": 42,
+            "DistFromStarLS": 336.5,
+            "LandingPads": {"Small": 17, "Medium": 18, "Large": 9},
+        },
+    )
+
+    assert estado.estacion.plataforma == "L"
+    assert estado.estacion.distancia_ls == 336.5
+
+
+def test_el_idioma_viene_del_fileheader():
+    cabecera = {"event": "Fileheader", "gameversion": "4.4", "language": "Spanish/ES"}
+    estado = modulo.aplicar(modulo.Estado(), cabecera)
+
+    assert estado.idioma == "Spanish/ES"

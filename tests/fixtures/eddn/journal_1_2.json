@@ -1,0 +1,35 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-10T19:56:29Z",
+    "event": "FSDJump",
+    "Taxi": false,
+    "Multicrew": false,
+    "StarSystem": "Eoch Pruae GL-Y e3066",
+    "SystemAddress": 13169462290572,
+    "StarPos": [
+      -8384.90625,
+      -1063.25,
+      19700.125
+    ],
+    "SystemAllegiance": "",
+    "SystemEconomy": "$economy_None;",
+    "SystemSecondEconomy": "$economy_None;",
+    "SystemGovernment": "$government_None;",
+    "SystemSecurity": "$GAlAXY_MAP_INFO_state_anarchy;",
+    "Population": 0,
+    "Body": "Eoch Pruae GL-Y e3066",
+    "BodyID": 0,
+    "BodyType": "Star",
+    "horizons": true,
+    "odyssey": true
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Linux]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "fbee3448a70df42e42ca232079dcbfb6645810770db28e4f2331eb2a8175d89c",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:29:19.526450Z"
+  }
+}

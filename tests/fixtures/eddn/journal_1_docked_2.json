@@ -1,0 +1,92 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "message": {
+    "timestamp": "2026-11-12T22:33:41Z",
+    "event": "Docked",
+    "StationName": "Holland Hub",
+    "StationType": "Coriolis",
+    "Taxi": false,
+    "Multicrew": false,
+    "StarSystem": "Col 359 Sector GA-W c3-11",
+    "SystemAddress": 3107375485706,
+    "MarketID": 4324967683,
+    "StationFaction": {
+      "Name": "Benelux Commanders"
+    },
+    "StationGovernment": "$government_Democracy;",
+    "StationServices": [
+      "dock",
+      "autodock",
+      "blackmarket",
+      "commodities",
+      "contacts",
+      "missions",
+      "outfitting",
+      "crewlounge",
+      "rearm",
+      "refuel",
+      "repair",
+      "shipyard",
+      "engineer",
+      "missionsgenerated",
+      "facilitator",
+      "flightcontroller",
+      "stationoperations",
+      "powerplay",
+      "searchrescue",
+      "stationMenu",
+      "shop",
+      "livery",
+      "socialspace",
+      "registeringcolonisation"
+    ],
+    "StationEconomy": "$economy_Extraction;",
+    "StationEconomies": [
+      {
+        "Name": "$economy_Extraction;",
+        "Proportion": 3
+      },
+      {
+        "Name": "$economy_Refinery;",
+        "Proportion": 2.4
+      },
+      {
+        "Name": "$economy_Industrial;",
+        "Proportion": 2.3
+      },
+      {
+        "Name": "$economy_Agri;",
+        "Proportion": 0.15
+      },
+      {
+        "Name": "$economy_Military;",
+        "Proportion": 0.05
+      },
+      {
+        "Name": "$economy_HighTech;",
+        "Proportion": 0.05
+      }
+    ],
+    "DistFromStarLS": 14394.882253,
+    "LandingPads": {
+      "Small": 9,
+      "Medium": 12,
+      "Large": 6
+    },
+    "horizons": true,
+    "odyssey": true,
+    "StarPos": [
+      -72.0625,
+      220.5625,
+      291.3125
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "45506b8470f9f62e1afeedebf5d8401af9b71d4f6226f6f70aadb3b33b040bd8",
+    "gameversion": "4.4.2.1",
+    "gamebuild": "r334925/r0 ",
+    "gatewayTimestamp": "2026-11-12T22:33:42.205165Z"
+  }
+}

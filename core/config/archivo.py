@@ -115,9 +115,14 @@ def apartar_roto(archivo: Path) -> Path | None:
     Con un nombre fijo, el segundo incidente borraría la copia del primero,
     que es justo lo que se intenta no perder.
     """
-    # Con microsegundos: dos incidentes en el mismo segundo no se pisan.
+    # El reloj de Windows avanza a saltos de milisegundos: dos incidentes seguidos
+    # pueden recibir la misma marca, y el segundo pisaría la copia del primero.
     marca = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     destino = archivo.with_name(f"{archivo.name}{SUFIJO_ROTO}.{marca}")
+    repetido = 0
+    while destino.exists():
+        repetido += 1
+        destino = archivo.with_name(f"{archivo.name}{SUFIJO_ROTO}.{marca}-{repetido}")
     try:
         archivo.replace(destino)
     except OSError:

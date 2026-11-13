@@ -44,7 +44,7 @@ def test_la_vista_de_una_sesion_real_trae_nave_ubicacion_y_fuentes():
     assert datos["ubicacion"]["sistema"] == "Col 285 Sector HB-C b14-2"
     assert datos["ubicacion"]["estacion"] == {"nombre": "St4r F0x's Salt Shack", "tipo": "Coriolis"}
     assert datos["fuentes"]["journal"]["estado"] == vista.JOURNAL_LEYENDO
-    assert datos["fuentes"]["eddn"]["estado"] == "no_conectado"
+    assert datos["fuentes"]["eddn"]["estado"] == "desactivado"
     assert datos["fuentes"]["spansh"]["estado"] == "sin_descarga"
 
 
@@ -265,3 +265,17 @@ def test_si_se_guarda_no_hay_aviso(api, elegida, tmp_path):
     elegida["ruta"] = str(tmp_path)
 
     assert interfaz.elegir_carpeta_journal()["no_guardado"] is False
+
+
+def test_el_estado_de_eddn_llega_a_la_interfaz(tmp_path):
+    config = tmp_path / "config.json"
+    interfaz = Api(
+        Nucleo(config, events.Bus(), None),
+        Ubicacion(tmp_path, portable=True),
+        config,
+        base_disponible=True,
+        elegir_carpeta=lambda: None,
+        estado_eddn=lambda: "conectado",
+    )
+
+    assert interfaz.estado()["fuentes"]["eddn"]["estado"] == "conectado"

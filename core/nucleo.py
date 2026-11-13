@@ -13,11 +13,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from core import catalogo, events
+from core import estacion as clasificacion
 from core import nave as modelo_nave
 from core.config import ajustes
-from core.db import comandante
+from core.db import comandante, mercado
 from core.db.escritor import Escritor
+from core.esfera import Esfera
 from core.journal import archivos, carpeta, lector
+from core.journal import mercado as mercado_del_juego
 from core.state import vista
 from core.state.estado import Estado, NaveActual, aplicar
 
@@ -32,6 +35,7 @@ PASOS_ENTRE_BUSQUEDAS = 10
 class _Marcas:
     cargo: tuple[int, int] | None = None
     status: tuple[int, int] | None = None
+    mercado: tuple[int, int] | None = None
 
 
 class Nucleo:
@@ -44,6 +48,8 @@ class Nucleo:
         self._config = config
         self._bus = bus
         self._escritor = escritor
+        # Como en EDDN, la esfera se lee al arrancar: cambiarla pide reiniciar.
+        self._esfera = ajustes.esfera(config)
         self._estado = Estado()
         self._candado = threading.Lock()
         self._parar = threading.Event()
@@ -55,6 +61,8 @@ class Nucleo:
         self._pasos_sin_carpeta = PASOS_ENTRE_BUSQUEDAS
 
     def iniciar(self) -> None:
+        if self._escritor is not None:
+            self._escritor.encolar(lambda c: mercado.sembrar_mercancias(c, catalogo.mercancias()))
         self._hilo.start()
 
     def detener(self) -> None:
@@ -120,12 +128,14 @@ class Nucleo:
         estado = self._plegar(Estado(), lectura.eventos)
         self._marcas = _Marcas()
         estado = self._con_archivos(estado)
+        self._guardar_mercado_abierto(estado)
         self._publicar(estado, anterior=None)
 
     def _seguir(self) -> None:
         anterior = self.estado()
         estado = self._plegar(anterior, self._seguidor.nuevos().eventos)
         estado = self._con_archivos(estado)
+        self._guardar_mercado_abierto(estado)
         if estado != anterior:
             self._publicar(estado, anterior)
 
@@ -157,6 +167,26 @@ class Nucleo:
             estado = aplicar(estado, contenido)
         return estado
 
+    def _guardar_mercado_abierto(self, estado: Estado) -> None:
+        """Market.json solo vale si es el de la estación donde estás atracado."""
+        if self._escritor is None:
+            return
+        marca = archivos.marca(self._carpeta, archivos.MERCADO)
+        if marca is None or marca == self._marcas.mercado:
+            return
+        abierto = mercado_del_juego.leer(self._carpeta)
+        if abierto is None:
+            return  # a medio escribir: se reintenta en la siguiente pasada
+        self._marcas.mercado = marca
+        if estado.estacion is None or estado.estacion.market_id != abierto.market_id:
+            return
+        propio = _mercado_propio(estado, abierto, self._esfera)
+        market_id = abierto.market_id
+        self._escritor.encolar(
+            lambda c: mercado.guardar_propio(c, propio),
+            lambda guardado: guardado and self._bus.publicar(events.MERCADO_ACTUALIZADO, market_id),
+        )
+
     def _guardar(self, comandantes: dict, naves: dict) -> None:
         """Cada comandante visto se da de alta antes que sus naves (clave foránea)."""
         if self._escritor is None:
@@ -186,6 +216,35 @@ class Nucleo:
             self._bus.publicar(tipo, ahora.estacion)
         if antes.carga != ahora.carga:
             self._bus.publicar(events.CARGA_CAMBIADA, ahora.carga)
+
+
+def _mercado_propio(
+    estado: Estado, abierto: mercado_del_juego.Mercado, esfera: Esfera
+) -> mercado.MercadoPropio:
+    estacion = estado.estacion
+    nombre = abierto.estacion or estacion.nombre
+    sistema = None
+    if estado.system_address is not None and estado.sistema:
+        sistema = mercado.Sistema(
+            estado.system_address,
+            estado.sistema,
+            estado.posicion,
+            esfera.distancia(estado.posicion) if estado.posicion else None,
+        )
+    return mercado.MercadoPropio(
+        sistema=sistema,
+        estacion=mercado.Estacion(
+            market_id=abierto.market_id,
+            nombre=nombre,
+            categoria=clasificacion.categoria(estacion.tipo, nombre),
+            plataforma=estacion.plataforma,
+            distancia_ls=estacion.distancia_ls,
+            planetaria=clasificacion.es_planetaria(estacion.tipo),
+        ),
+        observado=abierto.observado,
+        articulos=abierto.articulos,
+        idioma=mercado_del_juego.codigo_de_idioma(estado.idioma),
+    )
 
 
 def _es_guardable(estado: Estado) -> bool:

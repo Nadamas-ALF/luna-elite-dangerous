@@ -1,0 +1,43 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/commodity/3",
+  "message": {
+    "timestamp": "2026-11-12T22:29:31Z",
+    "systemName": "Hyades Sector VI-B b2",
+    "stationName": "$EXT_PANEL_ColonisationShip; Kukai Expedition",
+    "marketId": 3965157122,
+    "commodities": [
+      {
+        "name": "steel",
+        "meanPrice": 4179,
+        "buyPrice": 2739,
+        "stock": 0,
+        "stockBracket": 0,
+        "sellPrice": 2738,
+        "demand": 0,
+        "demandBracket": 0
+      }
+    ],
+    "horizons": true,
+    "odyssey": true,
+    "economies": [
+      {
+        "name": "Colony",
+        "proportion": 1
+      }
+    ],
+    "prohibited": [
+      "BasicNarcotics",
+      "ImperialSlaves",
+      "Slaves",
+      "Tobacco"
+    ]
+  },
+  "header": {
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "6.1.2",
+    "uploaderID": "b97baf20f505e54c407434c7804544bfd683bc6a2d40d78f6a1c57672bc5f9aa",
+    "gameversion": "CAPI-Live-market",
+    "gamebuild": "",
+    "gatewayTimestamp": "2026-11-12T22:29:31.804922Z"
+  }
+}

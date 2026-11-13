@@ -39,6 +39,7 @@ class Contexto:
     motivo_datos: str | None
     avisos_datos: tuple[str, ...]
     base_disponible: bool
+    eddn: str = "desactivado"
 
 
 def _causa(sin_journal: bool, motivo: str) -> str:
@@ -142,7 +143,7 @@ def _comandante(estado: Estado, sin_journal: bool) -> dict:
 def _fuentes(estado: Estado, contexto: Contexto) -> dict:
     return {
         "journal": {"estado": contexto.journal, "ultimo_evento": estado.ultimo_evento},
-        "eddn": {"estado": "no_conectado"},
+        "eddn": {"estado": contexto.eddn},
         "spansh": {"estado": "sin_descarga"},
     }
 
