@@ -6,6 +6,7 @@ import main
 from core import events, plataforma, textos
 from core.config.rutas import Ubicacion
 from core.db.escritor import Escritor
+from core.esfera import Esfera, EsferaViva
 
 
 class EstadoFalso:
@@ -150,8 +151,11 @@ def test_se_avisa_si_el_motor_no_es_webview2(monkeypatch):
         main.comprobar_motor()
 
 
+SOL = EsferaViva(Esfera("Sol", (0.0, 0.0, 0.0), 100.0))
+
+
 def test_eddn_no_arranca_sin_base_de_datos(tmp_path):
-    assert main.preparar_eddn(Ubicacion(tmp_path, portable=True), None, events.Bus()) is None
+    assert main.preparar_eddn(Ubicacion(tmp_path, portable=True), None, events.Bus(), SOL) is None
 
 
 def test_eddn_no_arranca_si_el_usuario_lo_desactivo(tmp_path):
@@ -159,9 +163,8 @@ def test_eddn_no_arranca_si_el_usuario_lo_desactivo(tmp_path):
     escritor = Escritor(tmp_path / "luna.db")
     escritor.iniciar()
     try:
-        assert (
-            main.preparar_eddn(Ubicacion(tmp_path, portable=True), escritor, events.Bus()) is None
-        )
+        ubicacion = Ubicacion(tmp_path, portable=True)
+        assert main.preparar_eddn(ubicacion, escritor, events.Bus(), SOL) is None
     finally:
         escritor.detener()
 
@@ -170,7 +173,8 @@ def test_eddn_arranca_por_defecto_y_empieza_conectando(tmp_path):
     escritor = Escritor(tmp_path / "luna.db")
     escritor.iniciar()
     try:
-        suscriptor = main.preparar_eddn(Ubicacion(tmp_path, portable=True), escritor, events.Bus())
+        ubicacion = Ubicacion(tmp_path, portable=True)
+        suscriptor = main.preparar_eddn(ubicacion, escritor, events.Bus(), SOL)
 
         assert suscriptor is not None
         assert suscriptor.estado() == "conectando"

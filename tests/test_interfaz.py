@@ -5,8 +5,11 @@ from html.parser import HTMLParser
 import pytest
 import webview.util
 
-from core import recursos, textos
+from core import datos, recursos, textos
+from core.db import espacio
 from core.eddn import suscriptor
+from core.spansh import cambio, descarga, gestor, importacion
+from core.state import vista
 
 RAIZ = recursos.carpeta_de_recursos()
 INDEX = RAIZ / "ui" / "index.html"
@@ -18,6 +21,59 @@ ESTADOS_EDDN = (
     suscriptor.CONECTADO,
     suscriptor.SIN_DATOS,
     suscriptor.REINTENTANDO,
+)
+FASES_DEL_GESTOR = (
+    gestor.INACTIVA,
+    gestor.DESCARGANDO,
+    gestor.PAUSADA,
+    gestor.IMPORTANDO,
+    gestor.ERROR,
+)
+ESTADOS_DE_SPANSH = (
+    vista.SPANSH_SIN_DESCARGA,
+    vista.SPANSH_COMPLETA,
+    gestor.DESCARGANDO,
+    gestor.PAUSADA,
+    "importando_leyendo",
+    "importando_guardando",
+    gestor.ERROR,
+)
+# El gestor compone el código con el prefijo de la etapa y el motivo del error.
+ERRORES_DEL_GESTOR = (
+    *(
+        f"descarga_{motivo}"
+        for motivo in (
+            descarga.MOTIVO_URL,
+            descarga.MOTIVO_RED,
+            descarga.MOTIVO_HTTP,
+            descarga.MOTIVO_CORTADA,
+            descarga.MOTIVO_ESPACIO,
+            descarga.MOTIVO_FORMATO,
+            descarga.MOTIVO_DESTINO,
+        )
+    ),
+    *(
+        f"importacion_{motivo}"
+        for motivo in (
+            importacion.MOTIVO_ARCHIVO,
+            importacion.MOTIVO_FORMATO,
+            importacion.MOTIVO_BASE,
+            importacion.MOTIVO_DESTINO,
+        )
+    ),
+    "interno",
+)
+ERRORES_DE_DATOS = (
+    cambio.MOTIVO_DESCONOCIDO,
+    cambio.MOTIVO_AMBIGUO,
+    cambio.MOTIVO_NOMBRE,
+    cambio.MOTIVO_RADIO,
+    datos.ERROR_OCUPADO,
+    datos.ERROR_SIN_BASE,
+    datos.ERROR_NO_GUARDADO,
+    datos.ERROR_DIAS,
+    datos.ERROR_PARAMETRO,
+    "no_disponible",
 )
 
 # Formas de meter HTML ajeno en la página. Con
@@ -46,7 +102,7 @@ class TextoSinMarcar(HTMLParser):
         atributos = dict(attrs)
         for nombre in ATRIBUTOS_DE_TEXTO:
             if atributos.get(nombre):
-                self.hallazgos.append(f"<{tag} {nombre}=\"{atributos[nombre]}\">")
+                self.hallazgos.append(f'<{tag} {nombre}="{atributos[nombre]}">')
         if tag not in ETIQUETAS_VACIAS:
             self.pila.append((tag, atributos))
 
@@ -104,7 +160,7 @@ def test_todas_las_claves_del_html_estan_en_es_json():
 
 def test_el_html_solo_traduce_atributos_de_la_lista_permitida():
     html = INDEX.read_text(encoding="utf-8")
-    usados = set(re.findall(r'data-i18n-([a-z-]+)=', html))
+    usados = set(re.findall(r"data-i18n-([a-z-]+)=", html))
     assert usados <= ATRIBUTOS_TRADUCIBLES
     lista_del_js = re.search(r"new Set\(\[(.*?)\]\)", (RAIZ / "ui/js/i18n.js").read_text("utf-8"))
     assert set(re.findall(r"'([^']+)'", lista_del_js.group(1))) == ATRIBUTOS_TRADUCIBLES
@@ -139,11 +195,22 @@ def test_hay_texto_para_cada_codigo_que_el_nucleo_puede_enviar():
     claves = [f"motivos.{codigo}" for codigo in motivos]
     claves += [f"datos.{codigo}" for codigo in (vista.AVISO_SIN_BASE, rutas.MOTIVO_SIN_ESCRITURA)]
     claves += [
+        f"datos.{codigo}"
+        for codigo in (
+            espacio.AVISO_COMPACTANDO,
+            espacio.AVISO_SIN_ESPACIO,
+            espacio.AVISO_SIN_COMPACTAR,
+        )
+    ]
+    claves += [
         f"estado.fuentes.journal_estado.{e}"
         for e in (vista.JOURNAL_LEYENDO, vista.JOURNAL_SIN_CARPETA, vista.JOURNAL_SIN_ARCHIVOS)
     ]
     claves += [f"estado.fuentes.eddn_estado.{e}" for e in ESTADOS_EDDN]
-    claves += ["estado.fuentes.spansh_estado.sin_descarga"]
+    claves += [f"estado.fuentes.spansh_estado.{e}" for e in ESTADOS_DE_SPANSH]
+    claves += [f"configuracion.spansh.fase.{f}" for f in FASES_DEL_GESTOR]
+    claves += [f"configuracion.spansh.errores.{e}" for e in ERRORES_DEL_GESTOR]
+    claves += [f"configuracion.errores.{e}" for e in ERRORES_DE_DATOS]
     claves += [f"estado.nave.plataformas.{p}" for p in ("S", "M", "L")]
     assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
 
@@ -155,6 +222,24 @@ def test_los_textos_con_marcadores_aceptan_sus_valores():
         "estado.nave.modelo_con_nombre": {"modelo": "Python", "nombre": "x"},
         "estado.carga.resumen": {"total": 1, "capacidad": 2},
         "estado.fuentes.journal_ultimo": {"estado": "a", "hace": "b"},
+        "estado.fuentes.spansh_estado.completa": {"hace": "a", "centro": "b", "radio": "c"},
+        "estado.fuentes.spansh_estado.descargando": {"porcentaje": "a"},
+        "estado.fuentes.spansh_estado.pausada": {"porcentaje": "a"},
+        "estado.fuentes.spansh_estado.importando_leyendo": {"porcentaje": "a"},
+        "estado.fuentes.spansh_estado.error": {"motivo": "a"},
+        "configuracion.esfera.actual_valor": {"centro": "a", "radio": "b"},
+        "configuracion.esfera.propuesta.resumen": {"centro": "a", "radio": "b"},
+        "configuracion.esfera.propuesta.descarga_si": {"tamano": "a", "libre": "b"},
+        "configuracion.esfera.propuesta.descarga_si_sin_tamano": {"libre": "a"},
+        "configuracion.esfera.propuesta.descarga_no_repetir": {"tamano": "a"},
+        "configuracion.spansh.progreso_descarga": {"descargado": 1, "total": 2, "porcentaje": 3},
+        "configuracion.spansh.progreso_lectura": {"porcentaje": "a", "encontrados": 2},
+        "configuracion.spansh.progreso_guardado": {"guardados": 1, "encontrados": 2},
+        "configuracion.spansh.ultima": {"hace": "a", "centro": "b", "radio": "c"},
+        "formato.gib": {"valor": 1},
+        "formato.mib": {"valor": 1},
+        "formato.kib": {"valor": 1},
+        "formato.porcentaje": {"valor": 1},
     }
     for clave, valores in ejemplos.items():
         marcadores = set(re.findall(r"\{(\w+)\}", buscar(clave)))

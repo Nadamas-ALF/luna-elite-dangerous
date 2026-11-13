@@ -20,6 +20,21 @@ export const toneladasConDecimales = (valor) =>
 export const anosLuz = (valor) => texto('formato.ly', { valor: numero(valor, 2) });
 export const proporcion = (parte, total) => texto('formato.proporcion', { parte, total });
 
+const BYTES_POR_MIB = 1024 * 1024;
+const BYTES_POR_GIB = 1024 * BYTES_POR_MIB;
+
+export function bytes(valor) {
+  if (valor >= BYTES_POR_GIB) return texto('formato.gib', { valor: numero(valor / BYTES_POR_GIB, 2) });
+  if (valor >= BYTES_POR_MIB) return texto('formato.mib', { valor: numero(valor / BYTES_POR_MIB, 1) });
+  return texto('formato.kib', { valor: numero(valor / 1024, 1) });
+}
+
+export const porcentaje = (parte, total) =>
+  texto('formato.porcentaje', { valor: numero((100 * parte) / total, 0) });
+
+/** Sin decimales si el número es entero: «100», pero «37,5». */
+export const cantidad = (valor) => numero(valor, Number.isInteger(valor) ? 0 : 1);
+
 export function coordenadas([x, y, z]) {
   return texto('formato.coordenadas', { x: numero(x, 2), y: numero(y, 2), z: numero(z, 2) });
 }

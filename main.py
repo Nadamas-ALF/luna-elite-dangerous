@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 import webview
@@ -16,11 +17,16 @@ from core import events, plataforma, recursos, textos
 from core.api import Api
 from core.config import ajustes, rutas, ventana
 from core.config.rutas import Ubicacion
+from core.datos import Datos
 from core.db.escritor import Escritor, NoSePudoAbrir
 from core.eddn.ingesta import Ingesta
+from core.eddn.servicio import Servicio
 from core.eddn.sistemas import Conocidos
-from core.eddn.suscriptor import DESACTIVADO, Suscriptor
+from core.eddn.suscriptor import Suscriptor
+from core.esfera import EsferaViva
+from core.mantenimiento import Mantenimiento
 from core.nucleo import Nucleo
+from core.spansh.gestor import Gestor
 
 registro = logging.getLogger("luna")
 
@@ -115,15 +121,19 @@ def abrir_base(ubicacion: Ubicacion) -> Escritor | None:
 
 
 def preparar_eddn(
-    ubicacion: Ubicacion, escritor: Escritor | None, bus: events.Bus
+    ubicacion: Ubicacion, escritor: Escritor | None, bus: events.Bus, esfera: EsferaViva
 ) -> Suscriptor | None:
     """Sin base de datos no hay dónde guardar lo que llegue, así que no se escucha."""
     config = rutas.archivo_de_config(ubicacion)
     if escritor is None or not ajustes.eddn_activado(config):
         return None
-    esfera = ajustes.esfera(config)
     conocidos = Conocidos(esfera, rutas.archivo_de_base(ubicacion))
-    return Suscriptor(Ingesta(escritor, bus, esfera, conocidos))
+    dias = ajustes.antiguedad_maxima_con_memoria(config)
+
+    def antiguedad() -> timedelta:
+        return timedelta(days=dias())
+
+    return Suscriptor(Ingesta(escritor, bus, esfera, conocidos, antiguedad=antiguedad))
 
 
 def elegir_carpeta() -> str | None:
@@ -160,22 +170,52 @@ def main() -> int:
     titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
     escritor = abrir_base(ubicacion)
     bus = events.Bus()
-    nucleo = Nucleo(rutas.archivo_de_config(ubicacion), bus, escritor)
-    eddn = preparar_eddn(ubicacion, escritor, bus)
+    config = rutas.archivo_de_config(ubicacion)
+    esfera = EsferaViva(ajustes.esfera(config), fiable=ajustes.configuracion_legible(config))
+    nucleo = Nucleo(config, bus, escritor, esfera)
+    eddn = Servicio(lambda: preparar_eddn(ubicacion, escritor, bus, esfera))
+    gestor: Gestor | None = None
+    mantenimiento = (
+        Mantenimiento(
+            escritor, esfera, config, en_pausa=lambda: gestor is not None and gestor.ocupado()
+        )
+        if escritor
+        else None
+    )
+    if escritor and mantenimiento:
+        gestor = Gestor(
+            ubicacion.carpeta / "descargas",
+            config,
+            escritor,
+            esfera,
+            al_terminar=mantenimiento.aplicar_esfera,
+        )
+    datos = Datos(
+        config,
+        rutas.archivo_de_base(ubicacion) if escritor else None,
+        ubicacion.carpeta / "descargas",
+        esfera,
+        gestor,
+        mantenimiento,
+        eddn,
+    )
     api = Api(
         nucleo,
         ubicacion,
-        rutas.archivo_de_config(ubicacion),
+        config,
         base_disponible=escritor is not None,
         elegir_carpeta=elegir_carpeta,
-        estado_eddn=eddn.estado if eddn else lambda: DESACTIVADO,
+        estado_eddn=eddn.estado,
+        datos=datos,
+        avisos_de_base=lambda: escritor.avisos if escritor else (),
     )
     try:
         comprobar_motor()
         crear_ventana(ubicacion, titulo, api)
         nucleo.iniciar()
-        if eddn:
-            eddn.iniciar()
+        eddn.iniciar()
+        if mantenimiento:
+            mantenimiento.iniciar()
         arrancar()
     except FaltaWebView2 as error:
         registro.error("motor de la interfaz inesperado: %s", error)
@@ -190,8 +230,11 @@ def main() -> int:
         )
         return 1
     finally:
-        if eddn:
-            eddn.detener()
+        if mantenimiento:
+            mantenimiento.detener()
+        if gestor:
+            gestor.detener()
+        eddn.detener()
         nucleo.detener()
         if escritor is not None:
             escritor.detener()

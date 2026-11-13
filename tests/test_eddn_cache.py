@@ -6,7 +6,7 @@ from core.db.mercado import Estacion
 from core.eddn.espera import Espera
 from core.eddn.mensaje import MercadoDeRed, Visita
 from core.eddn.sistemas import Conocidos
-from core.esfera import Esfera
+from core.esfera import Esfera, EsferaViva
 
 ESFERA = Esfera("Sol", (0.0, 0.0, 0.0), 100.0)
 
@@ -134,3 +134,23 @@ def test_lo_guardado_en_la_base_manda_sobre_un_mensaje_que_lo_contradice(tmp_pat
         assert ESFERA.contiene(aprendido.posicion)
     finally:
         conocidos.cerrar()
+
+
+def test_al_cambiar_la_esfera_se_olvidan_las_distancias_recordadas(tmp_path):
+    viva = EsferaViva(Esfera("Sol", (0.0, 0.0, 0.0), 100.0))
+    conocidos = Conocidos(viva, tmp_path / "luna.db")
+    visita = Visita("Sol", 10477373803, (30.0, 0.0, 0.0), "2026-11-12T10:00:00Z", None)
+    assert conocidos.aprender(visita).distancia_centro == 30.0
+
+    viva.cambiar(Esfera("Otro", (30.0, 0.0, 10.0), 100.0))
+
+    # Sin base ni caché, el sistema ya no se conoce: la distancia vieja no sobrevive.
+    assert conocidos.buscar("Sol") is None
+    assert conocidos.aprender(visita).distancia_centro == 10.0
+
+
+def test_una_esfera_fija_no_vacia_el_cache(tmp_path):
+    conocidos = Conocidos(ESFERA, tmp_path / "luna.db")
+    visita = Visita("Sol", 10477373803, (0.0, 0.0, 0.0), "2026-11-12T10:00:00Z", None)
+    conocidos.aprender(visita)
+    assert conocidos.buscar("Sol") is not None

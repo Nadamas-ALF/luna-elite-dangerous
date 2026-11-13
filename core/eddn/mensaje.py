@@ -11,15 +11,17 @@ Solo se interpretan `commodity/3` y los `journal/1` que traen coordenadas.
 from __future__ import annotations
 
 import json
-import math
 import re
 import zlib
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
+from core import direccion as direccion_del_sistema
 from core import estacion as clasificacion
+from core import validacion
 from core.db.mercado import Estacion
 from core.journal.mercado import Articulo
+from core.validacion import MOTIVO_MAL_FORMADO, Descartado
 
 ESQUEMA_MERCADO = "https://eddn.edcd.io/schemas/commodity/3"
 ESQUEMA_JOURNAL = "https://eddn.edcd.io/schemas/journal/1"
@@ -27,26 +29,15 @@ ESQUEMA_JOURNAL = "https://eddn.edcd.io/schemas/journal/1"
 # Un commodity/3 de 400 mercancías ronda los 60 KB descomprimido.
 TAMANO_MAXIMO = 1_048_576
 MERCANCIAS_MAXIMAS = 500
-LARGO_MAXIMO = 100
-VALOR_MAXIMO = 2**53
-COORDENADA_MAXIMA = 200_000.0
 # Margen para relojes desajustados; más allá, la marca no es creíble.
 ADELANTO_MAXIMO = timedelta(seconds=60)
 ANTIGUEDAD_MAXIMA = timedelta(days=30)
 
 MOTIVO_PRUEBA = "prueba"
 MOTIVO_LEGACY = "legacy"
-MOTIVO_MAL_FORMADO = "mal_formado"
 MOTIVO_FECHA = "fecha"
 MOTIVO_ESQUEMA = "esquema"
-
-_MARCA = re.compile(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(Z|[+-]\d\d:\d\d)")
-
-
-class Descartado(Exception):  # noqa: N818 - no es un error: es el desenlace normal de un mensaje ajeno
-    def __init__(self, motivo: str) -> None:
-        super().__init__(motivo)
-        self.motivo = motivo
+MOTIVO_DIRECCION = "direccion"
 
 
 @dataclass(frozen=True)
@@ -70,7 +61,9 @@ class MercadoDeRed:
     articulos: tuple[Articulo, ...]
 
 
-def interpretar(crudo: bytes, ahora: datetime | None = None) -> Visita | MercadoDeRed | None:
+def interpretar(
+    crudo: bytes, ahora: datetime | None = None, antiguedad: timedelta = ANTIGUEDAD_MAXIMA
+) -> Visita | MercadoDeRed | None:
     """None si el mensaje es válido pero no sirve; `Descartado` si hay que tirarlo."""
     mensaje = _json(_descomprimir(crudo))
     esquema = mensaje.get("$schemaRef")
@@ -85,9 +78,7 @@ def interpretar(crudo: bytes, ahora: datetime | None = None) -> Visita | Mercado
         raise Descartado(MOTIVO_MAL_FORMADO)
     _exigir_live(cabecera)
     if esquema == ESQUEMA_MERCADO:
-        return _mercado(
-            cuerpo, _marca_de(cuerpo.get("timestamp"), cabecera, ahora, ANTIGUEDAD_MAXIMA)
-        )
+        return _mercado(cuerpo, _marca_de(cuerpo.get("timestamp"), cabecera, ahora, antiguedad))
     # EDMC reenvía journals de hace semanas, y las coordenadas de un sistema no caducan.
     return _visita(cuerpo, _marca_de(cuerpo.get("timestamp"), cabecera, ahora, None))
 
@@ -123,58 +114,23 @@ def _exigir_live(cabecera: dict) -> None:
         raise Descartado(MOTIVO_LEGACY)
 
 
-def _fecha(valor: object) -> datetime | None:
-    if not isinstance(valor, str) or not _MARCA.fullmatch(valor):
-        return None
-    try:
-        fecha = datetime.fromisoformat(valor)
-    except ValueError:
-        return None
-    return fecha.astimezone(UTC) if fecha.tzinfo else None
-
-
 def _marca_de(
     valor: object, cabecera: dict, ahora: datetime | None, antiguedad: timedelta | None
 ) -> str:
     """Marca normalizada. Se compara con la hora de la pasarela, que no la pone el emisor."""
-    fecha = _fecha(valor)
+    fecha = validacion.fecha(valor)
     if fecha is None:
         raise Descartado(MOTIVO_MAL_FORMADO)
-    referencia = _fecha(cabecera.get("gatewayTimestamp")) or ahora or datetime.now(UTC)
+    referencia = validacion.fecha(cabecera.get("gatewayTimestamp")) or ahora or datetime.now(UTC)
     demasiado_vieja = antiguedad is not None and referencia - fecha > antiguedad
     if fecha > referencia + ADELANTO_MAXIMO or demasiado_vieja:
         raise Descartado(MOTIVO_FECHA)
     return fecha.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _texto(valor: object) -> str:
-    if not isinstance(valor, str):
-        raise Descartado(MOTIVO_MAL_FORMADO)
-    limpio = valor.strip()
-    if not limpio or len(limpio) > LARGO_MAXIMO or not limpio.isprintable():
-        raise Descartado(MOTIVO_MAL_FORMADO)
-    return limpio
-
-
-def _entero(valor: object, minimo: int = 0, maximo: int = VALOR_MAXIMO) -> int:
-    if isinstance(valor, bool) or not isinstance(valor, int) or not minimo <= valor <= maximo:
-        raise Descartado(MOTIVO_MAL_FORMADO)
-    return valor
-
-
-def _posicion(valor: object) -> tuple[float, float, float]:
-    if not isinstance(valor, list) or len(valor) != 3:
-        raise Descartado(MOTIVO_MAL_FORMADO)
-    for eje in valor:
-        numero_valido = isinstance(eje, (int, float)) and not isinstance(eje, bool)
-        if not numero_valido or not math.isfinite(eje) or abs(eje) > COORDENADA_MAXIMA:
-            raise Descartado(MOTIVO_MAL_FORMADO)
-    return float(valor[0]), float(valor[1]), float(valor[2])
-
-
 def _nivel(valor: object) -> int:
     """Los Fleet Carrier mandan una cadena vacía en el nivel que no tienen."""
-    return 0 if valor == "" else _entero(valor, 0, 3)
+    return 0 if valor == "" else validacion.entero(valor, 0, 3)
 
 
 def _articulo(bruto: object) -> Articulo:
@@ -182,14 +138,14 @@ def _articulo(bruto: object) -> Articulo:
         raise Descartado(MOTIVO_MAL_FORMADO)
     nivel_stock = _nivel(bruto.get("stockBracket"))
     nivel_demanda = _nivel(bruto.get("demandBracket"))
-    stock = _entero(bruto.get("stock"))
-    demanda = _entero(bruto.get("demand"))
+    stock = validacion.entero(bruto.get("stock"))
+    demanda = validacion.entero(bruto.get("demand"))
     return Articulo(
-        simbolo=_texto(bruto.get("name")).lower(),
+        simbolo=validacion.texto(bruto.get("name")).lower(),
         nombre=None,
         categoria=None,
-        precio_compra=_entero(bruto.get("buyPrice")),
-        precio_venta=_entero(bruto.get("sellPrice")),
+        precio_compra=validacion.entero(bruto.get("buyPrice")),
+        precio_venta=validacion.entero(bruto.get("sellPrice")),
         # Con nivel 0 la cantidad es un residuo del juego; igual que en Market.json.
         stock=stock if nivel_stock > 0 else 0,
         demanda=demanda if nivel_demanda > 0 else 0,
@@ -217,9 +173,9 @@ def _es_carrier(economias: object) -> bool:
 def _mercado(cuerpo: dict, marca: str) -> MercadoDeRed:
     # commodity/3 no dice qué tipo de estación es; se delatan los Fleet Carrier y la colonización.
     categoria = clasificacion.FLEET_CARRIER if _es_carrier(cuerpo.get("economies")) else None
-    nombre = _texto(cuerpo.get("stationName"))
+    nombre = validacion.texto(cuerpo.get("stationName"))
     estacion = Estacion(
-        market_id=_entero(cuerpo.get("marketId"), 1),
+        market_id=validacion.entero(cuerpo.get("marketId"), 1),
         nombre=nombre,
         categoria=categoria or clasificacion.categoria(None, nombre),
         plataforma=None,
@@ -227,29 +183,24 @@ def _mercado(cuerpo: dict, marca: str) -> MercadoDeRed:
         planetaria=False,
     )
     return MercadoDeRed(
-        sistema=_texto(cuerpo.get("systemName")),
+        sistema=validacion.texto(cuerpo.get("systemName")),
         estacion=estacion,
         observado=marca,
         articulos=_articulos(cuerpo.get("commodities")),
     )
 
 
-def _distancia_ls(valor: object) -> float | None:
-    numero_valido = isinstance(valor, (int, float)) and not isinstance(valor, bool)
-    return float(valor) if numero_valido and 0 <= valor <= 1e9 else None
-
-
 def _estacion_de_docked(cuerpo: dict) -> Estacion | None:
     """Un `Docked` sin estación utilizable sigue sirviendo como visita al sistema."""
     try:
-        tipo = _texto(cuerpo.get("StationType"))
-        nombre = _texto(cuerpo.get("StationName"))
+        tipo = validacion.texto(cuerpo.get("StationType"))
+        nombre = validacion.texto(cuerpo.get("StationName"))
         return Estacion(
-            market_id=_entero(cuerpo.get("MarketID"), 1),
+            market_id=validacion.entero(cuerpo.get("MarketID"), 1),
             nombre=nombre,
             categoria=clasificacion.categoria(tipo, nombre),
             plataforma=clasificacion.plataforma_maxima(cuerpo.get("LandingPads")),
-            distancia_ls=_distancia_ls(cuerpo.get("DistFromStarLS")),
+            distancia_ls=validacion.distancia_ls(cuerpo.get("DistFromStarLS")),
             planetaria=clasificacion.es_planetaria(tipo),
         )
     except Descartado:
@@ -261,10 +212,15 @@ def _visita(cuerpo: dict, marca: str) -> Visita | None:
     if "StarPos" not in cuerpo:
         return None
     estacion = _estacion_de_docked(cuerpo) if cuerpo.get("event") == "Docked" else None
+    direccion = validacion.entero(cuerpo.get("SystemAddress"), 1, 2**63 - 1)
+    posicion = validacion.posicion(cuerpo.get("StarPos"))
+    # La dirección codifica la posición: unas coordenadas que no caben son falsas.
+    if not direccion_del_sistema.es_coherente(direccion, posicion):
+        raise Descartado(MOTIVO_DIRECCION)
     return Visita(
-        nombre=_texto(cuerpo.get("StarSystem")),
-        system_address=_entero(cuerpo.get("SystemAddress"), 1, 2**63 - 1),
-        posicion=_posicion(cuerpo.get("StarPos")),
+        nombre=validacion.texto(cuerpo.get("StarSystem")),
+        system_address=direccion,
+        posicion=posicion,
         observado=marca,
         estacion=estacion,
     )

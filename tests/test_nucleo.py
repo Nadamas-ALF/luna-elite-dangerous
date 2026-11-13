@@ -84,9 +84,7 @@ def test_carpeta_sin_journals_lo_dice(config, arrancar):
     assert esperar(lambda: nucleo.estado_del_journal() == vista.JOURNAL_SIN_ARCHIVOS)
 
 
-def test_un_evento_nuevo_llega_al_estado_y_al_bus_en_menos_de_dos_segundos(
-    juego, config, arrancar
-):
+def test_un_evento_nuevo_llega_al_estado_y_al_bus_en_menos_de_dos_segundos(juego, config, arrancar):
     journal = juego / NOMBRE
     shutil.copy(FIXTURES / "sesion_comercio.log", journal)
     nucleo, bus = arrancar(config)
@@ -217,8 +215,10 @@ def test_las_naves_de_dos_comandantes_se_guardan_con_su_comandante(
 ):
     """Una cuenta alternativa en los últimos días no debe perder las naves de la otra."""
     original = (FIXTURES / "sesion_comercio.log").read_text(encoding="utf-8")
-    for nombre, fid in (("Journal.2026-11-10T033327.01.log", "F0000001"),
-                        ("Journal.2026-11-11T033327.01.log", "F0000002")):
+    for nombre, fid in (
+        ("Journal.2026-11-10T033327.01.log", "F0000001"),
+        ("Journal.2026-11-11T033327.01.log", "F0000002"),
+    ):
         (juego / nombre).write_text(original.replace("F0000001", fid), encoding="utf-8")
     escritor = Escritor(tmp_path / "luna.db")
     escritor.iniciar()
@@ -309,7 +309,9 @@ def test_abrir_el_mercado_guarda_los_precios_con_origen_propio(atracado):
     estacion = consultar(ruta, "SELECT nombre, categoria, plataforma, distancia_ls FROM stations")
     assert estacion[0][:3] == ("St4r F0x's Salt Shack", "orbital", "L")
     assert consultar(ruta, "SELECT nombre_es FROM commodities WHERE simbolo = 'gold'") == [("Oro",)]
-    assert consultar(ruta, "SELECT nombre FROM systems") == [("Col 285 Sector HB-C b14-2",)]
+    assert consultar(ruta, "SELECT nombre, fuente FROM systems") == [
+        ("Col 285 Sector HB-C b14-2", "propio")
+    ]
 
 
 def test_un_market_json_de_otra_estacion_no_se_guarda(atracado):

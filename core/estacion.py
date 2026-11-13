@@ -34,7 +34,11 @@ _CATEGORIA = {
 _PLANETARIAS = frozenset({"craterport", "crateroutpost", "surfacestation", "onfootsettlement"})
 
 
-_NOMBRES_DE_COLONIZACION = ("$ext_panel_colonisationship;", "orbital construction site:")
+_NOMBRES_DE_COLONIZACION = (
+    "$ext_panel_colonisationship;",
+    "orbital construction site:",
+    "system colonisation ship",
+)
 
 
 def es_de_colonizacion(nombre: str | None) -> bool:
@@ -60,3 +64,41 @@ def plataforma_maxima(plataformas: object) -> str | None:
         if isinstance(cantidad, int) and not isinstance(cantidad, bool) and cantidad > 0:
             return letra
     return None
+
+
+# Spansh nombra los tipos de otra forma que el journal.
+_CATEGORIA_DE_SPANSH = {
+    "coriolis starport": ORBITAL,
+    "orbis starport": ORBITAL,
+    "ocellus starport": ORBITAL,
+    "dodec starport": ORBITAL,
+    "asteroid base": ORBITAL,
+    "mega ship": ORBITAL,
+    "planetary port": ORBITAL,
+    "outpost": PUESTO_AVANZADO,
+    "planetary outpost": PUESTO_AVANZADO,
+    "settlement": ASENTAMIENTO,
+    "space construction depot": COLONIZACION,
+    "planetary construction depot": COLONIZACION,
+}
+
+_PLANETARIAS_DE_SPANSH = frozenset(
+    {"planetary port", "planetary outpost", "settlement", "planetary construction depot"}
+)
+
+
+def categoria_de_spansh(tipo: str | None, nombre: str | None, en_cuerpo: bool) -> str:
+    """`en_cuerpo`: un asentamiento de Odyssey llega sin `type`, solo dentro de un cuerpo."""
+    clave = (tipo or "").lower()
+    if es_de_colonizacion(nombre) or clave.endswith("construction depot"):
+        return COLONIZACION
+    if clave.endswith("carrier"):
+        return FLEET_CARRIER
+    if not clave and en_cuerpo:
+        return ASENTAMIENTO
+    return _CATEGORIA_DE_SPANSH.get(clave, DESCONOCIDA)
+
+
+def es_planetaria_de_spansh(tipo: str | None, en_cuerpo: bool) -> bool:
+    clave = (tipo or "").lower()
+    return clave in _PLANETARIAS_DE_SPANSH or (not clave and en_cuerpo)

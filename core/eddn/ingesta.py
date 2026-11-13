@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import threading
 from collections import Counter, OrderedDict
+from collections.abc import Callable
+from datetime import timedelta
 
 from core import events
 from core.db import mercado
@@ -18,7 +20,7 @@ from core.eddn import mensaje
 from core.eddn.espera import Espera
 from core.eddn.mensaje import MercadoDeRed, Visita
 from core.eddn.sistemas import Conocidos
-from core.esfera import Esfera
+from core.esfera import Esfera, EsferaViva
 
 # Mismo tope que la caché de sistemas: recordar qué se envió ya al escritor.
 RECORDADOS = 20_000
@@ -29,6 +31,7 @@ REPETIDO = "repetido"
 FUERA_DE_LA_ESFERA = "fuera_de_la_esfera"
 EN_ESPERA = "en_espera"
 IGNORADO = "ignorado"
+CONFLICTO = "conflicto"
 
 
 class Ingesta:
@@ -36,15 +39,17 @@ class Ingesta:
         self,
         escritor: Escritor,
         bus: events.Bus,
-        esfera: Esfera,
+        esfera: Esfera | EsferaViva,
         conocidos: Conocidos,
         espera: Espera | None = None,
+        antiguedad: Callable[[], timedelta] = lambda: mensaje.ANTIGUEDAD_MAXIMA,
     ) -> None:
         self._escritor = escritor
         self._bus = bus
         self._esfera = esfera
         self._conocidos = conocidos
         self._espera = Espera() if espera is None else espera
+        self._antiguedad = antiguedad
         self._mercados_enviados: OrderedDict[int, str] = OrderedDict()
         self._estaciones_enviadas: OrderedDict[int, mercado.Estacion] = OrderedDict()
         self._contadores: Counter[str] = Counter()
@@ -58,7 +63,7 @@ class Ingesta:
     def procesar(self, crudo: bytes) -> None:
         self._contar(RECIBIDO)
         try:
-            resultado = mensaje.interpretar(crudo)
+            resultado = mensaje.interpretar(crudo, antiguedad=self._antiguedad())
         except mensaje.Descartado as descarte:
             self._contar(descarte.motivo)
             return
@@ -80,6 +85,9 @@ class Ingesta:
         self._conocidos.cerrar()
 
     def _visita(self, visita: Visita) -> None:
+        if self._conocidos.contradice(visita):
+            self._contar(CONFLICTO)
+            return
         nuevo = self._conocidos.aprender(visita)
         if nuevo is not None and self._esfera.contiene(nuevo.posicion):
             self._enviar_visita(nuevo, visita)

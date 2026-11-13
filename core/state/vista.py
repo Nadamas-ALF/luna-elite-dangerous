@@ -7,12 +7,12 @@ mudo (docs/decisiones.md, «Distribución de Estado»).
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 from core import catalogo
 from core import nave as modelo_nave
 from core.config import ajustes
+from core.esfera import Esfera
 from core.state.estado import Estado, NaveActual
 
 MOTIVO_SIN_JOURNAL = "sin_journal"
@@ -30,6 +30,10 @@ JOURNAL_SIN_ARCHIVOS = "sin_archivos"
 
 AVISO_SIN_BASE = "base_no_disponible"
 
+SPANSH_SIN_DESCARGA = "sin_descarga"
+SPANSH_COMPLETA = "completa"
+SPANSH_INACTIVA = "inactiva"
+
 
 @dataclass(frozen=True)
 class Contexto:
@@ -40,6 +44,10 @@ class Contexto:
     avisos_datos: tuple[str, ...]
     base_disponible: bool
     eddn: str = "desactivado"
+    esfera: Esfera = Esfera(
+        ajustes.CENTRO_NOMBRE_POR_DEFECTO, ajustes.CENTRO_POR_DEFECTO, ajustes.RADIO_POR_DEFECTO
+    )
+    spansh: dict | None = None
 
 
 def _causa(sin_journal: bool, motivo: str) -> str:
@@ -97,13 +105,13 @@ def _nave(estado: Estado, sin_journal: bool) -> dict:
     }
 
 
-def _distancia(posicion: tuple[float, float, float] | None) -> float | None:
+def _distancia(posicion: tuple[float, float, float] | None, esfera: Esfera) -> float | None:
     if posicion is None:
         return None
-    return math.dist(posicion, ajustes.CENTRO_POR_DEFECTO)
+    return esfera.distancia(posicion)
 
 
-def _ubicacion(estado: Estado, sin_journal: bool) -> dict:
+def _ubicacion(estado: Estado, sin_journal: bool, esfera: Esfera) -> dict:
     if estado.sistema is None:
         return {"presente": False, "motivo": _causa(sin_journal, MOTIVO_SIN_UBICACION)}
     estacion = estado.estacion
@@ -112,8 +120,8 @@ def _ubicacion(estado: Estado, sin_journal: bool) -> dict:
         "sistema": estado.sistema,
         "posicion": list(estado.posicion) if estado.posicion else None,
         "estacion": {"nombre": estacion.nombre, "tipo": estacion.tipo} if estacion else None,
-        "distancia_al_centro": _distancia(estado.posicion),
-        "centro": ajustes.CENTRO_NOMBRE_POR_DEFECTO,
+        "distancia_al_centro": _distancia(estado.posicion, esfera),
+        "centro": esfera.nombre,
     }
 
 
@@ -144,8 +152,20 @@ def _fuentes(estado: Estado, contexto: Contexto) -> dict:
     return {
         "journal": {"estado": contexto.journal, "ultimo_evento": estado.ultimo_evento},
         "eddn": {"estado": contexto.eddn},
-        "spansh": {"estado": "sin_descarga"},
+        "spansh": _spansh(contexto.spansh),
     }
+
+
+def _spansh(trabajo: dict | None) -> dict:
+    """El trabajo de Spansh como lo muestra Estado: `estado` es la fase, o «sin_descarga»."""
+    if trabajo is None:
+        return {"estado": SPANSH_SIN_DESCARGA, "ultima": None}
+    if trabajo["fase"] == SPANSH_INACTIVA:
+        resto = {**trabajo, "estado": SPANSH_COMPLETA if trabajo["ultima"] else SPANSH_SIN_DESCARGA}
+    else:
+        resto = {**trabajo, "estado": trabajo["fase"]}
+    resto.pop("fase", None)
+    return resto
 
 
 def _datos(contexto: Contexto) -> dict:
@@ -161,7 +181,7 @@ def a_diccionario(estado: Estado, contexto: Contexto) -> dict:
         "sin_journal": sin_journal,
         "comandante": _comandante(estado, sin_journal),
         "nave": _nave(estado, sin_journal),
-        "ubicacion": _ubicacion(estado, sin_journal),
+        "ubicacion": _ubicacion(estado, sin_journal, contexto.esfera),
         "carga": _carga(estado, sin_journal),
         "fuentes": _fuentes(estado, contexto),
         "datos": _datos(contexto),

@@ -18,7 +18,7 @@ from pathlib import Path
 from core.db import escritor, mercado
 from core.db.mercado import Sistema
 from core.eddn.mensaje import Visita
-from core.esfera import Esfera
+from core.esfera import Esfera, EsferaViva
 
 registro = logging.getLogger("luna.eddn")
 
@@ -27,15 +27,27 @@ CAPACIDAD = 20_000
 
 
 class Conocidos:
-    def __init__(self, esfera: Esfera, base: Path, capacidad: int = CAPACIDAD) -> None:
+    def __init__(self, esfera: Esfera | EsferaViva, base: Path, capacidad: int = CAPACIDAD) -> None:
         self._esfera = esfera
+        self._version_de_la_esfera = getattr(esfera, "version", 0)
         self._base = base
         self._capacidad = capacidad
         self._cache: OrderedDict[str, Sistema] = OrderedDict()
         self._lectura: sqlite3.Connection | None = None
 
+    def _sincronizar(self) -> None:
+        """Las distancias recordadas son al centro anterior: si la esfera cambió, se olvidan.
+
+        Lo hace el hilo que usa el caché, no quien cambia la esfera: así no hay carreras.
+        """
+        version = getattr(self._esfera, "version", 0)
+        if version != self._version_de_la_esfera:
+            self._version_de_la_esfera = version
+            self._cache.clear()
+
     def buscar(self, nombre: str) -> Sistema | None:
         """Con la distancia ya medida desde el centro actual; None si no se conoce."""
+        self._sincronizar()
         if (conocido := self._cache.get(nombre)) is not None:
             self._cache.move_to_end(nombre)
             return conocido
@@ -44,11 +56,26 @@ class Conocidos:
             return None
         return self._recordar(guardado.system_address, nombre, guardado.posicion)
 
+    def contradice(self, visita: Visita) -> bool:
+        """True si ese nombre ya lo tiene otro sistema: el mensaje no cuadra y se descarta.
+
+        Los nombres son únicos en el juego. Quien llegó antes (o es de fuente fiable)
+        conserva el nombre; un duplicado por EDDN no puede desviar los mercados.
+        """
+        self._sincronizar()
+        conocido = self._cache.get(visita.nombre)
+        if conocido is not None:
+            return conocido.system_address != visita.system_address
+        return self._leer_bool(
+            lambda c: mercado.nombre_en_uso_por_otro(c, visita.nombre, visita.system_address)
+        )
+
     def aprender(self, visita: Visita) -> Sistema | None:
         """El sistema si es nuevo para la caché; None si ya se conocía con esa dirección.
 
         Lo que ya está en la base manda sobre el mensaje: las coordenadas no cambian.
         """
+        self._sincronizar()
         conocido = self._cache.get(visita.nombre)
         if conocido is not None and conocido.system_address == visita.system_address:
             self._cache.move_to_end(visita.nombre)
@@ -73,6 +100,10 @@ class Conocidos:
 
     def _leer_de_la_base(self, nombre: str) -> Sistema | None:
         return self._leer(lambda c: mercado.sistema_por_nombre(c, nombre))
+
+    def _leer_bool(self, consulta: Callable[[sqlite3.Connection], bool]) -> bool:
+        resultado = self._leer(consulta)
+        return bool(resultado)
 
     def _leer(self, consulta: Callable[[sqlite3.Connection], Sistema | None]) -> Sistema | None:
         try:

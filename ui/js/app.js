@@ -67,6 +67,7 @@ async function arrancar() {
 
   conectarNavegacion((nombre) => {
     if (nombre === 'configuracion') configuracion.cargar();
+    else configuracion.salir();
   });
   mostrarVista(VISTA_INICIAL);
 

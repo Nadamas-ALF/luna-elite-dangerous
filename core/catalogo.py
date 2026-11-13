@@ -24,11 +24,22 @@ def _naves() -> dict:
     return json.loads(recursos.ruta("data", "naves.json").read_text(encoding="utf-8"))["naves"]
 
 
+@dataclass(frozen=True)
+class Mercancia:
+    en: str | None
+    es: str | None
+    categoria: str | None
+    rara: bool
+
+
 @lru_cache(maxsize=1)
-def mercancias() -> dict[str, tuple[str | None, str | None]]:
-    """Símbolo de EDDN -> (nombre inglés, nombre español); cualquiera puede faltar."""
+def mercancias() -> dict[str, Mercancia]:
+    """Símbolo de EDDN -> ficha; cualquier nombre puede faltar."""
     tabla = json.loads(recursos.ruta("data", "mercancias.json").read_text(encoding="utf-8"))
-    return {k: (v["en"], v["es"]) for k, v in tabla["mercancias"].items()}
+    return {
+        simbolo: Mercancia(v["en"], v["es"], v["categoria"], v.get("rara") is True)
+        for simbolo, v in tabla["mercancias"].items()
+    }
 
 
 def nave(simbolo: str) -> FichaCatalogo | None:

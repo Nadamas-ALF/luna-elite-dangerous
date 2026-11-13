@@ -9,10 +9,17 @@ from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 
+from core.catalogo import Mercancia
 from core.journal.mercado import Articulo
 
 ORIGEN_PROPIO = "propio"
 ORIGEN_EDDN = "eddn"
+ORIGEN_SPANSH = "spansh"
+
+# Qué tan fiable es la fuente de un sistema. Solo EDDN es provisional.
+FUENTE_PROPIO = "propio"
+FUENTE_SPANSH = "spansh"
+FUENTE_EDDN = "eddn"
 
 
 @dataclass(frozen=True)
@@ -21,6 +28,7 @@ class Sistema:
     nombre: str
     posicion: tuple[float, float, float] | None
     distancia_centro: float | None
+    fuente: str = FUENTE_EDDN
 
 
 @dataclass(frozen=True)
@@ -33,19 +41,48 @@ class Estacion:
     planetaria: bool
 
 
+# Un dato de fuente fiable sustituye al de un sistema provisional; entre iguales manda el guardado.
+_MANDA_LA_NUEVA = "(fuente = 'eddn' AND excluded.fuente != 'eddn')"
+
+
+def _conservar(columna: str) -> str:
+    return (
+        f"{columna} = CASE WHEN {_MANDA_LA_NUEVA} THEN COALESCE(excluded.{columna}, {columna}) "
+        f"ELSE COALESCE({columna}, excluded.{columna}) END"
+    )
+
+
+_GUARDAR_SISTEMA = (
+    "INSERT INTO systems (system_address, nombre, x, y, z, distancia_centro, actualizado, fuente) "  # noqa: S608, E501
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(system_address) DO UPDATE SET "
+    f"nombre = CASE WHEN {_MANDA_LA_NUEVA} THEN excluded.nombre ELSE nombre END, "
+    f"{_conservar('x')}, {_conservar('y')}, {_conservar('z')}, "
+    f"{_conservar('distancia_centro')}, "
+    "actualizado = MAX(actualizado, excluded.actualizado), "
+    "fuente = CASE WHEN fuente = 'eddn' THEN excluded.fuente ELSE fuente END"
+)
+
+
 def guardar_sistema(conexion: sqlite3.Connection, sistema: Sistema, observado: str) -> None:
     """Las coordenadas y el nombre de un sistema no cambian: lo ya guardado no se pisa.
 
-    Así un mensaje falso de EDDN no puede mover un sistema que ya conocemos.
+    Así un mensaje falso de EDDN no puede mover un sistema que ya conocemos. La
+    excepción es un sistema solo conocido por EDDN, que el journal propio o Spansh
+    corrigen.
     """
     x, y, z = sistema.posicion or (None, None, None)
     conexion.execute(
-        "INSERT INTO systems (system_address, nombre, x, y, z, distancia_centro, actualizado) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(system_address) DO UPDATE SET "
-        "x = COALESCE(x, excluded.x), y = COALESCE(y, excluded.y), z = COALESCE(z, excluded.z), "
-        "distancia_centro = COALESCE(distancia_centro, excluded.distancia_centro), "
-        "actualizado = MAX(actualizado, excluded.actualizado)",
-        (sistema.system_address, sistema.nombre, x, y, z, sistema.distancia_centro, observado),
+        _GUARDAR_SISTEMA,
+        (
+            sistema.system_address,
+            sistema.nombre,
+            x,
+            y,
+            z,
+            sistema.distancia_centro,
+            observado,
+            sistema.fuente,
+        ),
     )
 
 
@@ -124,7 +161,7 @@ def guardar_mercancias(
         conexion.execute(
             "INSERT INTO commodities (simbolo, categoria, rara) VALUES (?, ?, ?) "
             "ON CONFLICT(simbolo) DO UPDATE SET "
-            "categoria = COALESCE(excluded.categoria, categoria), rara = excluded.rara",
+            "categoria = COALESCE(excluded.categoria, categoria), rara = MAX(rara, excluded.rara)",
             (a.simbolo, a.categoria, int(a.rara)),
         )
         if columna and a.nombre:
@@ -134,16 +171,20 @@ def guardar_mercancias(
             )
 
 
-def sembrar_mercancias(
-    conexion: sqlite3.Connection, tabla: dict[str, tuple[str | None, str | None]]
-) -> None:
-    """Nombres de la tabla estática; nunca pisan uno que ya salió del juego."""
+def sembrar_mercancias(conexion: sqlite3.Connection, tabla: dict[str, Mercancia]) -> None:
+    """Datos de la tabla estática; nunca pisan un nombre que ya salió del juego.
+
+    La marca «rara» solo sube: EDDN y Spansh no la traen, y sin ella el filtro de
+    mercancías raras de la búsqueda las trataría como corrientes.
+    """
     conexion.executemany(
-        "INSERT INTO commodities (simbolo, nombre_en, nombre_es) VALUES (?, ?, ?) "
-        "ON CONFLICT(simbolo) DO UPDATE SET "
+        "INSERT INTO commodities (simbolo, nombre_en, nombre_es, categoria, rara) "
+        "VALUES (?, ?, ?, ?, ?) ON CONFLICT(simbolo) DO UPDATE SET "
         "nombre_en = COALESCE(nombre_en, excluded.nombre_en), "
-        "nombre_es = COALESCE(nombre_es, excluded.nombre_es)",
-        [(simbolo, en, es) for simbolo, (en, es) in tabla.items()],
+        "nombre_es = COALESCE(nombre_es, excluded.nombre_es), "
+        "categoria = COALESCE(categoria, excluded.categoria), "
+        "rara = MAX(rara, excluded.rara)",
+        [(s, m.en, m.es, m.categoria, int(m.rara)) for s, m in tabla.items()],
     )
 
 
@@ -173,27 +214,63 @@ def guardar_propio(conexion: sqlite3.Connection, mercado: MercadoPropio) -> bool
 
 
 def sistema_por_nombre(conexion: sqlite3.Connection, nombre: str) -> Sistema | None:
-    """Un sistema con coordenadas conocidas. Para leer desde otro hilo, con conexión propia."""
-    fila = conexion.execute(
-        "SELECT system_address, x, y, z, distancia_centro FROM systems "
-        "WHERE nombre = ? AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL LIMIT 1",
+    """El sistema con ese nombre y coordenadas conocidas; None si no hay o es dudoso.
+
+    Los nombres son únicos en el juego: si hay dos con el mismo, uno es falso. Gana
+    el único de fuente fiable; si no lo hay, no se adivina. Para leer desde otro
+    hilo, con conexión propia.
+    """
+    filas = conexion.execute(
+        "SELECT system_address, x, y, z, distancia_centro, fuente FROM systems "
+        "WHERE nombre = ? AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL",
         (nombre,),
-    ).fetchone()
-    if fila is None:
+    ).fetchall()
+    if len(filas) > 1:
+        filas = [f for f in filas if f[5] != FUENTE_EDDN]
+    if len(filas) != 1:
         return None
-    return Sistema(fila[0], nombre, (fila[1], fila[2], fila[3]), fila[4])
+    fila = filas[0]
+    return Sistema(fila[0], nombre, (fila[1], fila[2], fila[3]), fila[4], fila[5])
+
+
+def nombre_en_uso_por_otro(conexion: sqlite3.Connection, nombre: str, direccion: int) -> bool:
+    """True si la base ya tiene ese nombre con otra dirección: el recién llegado no cuadra."""
+    fila = conexion.execute(
+        "SELECT 1 FROM systems WHERE nombre = ? AND system_address != ? LIMIT 1",
+        (nombre, direccion),
+    ).fetchone()
+    return fila is not None
+
+
+def purgar_impostores(conexion: sqlite3.Connection) -> int:
+    """Borra los sistemas provisionales que repiten el nombre de uno de fuente fiable.
+
+    También sus estaciones y precios. Devuelve cuántos sistemas se fueron.
+    """
+    direcciones = [
+        d
+        for (d,) in conexion.execute(
+            "SELECT i.system_address FROM systems i WHERE i.fuente = 'eddn' AND EXISTS ("
+            "SELECT 1 FROM systems t WHERE t.nombre = i.nombre AND t.fuente != 'eddn' "
+            "AND t.system_address != i.system_address)"
+        )
+    ]
+    for direccion in direcciones:
+        conexion.execute("DELETE FROM stations WHERE system_address = ?", (direccion,))
+        conexion.execute("DELETE FROM systems WHERE system_address = ?", (direccion,))
+    return len(direcciones)
 
 
 def sistema_por_direccion(conexion: sqlite3.Connection, system_address: int) -> Sistema | None:
     """Como `sistema_por_nombre`, por la clave primaria."""
     fila = conexion.execute(
-        "SELECT nombre, x, y, z, distancia_centro FROM systems "
+        "SELECT nombre, x, y, z, distancia_centro, fuente FROM systems "
         "WHERE system_address = ? AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL",
         (system_address,),
     ).fetchone()
     if fila is None:
         return None
-    return Sistema(system_address, fila[0], (fila[1], fila[2], fila[3]), fila[4])
+    return Sistema(system_address, fila[0], (fila[1], fila[2], fila[3]), fila[4], fila[5])
 
 
 def registrar_estacion(
@@ -209,6 +286,39 @@ def registrar_estacion(
         "distancia_ls, planetaria, actualizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?) "
         "ON CONFLICT(market_id) DO UPDATE SET "
         "system_address = excluded.system_address, "
+        "actualizado = MAX(actualizado, excluded.actualizado)",
+        (
+            estacion.market_id,
+            system_address,
+            estacion.nombre,
+            estacion.categoria,
+            estacion.plataforma,
+            estacion.distancia_ls,
+            int(estacion.planetaria),
+            observado,
+        ),
+    )
+
+
+def completar_estacion(
+    conexion: sqlite3.Connection, estacion: Estacion, system_address: int, observado: str
+) -> None:
+    """Alta de una estación descrita por Spansh, que solo completa lo que falte.
+
+    Lo que vio el propio jugador en un `Docked` vale más; Spansh solo sustituye
+    a «desconocida» (una estación que EDDN conoció por su mercado) y rellena huecos.
+    """
+    conexion.execute(
+        "INSERT INTO stations (market_id, system_address, nombre, categoria, plataforma, "
+        "distancia_ls, planetaria, actualizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(market_id) DO UPDATE SET "
+        "system_address = excluded.system_address, "
+        "categoria = CASE WHEN categoria = 'desconocida' THEN excluded.categoria "
+        "ELSE categoria END, "
+        "planetaria = CASE WHEN categoria = 'desconocida' THEN excluded.planetaria "
+        "ELSE planetaria END, "
+        "plataforma = COALESCE(plataforma, excluded.plataforma), "
+        "distancia_ls = COALESCE(distancia_ls, excluded.distancia_ls), "
         "actualizado = MAX(actualizado, excluded.actualizado)",
         (
             estacion.market_id,

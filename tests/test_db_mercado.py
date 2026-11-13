@@ -160,14 +160,20 @@ def test_un_precio_de_una_estacion_desconocida_viola_la_clave_foranea(conexion):
 def test_sembrar_no_pisa_un_nombre_que_ya_salio_del_juego(conexion):
     mercado.guardar_propio(conexion, propio([articulo(nombre="Oro del juego")]))
 
-    mercado.sembrar_mercancias(conexion, {"gold": ("Gold", "Oro"), "silver": ("Silver", None)})
+    mercado.sembrar_mercancias(
+        conexion,
+        {
+            "gold": catalogo.Mercancia("Gold", "Oro", "Metals", False),
+            "silver": catalogo.Mercancia("Silver", None, "Metals", False),
+        },
+    )
 
     assert nombres(conexion, "gold") == ("Oro del juego", "Gold")
     assert nombres(conexion, "silver") == (None, "Silver")
 
 
 def test_la_tabla_estatica_trae_las_mercancias_comunes():
-    assert catalogo.mercancias()["gold"] == ("Gold", "Oro")
+    assert catalogo.mercancias()["gold"] == catalogo.Mercancia("Gold", "Oro", "Metals", False)
 
 
 def test_un_sistema_ya_conocido_no_cambia_de_sitio_ni_de_nombre(conexion):
@@ -179,3 +185,47 @@ def test_un_sistema_ya_conocido_no_cambia_de_sitio_ni_de_nombre(conexion):
     assert conexion.execute("SELECT nombre, x, y, z, distancia_centro FROM systems").fetchall() == [
         ("Col 285", 1.0, 2.0, 2.0, 3.0)
     ]
+
+
+def marca_rara(conexion, simbolo: str):
+    return conexion.execute(
+        "SELECT rara, categoria FROM commodities WHERE simbolo = ?", (simbolo,)
+    ).fetchone()
+
+
+def test_las_raras_de_la_tabla_estatica_llegan_marcadas_a_la_base(conexion):
+    mercado.sembrar_mercancias(conexion, catalogo.mercancias())
+
+    assert marca_rara(conexion, "aganipperush") == (1, "Medicines")
+    assert marca_rara(conexion, "gold") == (0, "Metals")
+
+
+def test_la_tabla_estatica_trae_las_142_raras_con_nombre_ingles_y_categoria():
+    raras = {s: m for s, m in catalogo.mercancias().items() if m.rara}
+
+    assert len(raras) == 142
+    assert all(m.en and m.categoria for m in raras.values())
+    # Las 15 que Spansh traía y la tabla no conocía.
+    assert {"lyraeweed", "masterchefs", "wolf1301fesh"} <= set(raras)
+
+
+def test_la_marca_rara_no_baja_aunque_otro_mercado_no_la_traiga(conexion):
+    mercado.sembrar_mercancias(conexion, catalogo.mercancias())
+
+    mercado.guardar_propio(conexion, propio([articulo("aganipperush", rara=False)]))
+    assert marca_rara(conexion, "aganipperush")[0] == 1
+
+    sin_marca = catalogo.Mercancia(None, None, None, False)
+    mercado.sembrar_mercancias(conexion, {"aganipperush": sin_marca})
+    assert marca_rara(conexion, "aganipperush")[0] == 1
+
+
+def test_un_market_json_que_marca_rara_a_una_mercancia_nueva_la_marca(conexion):
+    mercado.guardar_propio(conexion, propio([articulo("inventada", rara=True)]))
+    assert marca_rara(conexion, "inventada")[0] == 1
+
+
+def test_una_rara_de_spansh_con_su_simbolo_cae_en_una_mercancia_marcada():
+    simbolos_de_spansh = ["AganippeRush", "LyraeWeed", "MasterChefs", "Advert1"]
+    tabla = catalogo.mercancias()
+    assert all(tabla[s.lower()].rara for s in simbolos_de_spansh)

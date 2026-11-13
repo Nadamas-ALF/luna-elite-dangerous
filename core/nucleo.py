@@ -18,7 +18,7 @@ from core import nave as modelo_nave
 from core.config import ajustes
 from core.db import comandante, mercado
 from core.db.escritor import Escritor
-from core.esfera import Esfera
+from core.esfera import Esfera, EsferaViva
 from core.journal import archivos, carpeta, lector
 from core.journal import mercado as mercado_del_juego
 from core.state import vista
@@ -44,12 +44,12 @@ class Nucleo:
         config: Path,
         bus: events.Bus,
         escritor: Escritor | None,
+        esfera: EsferaViva | None = None,
     ) -> None:
         self._config = config
         self._bus = bus
         self._escritor = escritor
-        # Como en EDDN, la esfera se lee al arrancar: cambiarla pide reiniciar.
-        self._esfera = ajustes.esfera(config)
+        self._esfera = esfera or EsferaViva(ajustes.esfera(config))
         self._estado = Estado()
         self._candado = threading.Lock()
         self._parar = threading.Event()
@@ -219,7 +219,7 @@ class Nucleo:
 
 
 def _mercado_propio(
-    estado: Estado, abierto: mercado_del_juego.Mercado, esfera: Esfera
+    estado: Estado, abierto: mercado_del_juego.Mercado, esfera: Esfera | EsferaViva
 ) -> mercado.MercadoPropio:
     estacion = estado.estacion
     nombre = abierto.estacion or estacion.nombre
@@ -230,6 +230,7 @@ def _mercado_propio(
             estado.sistema,
             estado.posicion,
             esfera.distancia(estado.posicion) if estado.posicion else None,
+            mercado.FUENTE_PROPIO,
         )
     return mercado.MercadoPropio(
         sistema=sistema,

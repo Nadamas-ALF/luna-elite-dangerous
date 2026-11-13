@@ -12,6 +12,7 @@
   <title>LUNA</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/estado.css">
+  <link rel="stylesheet" href="css/configuracion.css">
 </head>
 <body>
   <div class="app">
@@ -140,6 +141,107 @@
             <button type="button" class="boton boton--vidrio" data-campo="carpeta_automatica"
                     data-i18n="configuracion.journal.automatica"></button>
           </div>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-esfera" data-panel="esfera">
+          <h2 id="titulo-config-esfera" class="panel__titulo" data-i18n="configuracion.esfera.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.esfera.ayuda"></p>
+          <dl class="datos">
+            <dt data-i18n="configuracion.esfera.actual"></dt>
+            <dd data-campo="esfera_actual"></dd>
+          </dl>
+          <form class="formulario" data-campo="esfera_formulario" novalidate>
+            <div class="campo">
+              <label for="esfera-centro" data-i18n="configuracion.esfera.centro"></label>
+              <input id="esfera-centro" class="entrada" type="text" maxlength="100"
+                     autocomplete="off" spellcheck="false" data-campo="esfera_centro"
+                     aria-describedby="esfera-centro-ayuda">
+              <p id="esfera-centro-ayuda" class="motivo" data-i18n="configuracion.esfera.centro_ayuda"></p>
+            </div>
+            <div class="campo">
+              <label for="esfera-radio" data-i18n="configuracion.esfera.radio"></label>
+              <input id="esfera-radio" class="entrada entrada--corta" type="number" min="1"
+                     max="100000" step="any" inputmode="decimal" data-campo="esfera_radio">
+            </div>
+            <p class="franja franja--advertencia" role="alert" data-campo="esfera_error" hidden></p>
+            <div class="acciones">
+              <button type="submit" class="boton boton--primario" data-campo="esfera_revisar"
+                      data-i18n="configuracion.esfera.revisar"></button>
+            </div>
+          </form>
+          <div class="propuesta" data-campo="esfera_propuesta" hidden>
+            <h3 class="propuesta__titulo" data-i18n="configuracion.esfera.propuesta.titulo"></h3>
+            <p data-campo="propuesta_resumen"></p>
+            <p data-campo="propuesta_descarga"></p>
+            <p data-campo="propuesta_borrado" hidden></p>
+            <p class="franja franja--advertencia" data-campo="propuesta_aviso" hidden></p>
+            <div class="acciones">
+              <button type="button" class="boton boton--primario" data-campo="propuesta_confirmar"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="propuesta_alternativa" hidden></button>
+              <button type="button" class="boton boton--vidrio" data-campo="propuesta_cancelar"
+                      data-i18n="configuracion.esfera.propuesta.cancelar"></button>
+            </div>
+          </div>
+          <p class="motivo" role="status" data-campo="esfera_resultado" hidden></p>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-spansh" data-panel="spansh">
+          <h2 id="titulo-config-spansh" class="panel__titulo" data-i18n="configuracion.spansh.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.spansh.ayuda"></p>
+          <dl class="datos">
+            <dt data-i18n="configuracion.spansh.fase_etiqueta"></dt>
+            <dd><span class="indicador indicador--apagado" data-campo="spansh_fase"></span></dd>
+            <dt data-i18n="configuracion.spansh.ultima_etiqueta"></dt>
+            <dd data-campo="spansh_ultima"></dd>
+          </dl>
+          <progress class="barra" max="1" value="0" data-campo="spansh_barra"
+                    data-i18n-aria-label="configuracion.spansh.barra_aria" hidden></progress>
+          <p class="cifra" data-campo="spansh_progreso" hidden></p>
+          <p class="franja franja--advertencia" role="alert" data-campo="spansh_error" hidden></p>
+          <div class="acciones">
+            <button type="button" class="boton boton--primario" data-campo="spansh_descargar"
+                    data-i18n="configuracion.spansh.descargar" hidden></button>
+            <button type="button" class="boton boton--vidrio" data-campo="spansh_pausar"
+                    data-i18n="configuracion.spansh.pausar" hidden></button>
+            <button type="button" class="boton boton--primario" data-campo="spansh_reanudar"
+                    data-i18n="configuracion.spansh.reanudar" hidden></button>
+            <button type="button" class="boton boton--vidrio" data-campo="spansh_cancelar"
+                    data-i18n="configuracion.spansh.cancelar" hidden></button>
+          </div>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-retencion" data-panel="retencion">
+          <h2 id="titulo-config-retencion" class="panel__titulo" data-i18n="configuracion.retencion.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.retencion.ayuda"></p>
+          <form class="formulario" data-campo="retencion_formulario" novalidate>
+            <div class="campo">
+              <label for="retencion-visitados" data-i18n="configuracion.retencion.visitados"></label>
+              <input id="retencion-visitados" class="entrada entrada--corta" type="number" min="0"
+                     max="365" step="any" inputmode="decimal" data-campo="retencion_visitados">
+            </div>
+            <div class="campo">
+              <label for="retencion-antiguedad" data-i18n="configuracion.retencion.antiguedad"></label>
+              <input id="retencion-antiguedad" class="entrada entrada--corta" type="number" min="0"
+                     max="365" step="any" inputmode="decimal" data-campo="retencion_antiguedad">
+            </div>
+            <p class="franja franja--advertencia" role="alert" data-campo="retencion_error" hidden></p>
+            <div class="acciones">
+              <button type="submit" class="boton boton--primario"
+                      data-i18n="configuracion.retencion.guardar"></button>
+            </div>
+          </form>
+          <p class="motivo" role="status" data-campo="retencion_resultado" hidden></p>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-eddn" data-panel="eddn">
+          <h2 id="titulo-config-eddn" class="panel__titulo" data-i18n="configuracion.eddn.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.eddn.ayuda"></p>
+          <label class="casilla" for="eddn-activado">
+            <input id="eddn-activado" type="checkbox" data-campo="eddn_activado">
+            <span data-i18n="configuracion.eddn.activar"></span>
+          </label>
+          <p class="motivo" data-campo="eddn_sin_base" data-i18n="configuracion.eddn.sin_base" hidden></p>
+          <p class="franja franja--advertencia" role="alert" data-campo="eddn_error" hidden></p>
         </section>
 
         <section class="panel panel--ancho" aria-labelledby="titulo-config-datos">

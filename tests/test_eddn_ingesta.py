@@ -42,17 +42,23 @@ def mercado_real(marca="2026-11-12T22:29:28Z", sistema=SISTEMA, market_id=MARKET
 
 
 class Montaje:
-    def __init__(self, tmp_path, radio=50.0):
+    def __init__(self, tmp_path, radio=50.0, centro=CENTRO, antiguedad=None):
         self.base = tmp_path / "luna.db"
         self.escritor = Escritor(self.base)
         self.escritor.iniciar()
         self.bus = events.Bus()
         self.avisados: list[int] = []
         self.bus.suscribir(events.MERCADO_ACTUALIZADO, self.avisados.append)
-        self.esfera = Esfera("Holland", CENTRO, radio)
+        self.esfera = Esfera("Holland", centro, radio)
         self.espera = Espera()
+        extra = {} if antiguedad is None else {"antiguedad": antiguedad}
         self.ingesta = Ingesta(
-            self.escritor, self.bus, self.esfera, Conocidos(self.esfera, self.base), self.espera
+            self.escritor,
+            self.bus,
+            self.esfera,
+            Conocidos(self.esfera, self.base),
+            self.espera,
+            **extra,
         )
 
     def procesar(self, *crudos: bytes) -> None:
@@ -133,11 +139,10 @@ def test_un_mercado_de_una_estacion_sin_docked_queda_desconocida(montaje):
 
 
 def test_un_mercado_fuera_de_la_esfera_no_se_guarda(tmp_path):
-    montaje = Montaje(tmp_path, radio=1.0)
+    # Se mueve la esfera, no el mensaje: unas coordenadas que no caben en la dirección se rechazan.
+    montaje = Montaje(tmp_path, radio=1.0, centro=(CENTRO[0] + 40, CENTRO[1], CENTRO[2]))
     try:
-        lejos = real("journal_1_docked_2.json")
-        lejos["message"]["StarPos"] = [CENTRO[0] + 40, CENTRO[1], CENTRO[2]]
-        montaje.procesar(comprimir(lejos), mercado_real())
+        montaje.procesar(visita_real(), mercado_real())
 
         assert montaje.consultar("SELECT COUNT(*) FROM market_prices") == [(0,)]
         assert montaje.consultar("SELECT COUNT(*) FROM systems") == [(0,)]
@@ -269,3 +274,60 @@ def test_la_espera_tiene_tope_y_olvida_lo_mas_antiguo(tmp_path):
     finally:
         montaje.ingesta.cerrar()
         montaje.escritor.detener()
+
+
+def sistema_falso(**cambios) -> bytes:
+    """El mismo sistema, con otra dirección coherente con sus coordenadas."""
+    datos = real("journal_1_docked_2.json")
+    datos["message"].update(cambios)
+    return comprimir(datos)
+
+
+def test_un_duplicado_del_nombre_de_un_sistema_ya_guardado_se_descarta(montaje):
+    montaje.procesar(visita_real())
+    real_antes = montaje.consultar("SELECT system_address, x FROM systems")
+    # Misma caja (coherente con las coordenadas) y otro número de secuencia: otra dirección.
+    falsa = real("journal_1_docked_2.json")["message"]["SystemAddress"] + (1 << 40)
+    montaje.procesar(sistema_falso(SystemAddress=falsa))
+
+    assert montaje.consultar("SELECT system_address, x FROM systems") == real_antes
+    assert montaje.ingesta.resumen()["conflicto"] == 1
+
+
+def test_el_duplicado_no_desvia_los_mercados_que_llegan_despues(montaje):
+    montaje.procesar(visita_real())
+    falsa = real("journal_1_docked_2.json")["message"]["SystemAddress"] + (1 << 40)
+    montaje.procesar(sistema_falso(SystemAddress=falsa), mercado_real())
+
+    direcciones = montaje.consultar("SELECT DISTINCT system_address FROM stations")
+    assert direcciones == [(real("journal_1_docked_2.json")["message"]["SystemAddress"],)]
+    assert len(precios(montaje)) > 0
+
+
+def test_el_mismo_sistema_repetido_no_es_un_conflicto(montaje):
+    montaje.procesar(visita_real(), visita_real())
+    assert "conflicto" not in montaje.ingesta.resumen()
+
+
+def mercado_de_hace_10_dias() -> bytes:
+    return mercado_real(marca="2026-11-02T22:00:00Z")
+
+
+def test_por_defecto_eddn_acepta_un_mercado_de_hace_10_dias(montaje):
+    montaje.procesar(visita_real(), mercado_de_hace_10_dias())
+    assert montaje.ingesta.resumen().get("guardado") == 1
+
+
+def test_eddn_respeta_la_antiguedad_maxima_que_eligio_el_usuario(tmp_path):
+    from datetime import timedelta
+
+    montado = Montaje(tmp_path, antiguedad=lambda: timedelta(days=7))
+    try:
+        montado.procesar(visita_real(), mercado_de_hace_10_dias())
+        resumen = montado.ingesta.resumen()
+        assert resumen.get("fecha") == 1
+        assert "guardado" not in resumen
+        assert montado.consultar("SELECT COUNT(*) FROM market_prices") == [(0,)]
+    finally:
+        montado.ingesta.cerrar()
+        montado.escritor.detener()

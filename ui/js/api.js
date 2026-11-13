@@ -17,12 +17,22 @@ export function esperarPuente() {
   return listo;
 }
 
-async function llamar(nombre) {
+async function llamar(nombre, ...argumentos) {
   const api = await esperarPuente();
-  return api[nombre]();
+  return api[nombre](...argumentos);
 }
 
 export const estado = () => llamar('estado');
 export const configuracion = () => llamar('configuracion');
 export const elegirCarpetaJournal = () => llamar('elegir_carpeta_journal');
 export const usarCarpetaAutomatica = () => llamar('usar_carpeta_automatica');
+export const spansh = () => llamar('spansh');
+export const proponerEsfera = (nombre, radio) => llamar('proponer_esfera', nombre, radio);
+export const aplicarEsfera = (nombre, radio, descargar) =>
+  llamar('aplicar_esfera', nombre, radio, descargar);
+export const guardarRetencion = (visitados, antiguedad) =>
+  llamar('guardar_retencion', visitados, antiguedad);
+export const establecerEddn = (activado) => llamar('establecer_eddn', activado);
+export const reanudarDescarga = () => llamar('reanudar_descarga');
+export const pausarDescarga = () => llamar('pausar_descarga');
+export const cancelarDescarga = () => llamar('cancelar_descarga');

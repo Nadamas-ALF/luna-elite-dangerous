@@ -176,6 +176,14 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "configuracion",
         "elegir_carpeta_journal",
         "usar_carpeta_automatica",
+        "spansh",
+        "proponer_esfera",
+        "aplicar_esfera",
+        "guardar_retencion",
+        "establecer_eddn",
+        "reanudar_descarga",
+        "pausar_descarga",
+        "cancelar_descarga",
     }
 
 
@@ -210,9 +218,7 @@ def test_un_dialogo_que_falla_no_rompe_la_interfaz(tmp_path):
         raise OSError("sin dialogo")
 
     nucleo = Nucleo(tmp_path / "config.json", events.Bus(), None)
-    interfaz = Api(
-        nucleo, Ubicacion(tmp_path, portable=True), tmp_path / "config.json", True, roto
-    )
+    interfaz = Api(nucleo, Ubicacion(tmp_path, portable=True), tmp_path / "config.json", True, roto)
 
     assert interfaz.elegir_carpeta_journal()["journal"]["automatica"] is True
 
@@ -279,3 +285,77 @@ def test_el_estado_de_eddn_llega_a_la_interfaz(tmp_path):
     )
 
     assert interfaz.estado()["fuentes"]["eddn"]["estado"] == "conectado"
+
+
+def _con_spansh(trabajo):
+    contexto = vista.Contexto(vista.JOURNAL_LEYENDO, None, (), True, spansh=trabajo)
+    return vista.a_diccionario(sesion(), contexto)["fuentes"]["spansh"]
+
+
+def test_spansh_sin_trabajo_ni_descarga_previa_dice_sin_descarga():
+    assert _con_spansh({"fase": "inactiva", "ultima": None})["estado"] == "sin_descarga"
+
+
+def test_spansh_inactiva_con_una_descarga_hecha_dice_completa():
+    ultima = {"fecha": "2026-11-13T00:00:00Z", "centro": "Sol", "radio": 100.0}
+    fuente = _con_spansh({"fase": "inactiva", "ultima": ultima})
+    assert fuente["estado"] == "completa"
+    assert fuente["ultima"] == ultima
+
+
+def test_spansh_en_marcha_trae_la_fase_y_el_progreso():
+    fuente = _con_spansh(
+        {"fase": "descargando", "descargado": 5, "total": 10, "ultima": None, "error": None}
+    )
+    assert fuente["estado"] == "descargando"
+    assert (fuente["descargado"], fuente["total"]) == (5, 10)
+    assert "fase" not in fuente
+
+
+def test_la_distancia_al_centro_usa_el_centro_configurado():
+    from core.esfera import Esfera
+
+    estado = sesion()
+    sol = vista.a_diccionario(estado, CONTEXTO)["ubicacion"]
+    x, y, z = estado.posicion
+    contexto = vista.Contexto(
+        vista.JOURNAL_LEYENDO, None, (), True, esfera=Esfera("Aqui", (x, y, z + 7.0), 50.0)
+    )
+    otro = vista.a_diccionario(estado, contexto)["ubicacion"]
+
+    assert otro["centro"] == "Aqui"
+    assert otro["distancia_al_centro"] == pytest.approx(7.0)
+    assert sol["centro"] == "Sol"
+
+
+def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
+    interfaz, _, _ = api
+    esperado = {"error": "no_disponible"}
+    assert interfaz.spansh() == esperado
+    assert interfaz.proponer_esfera("Sol", 100) == esperado
+    assert interfaz.aplicar_esfera("Sol", 100, False) == esperado
+    assert interfaz.guardar_retencion(3, 30) == esperado
+    assert interfaz.establecer_eddn(True) == esperado
+    assert interfaz.reanudar_descarga() == esperado
+    assert interfaz.pausar_descarga() == esperado
+    assert interfaz.cancelar_descarga() == esperado
+
+
+def test_el_estado_de_la_api_lleva_spansh_y_el_centro_vigente(tmp_path):
+    from core.datos import Datos
+    from core.esfera import Esfera, EsferaViva
+
+    config = tmp_path / "config.json"
+    esfera = EsferaViva(Esfera("Colonia", (1.0, 2.0, 3.0), 80.0))
+    datos = Datos(config, None, tmp_path / "descargas", esfera)
+    interfaz = Api(
+        Nucleo(config, events.Bus(), None),
+        Ubicacion(tmp_path, portable=True),
+        config,
+        base_disponible=False,
+        elegir_carpeta=lambda: None,
+        datos=datos,
+    )
+    estado = interfaz.estado()
+    assert estado["fuentes"]["spansh"]["estado"] == "sin_descarga"
+    assert interfaz.configuracion()["esfera"]["nombre"] == "Colonia"

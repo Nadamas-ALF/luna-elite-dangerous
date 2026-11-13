@@ -74,6 +74,16 @@ MIGRACIONES: tuple[str, ...] = (
     """,
     # commodity/3 de EDDN trae el nombre del sistema y no su dirección.
     "CREATE INDEX sistemas_por_nombre ON systems (nombre);",
+    # «Sistemas a menos de X ly»: una caja sobre este índice y la distancia exacta
+    # después. R*Tree no compensa (docs/decisiones.md).
+    "CREATE INDEX sistemas_por_posicion ON systems (x, y, z);",
+    # De dónde salió cada sistema: lo que llega por EDDN no está autenticado y es
+    # provisional; el journal propio y Spansh mandan sobre un nombre o unas coordenadas.
+    "ALTER TABLE systems ADD COLUMN fuente TEXT NOT NULL DEFAULT 'eddn';",
+    # La retención busca los mercados caducados por su marca sin recorrer la tabla entera.
+    "CREATE INDEX precios_por_antiguedad ON market_prices (observado);",
+    # Buscar las estaciones de un sistema, para borrarlas o saber si quedan.
+    "CREATE INDEX estaciones_por_sistema ON stations (system_address);",
 )
 
 

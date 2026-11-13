@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import threading
 
@@ -5,7 +6,13 @@ import pytest
 
 from core import catalogo
 from core.db import comandante, esquema
-from core.db.escritor import Escritor, NoSePudoAbrir, abrir, abrir_lectura
+from core.db.escritor import (
+    Escritor,
+    NoSePudoAbrir,
+    TrabajoCancelado,
+    abrir,
+    abrir_lectura,
+)
 
 
 def ficha(**cambios) -> comandante.FichaDeNave:
@@ -113,6 +120,32 @@ def test_un_trabajo_que_falla_deshace_todo_lo_suyo(escritor, tmp_path):
     assert leer(tmp_path / "luna.db", "SELECT count(*) FROM commanders") == [(0,)]
 
 
+def test_un_trabajo_que_falla_avisa_a_quien_lo_encolo(escritor):
+    fallos = []
+
+    def roto(conexion):
+        raise RuntimeError("fallo a mitad")
+
+    escritor.encolar(roto, despues=lambda _: fallos.append("despues"), fallo=fallos.append)
+    escritor.detener()
+
+    assert [type(f) for f in fallos] == [RuntimeError]
+
+
+def test_un_aviso_de_fallo_roto_no_para_al_escritor(escritor, tmp_path):
+    def roto(conexion):
+        raise RuntimeError
+
+    def aviso_roto(error):
+        raise ValueError
+
+    escritor.encolar(roto, fallo=aviso_roto)
+    escritor.encolar(lambda c: comandante.registrar_comandante(c, "F0000001", "CMDR", "t"))
+    escritor.detener()
+
+    assert leer(tmp_path / "luna.db", "SELECT count(*) FROM commanders") == [(1,)]
+
+
 def test_muchos_hilos_escriben_a_traves_de_la_cola(escritor, tmp_path):
     def desde_un_hilo(numero: int) -> None:
         for i in range(25):
@@ -149,3 +182,32 @@ def test_el_catalogo_conoce_las_naves_del_juego():
     assert catalogo.nave("panthermkii").plataforma == "L"
     assert catalogo.nave("Python").nombre == "Python"
     assert catalogo.nave("naveinventada") is None
+
+
+def test_cancelar_un_trabajo_lo_deshace_sin_dejar_un_error_en_el_registro(
+    escritor, tmp_path, caplog
+):
+    caplog.set_level(logging.INFO, logger="luna.db")
+    avisados = []
+
+    def cancelado(conexion):
+        comandante.registrar_comandante(conexion, "F0000009", "Fantasma", "t")
+        raise TrabajoCancelado
+
+    escritor.encolar(cancelado, fallo=avisados.append)
+    escritor.detener()
+
+    assert leer(tmp_path / "luna.db", "SELECT count(*) FROM commanders") == [(0,)]
+    assert [type(a) for a in avisados] == [TrabajoCancelado]
+    assert not [r for r in caplog.records if r.levelno >= logging.ERROR]
+
+
+def test_un_fallo_de_verdad_sigue_dejando_su_error_en_el_registro(escritor, caplog):
+    caplog.set_level(logging.INFO, logger="luna.db")
+
+    def roto(conexion):
+        raise RuntimeError("fallo de verdad")
+
+    escritor.encolar(roto)
+    escritor.detener()
+    assert [r for r in caplog.records if r.levelno >= logging.ERROR]

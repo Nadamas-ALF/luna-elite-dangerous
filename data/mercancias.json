@@ -11,14 +11,22 @@
    "categoria": "Medicines"
   },
   "advert1": {
-   "en": null,
+   "en": "Ultra-Compact Processor Prototypes",
    "es": "Prototipos de procesador ultracompactos",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "aerialedenapple": {
-   "en": null,
+   "en": "Eden Apples of Aerial",
    "es": "Manzanas del Edén de Aerial",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
+  },
+  "aganipperush": {
+   "en": "Aganippe Rush",
+   "es": null,
+   "categoria": "Medicines",
+   "rara": true
   },
   "agriculturalmedicines": {
    "en": "Agri-Medicines",
@@ -36,14 +44,16 @@
    "categoria": "Salvage"
   },
   "alacarakmoskinart": {
-   "en": null,
+   "en": "Alacarakmo Skin Art",
    "es": "Tatuajes de Alacarakmo",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "albinoquechuamammoth": {
-   "en": null,
+   "en": "Albino Quechua Mammoth Meat",
    "es": "Carne mamut albino Quechua",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "alexandrite": {
    "en": "Alexandrite",
@@ -56,14 +66,16 @@
    "categoria": "Foods"
   },
   "alieneggs": {
-   "en": null,
+   "en": "Leathery Eggs",
    "es": "Huevos ornamentales",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "altairianskin": {
-   "en": null,
+   "en": "Altairian Skin",
    "es": "Piel altairiana",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "aluminium": {
    "en": "Aluminium",
@@ -71,9 +83,10 @@
    "categoria": "Metals"
   },
   "alyabodilysoap": {
-   "en": null,
+   "en": "Alya Body Soap",
    "es": "Jabón corporal de Alya",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "ancientcasket": {
    "en": "Guardian Casket",
@@ -116,9 +129,16 @@
    "categoria": "Salvage"
   },
   "anduligafireworks": {
-   "en": null,
+   "en": "Anduliga Fire Works",
    "es": "Fuegos artificiales de Anduliga",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
+  },
+  "animaleffigies": {
+   "en": "Crom Silver Fesh",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "animalmeat": {
    "en": "Animal Meat",
@@ -146,14 +166,16 @@
    "categoria": "Salvage"
   },
   "anynacoffee": {
-   "en": null,
+   "en": "Any Na Coffee",
    "es": "Café de Any Na",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "apavietii": {
-   "en": null,
+   "en": "Apa Vietii",
    "es": "Apa Vietii",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "aquaponicsystems": {
    "en": "Aquaponic Systems",
@@ -161,9 +183,10 @@
    "categoria": "Technology"
   },
   "aroucaconventualsweets": {
-   "en": null,
+   "en": "Arouca Conventual Sweets",
    "es": "Dulces conventuales de Arouca",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "articulationmotors": {
    "en": "Articulation Motors",
@@ -186,24 +209,28 @@
    "categoria": "Technology"
   },
   "azcancriformula42": {
-   "en": null,
+   "en": "AZ Cancri Formula 42",
    "es": "Fórmula 42 de AZ Cancri",
-   "categoria": null
+   "categoria": "Technology",
+   "rara": true
   },
   "bakedgreebles": {
-   "en": null,
+   "en": "Baked Greebles",
    "es": "Cocido de greebles",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "baltahsinevacuumkrill": {
-   "en": null,
+   "en": "Baltah'sine Vacuum Krill",
    "es": "Krill del vacío de Baltah'Sine",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "bankiamphibiousleather": {
-   "en": null,
+   "en": "Banki Amphibious Leather",
    "es": "Cuero anfibio de Banki",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "basicmedicines": {
    "en": "Basic Medicines",
@@ -221,9 +248,10 @@
    "categoria": "Minerals"
   },
   "bastsnakegin": {
-   "en": null,
+   "en": "Bast Snake Gin",
    "es": "Elixir de serpiente de Bast",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "battleweapons": {
    "en": "Battle Weapons",
@@ -241,9 +269,10 @@
    "categoria": "Legal Drugs"
   },
   "belalansrayleather": {
-   "en": null,
+   "en": "Belalans Ray Leather",
    "es": "Cuero de raya de Belalans",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "benitoite": {
    "en": "Benitoite",
@@ -276,14 +305,21 @@
    "categoria": "Metals"
   },
   "bluemilk": {
-   "en": null,
+   "en": "Azure Milk",
    "es": "Leche de azure",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "bootlegliquor": {
    "en": "Bootleg Liquor",
    "es": null,
    "categoria": "Legal Drugs"
+  },
+  "borasetanipathogenetics": {
+   "en": "Borasetani Pathogenetics",
+   "es": null,
+   "categoria": "Weapons",
+   "rara": true
   },
   "bromellite": {
    "en": "Bromellite",
@@ -291,9 +327,10 @@
    "categoria": "Minerals"
   },
   "buckyballbeermats": {
-   "en": null,
+   "en": "Buckyball Beer Mats",
    "es": "Posavasos Buckyball",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "buildingfabricators": {
    "en": "Building Fabricators",
@@ -301,19 +338,22 @@
    "categoria": "Machinery"
   },
   "burnhambiledistillate": {
-   "en": null,
+   "en": "Burnham Bile Distillate",
    "es": "Licor bilioso de Burnham",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "cd75catcoffee": {
-   "en": null,
+   "en": "CD-75 Kitten Brand Coffee",
    "es": "Café marca Kitten de CD-75",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "centaurimegagin": {
-   "en": null,
+   "en": "Centauri Mega Gin",
    "es": "Ginebra Mega de Alpha Centauri",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "ceramiccomposites": {
    "en": "Ceramic Composites",
@@ -321,29 +361,34 @@
    "categoria": "Industrial Materials"
   },
   "ceremonialheiketea": {
-   "en": null,
+   "en": "Ceremonial Heike Tea",
    "es": "Té ceremonial de Heike",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "cetiaepyornisegg": {
-   "en": null,
+   "en": "Aepyornis Egg",
    "es": "Huevo de aepyornis",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "cetirabbits": {
-   "en": null,
+   "en": "Ceti Rabbits",
    "es": "Conejos de 47 Ceti",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "chameleoncloth": {
-   "en": null,
+   "en": "Chameleon Cloth",
    "es": "Ropa mimética",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "chateaudeaegaeon": {
-   "en": null,
+   "en": "Chateau De Aegaeon",
    "es": "Cheateau de Aegaeon",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "chemicalwaste": {
    "en": "Chemical Waste",
@@ -351,19 +396,22 @@
    "categoria": "Waste"
   },
   "cherbonesbloodcrystals": {
-   "en": null,
+   "en": "Cherbones Blood Crystals",
    "es": "Cristales sangre de Cherbones",
-   "categoria": null
+   "categoria": "Metals",
+   "rara": true
   },
   "chieridanimarinepaste": {
-   "en": null,
+   "en": "Chi Eridani Marine Paste",
    "es": "Pasta marina de Chi Eridani",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "classifiedexperimentalequipment": {
-   "en": null,
+   "en": "Classified Experimental Equipment",
    "es": "Equipamiento experimental clasificado",
-   "categoria": null
+   "categoria": "Technology",
+   "rara": true
   },
   "clothing": {
    "en": "Clothing",
@@ -426,9 +474,10 @@
    "categoria": "Metals"
   },
   "coquimspongiformvictuals": {
-   "en": null,
+   "en": "Coquim Spongiform Victuals",
    "es": "Víveres espongiformes de Coquim",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "coralsap": {
    "en": "Coral Sap",
@@ -446,9 +495,10 @@
    "categoria": "Minerals"
   },
   "crystallinespheres": {
-   "en": null,
+   "en": "Crystalline Spheres",
    "es": "Esferas cristalinas",
-   "categoria": null
+   "categoria": "Salvage",
+   "rara": true
   },
   "curatedcommodity": {
    "en": "Curated Commodity Package",
@@ -461,9 +511,10 @@
    "categoria": "Salvage"
   },
   "damnacarapaces": {
-   "en": null,
+   "en": "Damna Carapaces",
    "es": "Caparazones de Damna",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "datacore": {
    "en": "Data Core",
@@ -471,14 +522,16 @@
    "categoria": "Salvage"
   },
   "deltaphoenicispalms": {
-   "en": null,
+   "en": "Delta Phoenicis Palms",
    "es": "Palmeras de Delta Phoenicis",
-   "categoria": null
+   "categoria": "Chemicals",
+   "rara": true
   },
   "deuringastruffles": {
-   "en": null,
+   "en": "Deuringas Truffles",
    "es": "Trufas de Deuringas",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "deuterium": {
    "en": "Deuterium",
@@ -501,9 +554,10 @@
    "categoria": "Salvage"
   },
   "disomacorn": {
-   "en": null,
+   "en": "Diso Ma Corn",
    "es": "Maíz ma de Diso",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "domesticappliances": {
    "en": "Domestic Appliances",
@@ -516,9 +570,10 @@
    "categoria": "NonMarketable"
   },
   "duradrives": {
-   "en": null,
+   "en": "Duradrives",
    "es": "Duradrives",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "earthrelics": {
    "en": "Earth Relics",
@@ -526,9 +581,10 @@
    "categoria": "Salvage"
   },
   "eleuthermals": {
-   "en": null,
+   "en": "Eleu Thermals",
    "es": "Tejidos térmicos de eleu",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "emergencypowercells": {
    "en": "Emergency Power Cells",
@@ -546,24 +602,28 @@
    "categoria": "Salvage"
   },
   "eraninpearlwhisky": {
-   "en": null,
+   "en": "Eranin Pearl Whisky",
    "es": "Whisky perlado de Eranin",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "eshuumbrellas": {
-   "en": null,
+   "en": "Eshu Umbrellas",
    "es": "Paraguas de Eshu",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "esusekucaviar": {
-   "en": null,
+   "en": "Esuseku Caviar",
    "es": "Caviar de Esuseku",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "ethgrezeteabuds": {
-   "en": null,
+   "en": "Ethgreze Tea Buds",
    "es": "Brotes de té de Ethgreze",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "evacuationshelter": {
    "en": "Evacuation Shelter",
@@ -601,14 +661,16 @@
    "categoria": "Foods"
   },
   "fujintea": {
-   "en": null,
+   "en": "Fujin Tea",
    "es": "Té de Fujin",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "galactictravelguide": {
-   "en": null,
+   "en": "Galactic Travel Guide",
    "es": "Guía de viaje galáctico",
-   "categoria": null
+   "categoria": "Salvage",
+   "rara": true
   },
   "gallite": {
    "en": "Gallite",
@@ -619,6 +681,12 @@
    "en": "Gallium",
    "es": "Galio",
    "categoria": "Metals"
+  },
+  "geawendancedust": {
+   "en": "Geawen Dance Dust",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "genebank": {
    "en": "Gene Bank",
@@ -636,19 +704,28 @@
    "categoria": "Salvage"
   },
   "gerasiangueuzebeer": {
-   "en": null,
+   "en": "Gerasian Gueuze Beer",
    "es": "Cerveza gerasiana Gueuze",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "giantirukamasnails": {
-   "en": null,
+   "en": "Giant Irukama Snails",
    "es": "Caracoles gigantes de Irukama",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "giantverrix": {
-   "en": null,
+   "en": "Giant Verrix",
    "es": "Verrix gigante",
-   "categoria": null
+   "categoria": "Machinery",
+   "rara": true
+  },
+  "gilyasignatureweapons": {
+   "en": "Gilya Signature Weapons",
+   "es": null,
+   "categoria": "Weapons",
+   "rara": true
   },
   "gold": {
    "en": "Gold",
@@ -656,9 +733,10 @@
    "categoria": "Metals"
   },
   "gomanyauponcoffee": {
-   "en": null,
+   "en": "Goman Yaupon Coffee",
    "es": "Café Yaupon de Goman",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "goslarite": {
    "en": "Goslarite",
@@ -686,19 +764,22 @@
    "categoria": "Metals"
   },
   "haidneblackbrew": {
-   "en": null,
+   "en": "Haiden Black Brew",
    "es": "Infusión negra de Haiden",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "harmasilversearum": {
-   "en": null,
+   "en": "Harma Silver Sea Rum",
    "es": "Ron Harma Silver Sea",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "havasupaidreamcatcher": {
-   "en": null,
+   "en": "Havasupai Dream Catcher",
    "es": "Atrapasueños de Havasupai",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "hazardousenvironmentsuits": {
    "en": "H.E. Suits",
@@ -726,34 +807,51 @@
    "categoria": "Chemicals"
   },
   "helvetitjpearls": {
-   "en": null,
+   "en": "Helvetitj Pearls",
    "es": "Perlas de Helvetitj",
-   "categoria": null
+   "categoria": "Metals",
+   "rara": true
   },
   "hip10175bushmeat": {
-   "en": null,
+   "en": "HIP 10175 Bush Meat",
    "es": "Carne herbácea de HIP 10175",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
+  },
+  "hip118311swarm": {
+   "en": "HIP 118311 Swarm",
+   "es": null,
+   "categoria": "Weapons",
+   "rara": true
   },
   "hip41181squid": {
-   "en": null,
+   "en": "HIP Proto-Squid",
    "es": "Protocalamar de HIP 41181",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "hiporganophosphates": {
-   "en": null,
+   "en": "HIP Organophosphates",
    "es": "Organofosfatos de HIP 80364",
-   "categoria": null
+   "categoria": "Chemicals",
+   "rara": true
   },
   "hnshockmount": {
    "en": "HN Shock Mount",
    "es": "Suspensión HN",
    "categoria": "Machinery"
   },
+  "holvaduellingblades": {
+   "en": "Holva Duelling Blades",
+   "es": null,
+   "categoria": "Weapons",
+   "rara": true
+  },
   "honestypills": {
-   "en": null,
+   "en": "Honesty Pills",
    "es": "Píldoras de la Honestidad",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "hostage": {
    "en": "Hostages",
@@ -761,9 +859,10 @@
    "categoria": "Salvage"
   },
   "hr7221wheat": {
-   "en": null,
+   "en": "HR 7221 Wheat",
    "es": "Trigo de HR 7221",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "hydrogenfuel": {
    "en": "Hydrogen Fuel",
@@ -781,9 +880,10 @@
    "categoria": "Slavery"
   },
   "indibourbon": {
-   "en": null,
+   "en": "Indi Bourbon",
    "es": "Bourbon de Epsilon Indi",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "indite": {
    "en": "Indite",
@@ -816,59 +916,76 @@
    "categoria": "Minerals"
   },
   "jaquesquinentianstill": {
-   "en": null,
+   "en": "Jaques Quinentian Still",
    "es": "Alambique Jaques Quinentian",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "jaradharrepuzzlebox": {
-   "en": null,
+   "en": "Jaradharre Puzzle Box",
    "es": "Rompecabezas de Jaradharre",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "jarouarice": {
-   "en": null,
+   "en": "Jaroua Rice",
    "es": "Arroz de Jaroua",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "jotunmookah": {
-   "en": null,
+   "en": "Jotun Mookah",
    "es": "Mookah de Jotun",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "kachiriginleaches": {
-   "en": null,
+   "en": "Kachirigin Filter Leeches",
    "es": "Sanguijuelas filtradoras de Kachigirin",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "kamitracigars": {
-   "en": null,
+   "en": "Kamitra Cigars",
    "es": "Puros de Kamitra",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
+  },
+  "kamorinhistoricweapons": {
+   "en": "Kamorin Historic Weapons",
+   "es": null,
+   "categoria": "Weapons",
+   "rara": true
   },
   "karetiicouture": {
-   "en": null,
+   "en": "Karetii Couture",
    "es": "Alta costura de Karetii",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "karsukilocusts": {
-   "en": null,
+   "en": "Karsuki Locusts",
    "es": "Langostas de Karsuki Ti",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "kinagoinstruments": {
-   "en": null,
+   "en": "Kinago Violins",
    "es": "Violines de Kinago",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "konggaale": {
-   "en": null,
+   "en": "Kongga Ale",
    "es": "Cerveza de Kongga",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "korrokungpellets": {
-   "en": null,
+   "en": "Koro Kung Pellets",
    "es": "Gránulos de Korro Kung",
-   "categoria": null
+   "categoria": "Chemicals",
+   "rara": true
   },
   "landmines": {
    "en": "Landmines",
@@ -886,9 +1003,10 @@
    "categoria": "Salvage"
   },
   "lavianbrandy": {
-   "en": null,
+   "en": "Lavian Brandy",
    "es": "Brandy laviano",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "leather": {
    "en": "Leather",
@@ -896,9 +1014,10 @@
    "categoria": "Textiles"
   },
   "leestianeviljuice": {
-   "en": null,
+   "en": "Leestian Evil Juice",
    "es": "Zumo diabólico leestiano",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "lepidolite": {
    "en": "Lepidolite",
@@ -906,9 +1025,10 @@
    "categoria": "Minerals"
   },
   "lftvoidextractcoffee": {
-   "en": null,
+   "en": "Void Extract Coffee",
    "es": "Extracto de café al vacío",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "liquidoxygen": {
    "en": "Liquid oxygen",
@@ -931,9 +1051,10 @@
    "categoria": "Minerals"
   },
   "livehecateseaworms": {
-   "en": null,
+   "en": "Live Hecate Sea Worms",
    "es": "Gusanos marinos de Hecate",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "lowtemperaturediamond": {
    "en": "Low Temperature Diamonds",
@@ -941,9 +1062,16 @@
    "categoria": "Minerals"
   },
   "ltthypersweet": {
-   "en": null,
+   "en": "LTT Hyper Sweet",
    "es": "Hiperdulce LTT",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
+  },
+  "lyraeweed": {
+   "en": "Lyrae Weed",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "m3_tissuesample_membrane": {
    "en": "Mollusc Membrane",
@@ -990,15 +1118,23 @@
    "es": "Equipamiento marino",
    "categoria": "Machinery"
   },
+  "masterchefs": {
+   "en": "Master Chefs",
+   "es": null,
+   "categoria": "Slavery",
+   "rara": true
+  },
   "mechucoshightea": {
-   "en": null,
+   "en": "Mechucos High Tea",
    "es": "Alto té de Mechucos",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "medbstarlube": {
-   "en": null,
+   "en": "Medb Starlube",
    "es": "Lubricante de Medb",
-   "categoria": null
+   "categoria": "Chemicals",
+   "rara": true
   },
   "medicaldiagnosticequipment": {
    "en": "Medical Diagnostic Equipment",
@@ -1056,29 +1192,39 @@
    "categoria": "Minerals"
   },
   "mokojingbeastfeast": {
-   "en": null,
+   "en": "Mokojing Beast Feast",
    "es": "Banquete Bestial de Mokojin",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "momusbogspaniel": {
-   "en": null,
+   "en": "Momus Bog Spaniel",
    "es": "Spaniel de pantano de Momus Reach",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "monazite": {
    "en": "Monazite",
    "es": "Monacita",
    "categoria": "Minerals"
   },
+  "motronaexperiencejelly": {
+   "en": "Motrona Experience Jelly",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
+  },
   "mukusubiichitinos": {
-   "en": null,
+   "en": "Mukusubii Chitin-os",
    "es": "Quitiaros de Mukusubii",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "mulachigiantfungus": {
-   "en": null,
+   "en": "Mulachi Giant Fungus",
    "es": "Hongo gigante de Mulachi",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "musgravite": {
    "en": "Musgravite",
@@ -1101,9 +1247,10 @@
    "categoria": "Technology"
   },
   "nanomedicines": {
-   "en": null,
+   "en": "Nanomedicines",
    "es": "Nanomedicinas",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "naturalfabrics": {
    "en": "Natural Fabrics",
@@ -1116,34 +1263,39 @@
    "categoria": "Industrial Materials"
   },
   "neritusberries": {
-   "en": null,
+   "en": "Neritus Berries",
    "es": "Bayas de Neritus",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "nerveagents": {
    "en": "Nerve Agents",
-   "es": null,
+   "es": "Agentes nerviosos",
    "categoria": "Chemicals"
   },
   "ngadandarifireopals": {
-   "en": null,
+   "en": "Ngadandari Fire Opals",
    "es": "Ópalos ígneos de Ngandari",
-   "categoria": null
+   "categoria": "Metals",
+   "rara": true
   },
   "ngunamodernantiques": {
-   "en": null,
+   "en": "Nguna Modern Antiques",
    "es": "Antigüedades modernas de Nguna",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "njangarisaddles": {
-   "en": null,
+   "en": "Njangari Saddles",
    "es": "Sillas de montar de Njangari",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "noneuclidianexotanks": {
-   "en": null,
+   "en": "Non Euclidian Exotanks",
    "es": "Exotanques no euclídeos",
-   "categoria": null
+   "categoria": "Machinery",
+   "rara": true
   },
   "nonlethalweapons": {
    "en": "Non-Lethal Weapons",
@@ -1156,9 +1308,10 @@
    "categoria": "Salvage"
   },
   "ochoengchillies": {
-   "en": null,
+   "en": "Ochoeng Chillies",
    "es": "Chiles de Ochoeng",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "olivine": {
    "en": "Olivine",
@@ -1166,19 +1319,22 @@
    "categoria": "Minerals"
   },
   "onionhead": {
-   "en": null,
+   "en": "Onionhead",
    "es": "Cebollazo",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "onionheada": {
-   "en": null,
+   "en": "Onionhead Alpha Strain",
    "es": "Cepa alfa de cebollazo",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "onionheadb": {
-   "en": null,
+   "en": "Onionhead Beta Strain",
    "es": "Cepa beta de cebollazo",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "onionheadc": {
    "en": "Onionhead Gamma Strain",
@@ -1191,14 +1347,16 @@
    "categoria": "Minerals"
   },
   "ophiuchiexinoartefacts": {
-   "en": null,
+   "en": "Ophiuch Exino Artefacts",
    "es": "Artefactos de los Ophiuch Exino",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "orrerianviciousbrew": {
-   "en": null,
+   "en": "Orrerian Vicious Brew",
    "es": "Fermento vicioso orreriano",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "osmium": {
    "en": "Osmium",
@@ -1221,9 +1379,16 @@
    "categoria": "Metals"
   },
   "pantaaprayersticks": {
-   "en": null,
+   "en": "Pantaa Prayer Sticks",
    "es": "Palos ceremoniales de los Pantaa",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
+  },
+  "pavoniseargrubs": {
+   "en": "Pavonis Ear Grubs",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "performanceenhancers": {
    "en": "Performance Enhancers",
@@ -1241,9 +1406,10 @@
    "categoria": "Salvage"
   },
   "personalgifts": {
-   "en": null,
+   "en": "Festive Gifts",
    "es": "Regalos festivos",
-   "categoria": null
+   "categoria": "Salvage",
+   "rara": true
   },
   "personalweapons": {
    "en": "Personal Weapons",
@@ -1261,9 +1427,10 @@
    "categoria": "Metals"
   },
   "platinumaloy": {
-   "en": null,
+   "en": "Platinum Alloy",
    "es": "Aleación de platino",
-   "categoria": null
+   "categoria": "Metals",
+   "rara": true
   },
   "politicalprisoner": {
    "en": "Political Prisoners",
@@ -1331,14 +1498,16 @@
    "categoria": "Machinery"
   },
   "rajukrustoves": {
-   "en": null,
+   "en": "Rajukru Multi-Stoves",
    "es": "Multiestufas de Rajukru",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "rapabaosnakeskins": {
-   "en": null,
+   "en": "Rapa Bao Snake Skins",
    "es": "Pieles de serpiente de Rapa Bao",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "reactivearmour": {
    "en": "Reactive Armour",
@@ -1376,9 +1545,10 @@
    "categoria": "Minerals"
   },
   "rusanioldsmokey": {
-   "en": null,
+   "en": "Rusani Old Smokey",
    "es": "Old Smokey de Rusani",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "rutile": {
    "en": "Rutile",
@@ -1426,9 +1596,10 @@
    "categoria": "Metals"
   },
   "sanumameat": {
-   "en": null,
+   "en": "Sanuma Decorative Meat",
    "es": "Carne artística de Sanuma",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "sap8corecontainer": {
    "en": "SAP 8 Core Container",
@@ -1441,9 +1612,10 @@
    "categoria": "Minerals"
   },
   "saxonwine": {
-   "en": null,
+   "en": "Saxon Wine",
    "es": "Vino sajón",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "scientificresearch": {
    "en": "Scientific Research",
@@ -1471,9 +1643,10 @@
    "categoria": "Minerals"
   },
   "shanscharisorchid": {
-   "en": null,
+   "en": "Shan's Charis Orchid",
    "es": "Orquídea Charis de Shan",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "silver": {
    "en": "Silver",
@@ -1496,14 +1669,16 @@
    "categoria": "Salvage"
   },
   "soontillrelics": {
-   "en": null,
+   "en": "Soontill Relics",
    "es": "Reliquias de Soontill",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "sothiscrystallinegold": {
-   "en": null,
+   "en": "Sothis Crystalline Gold",
    "es": "Oro cristalino de Sothis",
-   "categoria": null
+   "categoria": "Metals",
+   "rara": true
   },
   "spacepioneerrelics": {
    "en": "Space Pioneer Relics",
@@ -1561,19 +1736,27 @@
    "categoria": "Salvage"
   },
   "tanmarktranquiltea": {
-   "en": null,
+   "en": "Tanmark Tranquil Tea",
    "es": "Té relajante de Tanmark",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "tantalum": {
    "en": "Tantalum",
    "es": "Tantalio",
    "categoria": "Metals"
   },
+  "tarachtorspice": {
+   "en": "Tarach Spice",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
+  },
   "taurichimes": {
-   "en": null,
+   "en": "Tauri Chimes",
    "es": "Carillones de 39 Tauri",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "tea": {
    "en": "Tea",
@@ -1589,6 +1772,12 @@
    "en": "Land Enrichment Systems",
    "es": "Enriquecimiento terrestre",
    "categoria": "Technology"
+  },
+  "terramaterbloodbores": {
+   "en": "Terra Mater Blood Bores",
+   "es": null,
+   "categoria": "Medicines",
+   "rara": true
   },
   "thallium": {
    "en": "Thallium",
@@ -1701,9 +1890,10 @@
    "categoria": "Salvage"
   },
   "thehuttonmug": {
-   "en": null,
+   "en": "The Hutton Mug",
    "es": "Taza de Hutton",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "thermalcoolingunits": {
    "en": "Thermal Cooling Units",
@@ -1721,14 +1911,16 @@
    "categoria": "Minerals"
   },
   "thrutiscream": {
-   "en": null,
+   "en": "Thrutis Cream",
    "es": "Crema de Thrutis",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "tiegfriessynthsilk": {
-   "en": null,
+   "en": "Tiegfries Synth Silk",
    "es": "Seda sintética de Tiegfries",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "timecapsule": {
    "en": "Time Capsule",
@@ -1736,9 +1928,10 @@
    "categoria": "Salvage"
   },
   "tiolcewaste2pasteunits": {
-   "en": null,
+   "en": "Tiolce Waste2Paste Units",
    "es": "Pastaplasta de Tiolce",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "titanium": {
    "en": "Titanium",
@@ -1751,9 +1944,10 @@
    "categoria": "Legal Drugs"
   },
   "toxandjivirocide": {
-   "en": null,
+   "en": "Toxandji Virocide",
    "es": "Virocida de Toxandji",
-   "categoria": null
+   "categoria": "Chemicals",
+   "rara": true
   },
   "toxicwaste": {
    "en": "Toxic Waste",
@@ -1761,9 +1955,10 @@
    "categoria": "Waste"
   },
   "transgeniconionhead": {
-   "en": null,
+   "en": "Lucan Onionhead",
    "es": "Cebollazo de Lucan",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "trinketsoffortune": {
    "en": "Trinkets of Hidden Fortune",
@@ -1886,44 +2081,52 @@
    "categoria": "Salvage"
   },
   "uszaiantreegrub": {
-   "en": null,
+   "en": "Uszaian Tree Grub",
    "es": "Larva de árbol uszaiana",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "utgaroarmillenialeggs": {
-   "en": null,
+   "en": "Utgaroar Millennial Eggs",
    "es": "Huevos milenarios de Utgaroar",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "uzumokulowgwings": {
-   "en": null,
+   "en": "Uzumoku Low-G Wings",
    "es": "Alas de baja gravedad de Uzumoku",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "vanayequirhinofur": {
-   "en": null,
+   "en": "Vanayequi Ceratomorpha Fur",
    "es": "Piel de ceratomorfo de Vanayequi",
-   "categoria": null
+   "categoria": "Textiles",
+   "rara": true
   },
   "vegaslimweed": {
-   "en": null,
+   "en": "Vega Slimweed",
    "es": "Planta parásita de Vega",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "vherculisbodyrub": {
-   "en": null,
+   "en": "V Herculis Body Rub",
    "es": "Exfoliantes de V1090 Herculis",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "vidavantianlace": {
-   "en": null,
+   "en": "Vidavantian Lace",
    "es": "Cordón vidavantino",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   },
   "volkhabbeedrones": {
-   "en": null,
+   "en": "Volkhab Bee Drones",
    "es": "Abejas mecánicas de Volkhab",
-   "categoria": null
+   "categoria": "Machinery",
+   "rara": true
   },
   "water": {
    "en": "Water",
@@ -1936,14 +2139,16 @@
    "categoria": "Machinery"
   },
   "watersofshintara": {
-   "en": null,
+   "en": "The Waters of Shintara",
    "es": "Aguas de Shintara",
-   "categoria": null
+   "categoria": "Medicines",
+   "rara": true
   },
   "wheemetewheatcakes": {
-   "en": null,
+   "en": "Wheemete Wheat Cakes",
    "es": "Pasteles de trigo de Wheemete",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
   },
   "wine": {
    "en": "Wine",
@@ -1951,9 +2156,16 @@
    "categoria": "Legal Drugs"
   },
   "witchhaulkobebeef": {
-   "en": null,
+   "en": "Witchhaul Kobe Beef",
    "es": "Carne de buey kobe de Witchhaul",
-   "categoria": null
+   "categoria": "Foods",
+   "rara": true
+  },
+  "wolf1301fesh": {
+   "en": "Wolf Fesh",
+   "es": null,
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "wreckagecomponents": {
    "en": "Wreckage Components",
@@ -1961,29 +2173,34 @@
    "categoria": "Salvage"
   },
   "wulpahyperboresystems": {
-   "en": null,
+   "en": "Wulpa Hyperbore Systems",
    "es": "Sistemas de hipertaladros de Wulpa",
-   "categoria": null
+   "categoria": "Machinery",
+   "rara": true
   },
   "wuthielokufroth": {
-   "en": null,
+   "en": "Wuthielo Ku Froth",
    "es": "Espuma de Wuthielo Ku",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "xihecompanions": {
-   "en": null,
+   "en": "Xihe Biomorphic Companions",
    "es": "Mascotas biomórficas de Xihe",
-   "categoria": null
+   "categoria": "Technology",
+   "rara": true
   },
   "yasokondileaf": {
-   "en": null,
+   "en": "Yaso Kondi Leaf",
    "es": "Hojas de Yaso Kondi",
-   "categoria": null
+   "categoria": "Legal Drugs",
+   "rara": true
   },
   "zeesszeantglue": {
-   "en": null,
+   "en": "Zeessze Ant Grub Glue",
    "es": "Pegamento de larvas de hormiga de Zeessze",
-   "categoria": null
+   "categoria": "Consumer Items",
+   "rara": true
   }
  }
 }

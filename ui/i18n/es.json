@@ -18,7 +18,10 @@
     "carpeta_sincronizada": "La carpeta de LUNA está dentro de una carpeta sincronizada, que subiría la base de datos entera cada vez que cambia un precio. Tus datos se guardan en la carpeta local de tu usuario.",
     "unidad_extraible": "La carpeta de LUNA está en una unidad extraíble: funciona, pero la descarga inicial será lenta.",
     "respaldo_tambien_falla": "La carpeta local de tu usuario tampoco parece apta para la base de datos. Revisa sus permisos o mueve LUNA a un disco local.",
-    "base_no_disponible": "LUNA no pudo abrir su base de datos. Sigue mostrando el estado de tu comandante, pero no guarda tus naves."
+    "base_no_disponible": "LUNA no pudo abrir su base de datos. Sigue mostrando el estado de tu comandante, pero no guarda tus naves.",
+    "base_compactando": "LUNA está compactando su base de datos para devolver espacio al disco. Es la primera vez y puede tardar un minuto; mientras dura no guarda datos nuevos.",
+    "base_sin_espacio": "LUNA no puede compactar su base de datos porque no hay espacio libre suficiente en el disco. Funciona igual, pero el archivo no encogerá hasta que liberes espacio y reinicies LUNA.",
+    "base_sin_compactar": "LUNA no pudo compactar su base de datos. Funciona igual, pero el archivo no encogerá. Los detalles están en luna.log."
   },
   "navegacion": {
     "etiqueta": "Secciones de LUNA",
@@ -35,7 +38,11 @@
     "hace_horas": "hace {n} h",
     "hace_dias": "hace {n} d",
     "proporcion": "{parte} / {total}",
-    "sin_dato": "Sin dato"
+    "sin_dato": "Sin dato",
+    "gib": "{valor} GiB",
+    "mib": "{valor} MiB",
+    "porcentaje": "{valor} %",
+    "kib": "{valor} KiB"
   },
   "motivos": {
     "sin_comandante": "Sin comandante: el journal aún no trae el evento Commander",
@@ -111,7 +118,13 @@
         "reintentando": "Sin conexión, reintentando"
       },
       "spansh_estado": {
-        "sin_descarga": "Sin descarga"
+        "sin_descarga": "Sin descarga",
+        "completa": "Descargada {hace} (centro {centro}, radio {radio} ly)",
+        "descargando": "Descargando · {porcentaje}",
+        "pausada": "En pausa · {porcentaje}",
+        "error": "Falló: {motivo}",
+        "importando_leyendo": "Importando · leyendo el archivo ({porcentaje})",
+        "importando_guardando": "Importando · guardando en la base de datos"
       }
     }
   },
@@ -133,6 +146,100 @@
     "datos": {
       "titulo": "Datos de LUNA",
       "carpeta": "Carpeta"
+    },
+    "errores": {
+      "desconocido": "LUNA no conoce ese sistema todavía. Prueba con el Sol o con un sistema que hayas visitado, que haya llegado por EDDN o que ya esté en una descarga de Spansh.",
+      "ambiguo": "Hay varios sistemas con ese nombre en la base de datos. Usa como centro otro sistema cercano.",
+      "nombre": "Escribe el nombre de un sistema, de hasta 100 caracteres.",
+      "radio": "El radio tiene que ser un número mayor que 0 y de hasta 100 000 ly.",
+      "ocupado": "Hay una descarga de Spansh en marcha. Páusala o cancélala antes de cambiar la esfera.",
+      "no_guardado": "LUNA no pudo guardar el cambio, probablemente porque otro programa tiene abierto su archivo de configuración. Cierra ese programa e inténtalo de nuevo.",
+      "parametro": "La interfaz envió un valor que LUNA no entiende. Cierra y vuelve a abrir la aplicación.",
+      "sin_base": "LUNA no pudo abrir su base de datos, así que no puede guardar datos de Spansh.",
+      "no_disponible": "Esta función no está disponible ahora mismo.",
+      "dias": "Los días tienen que ser un número mayor que 0 y de hasta 365."
+    },
+    "esfera": {
+      "titulo": "Esfera de datos",
+      "ayuda": "LUNA guarda los mercados dentro de una esfera: un centro y un radio en años luz. EDDN y la descarga de Spansh solo guardan lo que cae dentro. Cambiarla pide confirmación.",
+      "actual": "Esfera actual",
+      "actual_valor": "{centro}, radio {radio} ly",
+      "centro": "Centro (nombre del sistema)",
+      "centro_ayuda": "El Sol, o un sistema que LUNA ya conozca por tus visitas, por EDDN o por una descarga de Spansh.",
+      "radio": "Radio (ly)",
+      "revisar": "Revisar el cambio",
+      "comprobando": "Comprobando…",
+      "aplicada": "Esfera guardada.",
+      "aplicada_descargando": "Esfera guardada. La descarga ha empezado: puedes seguirla en Datos de Spansh.",
+      "propuesta": {
+        "titulo": "Confirmar el cambio",
+        "resumen": "Esfera nueva: {centro}, radio {radio} ly.",
+        "descarga_si": "Hay que descargar el volcado de Spansh ({tamano}). Tienes {libre} libres en el disco. Tarda un buen rato y se puede pausar y reanudar.",
+        "descarga_si_sin_tamano": "Hay que descargar el volcado de Spansh, pero LUNA no pudo consultar ahora su tamaño. Tienes {libre} libres en el disco.",
+        "descarga_no": "Lo que ya descargaste cubre esta esfera, así que no hace falta descargar. Se borrará lo que quede fuera de ella.",
+        "descarga_no_repetir": "Si quieres datos más recientes, puedes descargar el volcado otra vez ({tamano}).",
+        "espacio_justo": "Cuidado: puede que el disco no tenga espacio suficiente para el volcado.",
+        "sin_descarga": "LUNA no puede descargar ahora porque no tiene base de datos. El cambio se aplicará sin descargar.",
+        "aplicar_descargar": "Aplicar y descargar",
+        "aplicar": "Aplicar sin descargar",
+        "descargar_de_nuevo": "Aplicar y descargar de nuevo",
+        "cancelar": "Cancelar",
+        "borra_fuera": "Ojo: lo que ya tienes guardado y quede fuera de la esfera nueva se borra. Con «Aplicar y descargar» se borra al terminar la descarga; con «Aplicar sin descargar», ahora mismo."
+      }
+    },
+    "spansh": {
+      "titulo": "Datos de Spansh",
+      "ayuda": "Descarga opcional con los mercados de toda la galaxia. LUNA baja un archivo grande, guarda solo lo que cae dentro de tu esfera y lo borra. Sin ella, LUNA funciona con EDDN y con lo que visites. Antes de empezar te enseña el tamaño y pide confirmación.",
+      "fase_etiqueta": "Trabajo",
+      "ultima_etiqueta": "Última descarga",
+      "fase": {
+        "inactiva": "Sin trabajo en marcha",
+        "descargando": "Descargando",
+        "pausada": "En pausa",
+        "importando": "Importando",
+        "error": "Error"
+      },
+      "barra_aria": "Progreso de la descarga de Spansh",
+      "progreso_descarga": "{descargado} de {total} ({porcentaje})",
+      "descarga_completa": "La descarga está completa; falta importarla.",
+      "ultima": "{hace} · centro {centro}, radio {radio} ly",
+      "nunca": "Todavía no has descargado datos de Spansh.",
+      "pausar": "Pausar",
+      "reanudar": "Reanudar",
+      "cancelar": "Cancelar y borrar",
+      "cancelar_confirmar": "Confirmar: borrar lo descargado",
+      "errores": {
+        "descarga_url": "La dirección de descarga no es la de Spansh. No se descargó nada.",
+        "descarga_red": "Se cortó la conexión con Spansh. Lo descargado se conserva: puedes reanudar.",
+        "descarga_http": "Spansh respondió con un error. Inténtalo más tarde; lo descargado se conserva.",
+        "descarga_cortada": "La descarga terminó antes de tiempo. Puedes reanudarla.",
+        "descarga_espacio": "No hay espacio suficiente en el disco para el volcado.",
+        "descarga_formato": "Lo que llegó no es un archivo comprimido válido. Se descartó; inténtalo de nuevo.",
+        "descarga_destino": "LUNA no pudo escribir el archivo en su carpeta de datos.",
+        "importacion_archivo": "El archivo descargado estaba dañado o incompleto. Se borró; vuelve a descargarlo. La base de datos no cambió.",
+        "importacion_formato": "LUNA no entendió el archivo de Spansh: el formato puede haber cambiado o la fecha de tu PC estar mal. La base de datos no cambió y el archivo se conserva para no volver a bajarlo; cancela para borrarlo.",
+        "importacion_base": "Falló el guardado en la base de datos. Quedó como estaba y el archivo se conserva para reintentarlo.",
+        "importacion_destino": "LUNA no pudo escribir un archivo temporal en su carpeta de datos.",
+        "interno": "Ocurrió un error inesperado. Los detalles están en luna.log."
+      },
+      "descargar": "Descargar datos de Spansh…",
+      "progreso_lectura": "Leyendo el archivo ({porcentaje}) · Sistemas dentro de la esfera: {encontrados}",
+      "progreso_guardado": "Guardando en la base de datos · {guardados} de {encontrados} sistemas"
+    },
+    "retencion": {
+      "titulo": "Retención de precios",
+      "ayuda": "Dentro de la esfera LUNA guarda siempre el dato más reciente de cada estación. Fuera de ella solo conserva los mercados que visitaste tú.",
+      "visitados": "Mercados que visitaste fuera de la esfera (días)",
+      "antiguedad": "Antigüedad máxima de cualquier precio (días)",
+      "guardar": "Guardar",
+      "guardado": "Guardado."
+    },
+    "eddn": {
+      "titulo": "EDDN",
+      "ayuda": "Precios que envían otros jugadores en tiempo real. LUNA solo recibe: no envía nada.",
+      "activar": "Recibir precios de EDDN",
+      "estado": "Estado",
+      "sin_base": "Sin base de datos, LUNA no puede guardar lo que recibiría."
     }
   }
 }

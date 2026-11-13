@@ -164,7 +164,32 @@ function pintarFuentes(c, fuentes) {
   c.fuente_eddn.classList.toggle('indicador--apagado', eddn === 'desactivado' || eddn === 'conectando');
   c.fuente_eddn.classList.toggle('indicador--alerta', eddn === 'sin_datos' || eddn === 'reintentando');
   c.fuente_eddn.textContent = texto(`estado.fuentes.eddn_estado.${eddn}`);
-  c.fuente_spansh.textContent = texto(`estado.fuentes.spansh_estado.${fuentes.spansh.estado}`);
+  const spansh = fuentes.spansh.estado;
+  c.fuente_spansh.classList.toggle('indicador--apagado', spansh === 'sin_descarga' || spansh === 'pausada');
+  c.fuente_spansh.classList.toggle('indicador--alerta', spansh === 'error');
+  pintarTextoDeSpansh(c, fuentes.spansh);
+}
+
+function porcentajeDe(spansh) {
+  if (spansh.estado === 'importando') {
+    return spansh.tamano_archivo ? formato.porcentaje(spansh.leido, spansh.tamano_archivo) : '';
+  }
+  return spansh.total ? formato.porcentaje(spansh.descargado, spansh.total) : '';
+}
+
+/** El texto de la fila de Spansh; «hace N» cambia con el reloj, así que se repinta aparte. */
+function pintarTextoDeSpansh(c, spansh) {
+  const { estado, ultima } = spansh;
+  const clave = estado === 'importando' ? `importando_${spansh.etapa}` : estado;
+  c.fuente_spansh.textContent = texto(`estado.fuentes.spansh_estado.${clave}`, {
+    porcentaje: porcentajeDe(spansh),
+    guardados: formato.decimales(spansh.guardados ?? 0, 0),
+    encontrados: formato.decimales(spansh.encontrados ?? 0, 0),
+    motivo: spansh.error ? texto(`configuracion.spansh.errores.${spansh.error}`) : '',
+    hace: ultima ? formato.hace(ultima.fecha) : '',
+    centro: ultima ? ultima.centro : '',
+    radio: ultima ? formato.cantidad(ultima.radio) : '',
+  });
 }
 
 function pintarAvisos(c, datos) {
@@ -209,6 +234,7 @@ export function crearVistaEstado(raiz) {
       estado === 'leyendo' && marca
         ? texto('estado.fuentes.journal_ultimo', { estado: base, hace: formato.hace(marca) })
         : base;
+    pintarTextoDeSpansh(c, ultimo.fuentes.spansh);
   }
 
   function mostrar(datos) {

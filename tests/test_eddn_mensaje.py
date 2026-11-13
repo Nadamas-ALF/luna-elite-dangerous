@@ -378,3 +378,15 @@ def test_una_visita_del_futuro_se_descarta():
     visita["message"]["timestamp"] = "2026-11-13T00:00:00Z"
 
     assert motivo(visita) == mensaje.MOTIVO_FECHA
+
+
+def test_unas_coordenadas_que_no_caben_en_la_direccion_se_descartan():
+    datos = cargar("journal_1_4.json")
+    datos["message"]["StarPos"] = [datos["message"]["StarPos"][0] + 500.0, 0.0, 0.0]
+    assert motivo(datos) == mensaje.MOTIVO_DIRECCION
+
+
+def test_una_direccion_inventada_con_las_coordenadas_reales_se_descarta():
+    datos = cargar("journal_1_4.json")
+    datos["message"]["SystemAddress"] = 10477373803
+    assert motivo(datos) == mensaje.MOTIVO_DIRECCION

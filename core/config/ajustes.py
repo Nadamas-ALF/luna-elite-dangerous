@@ -9,6 +9,9 @@ from __future__ import annotations
 
 import logging
 import math
+import time
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 from core.config import archivo
@@ -22,7 +25,6 @@ DIAS_POR_DEFECTO = 7
 DIAS_MINIMOS = 1
 DIAS_MAXIMOS = 90
 
-# Sol; elegir otro centro por nombre llega con la descarga (fase 4).
 CENTRO_POR_DEFECTO = (0.0, 0.0, 0.0)
 CENTRO_NOMBRE_POR_DEFECTO = "Sol"
 
@@ -33,6 +35,12 @@ RADIO_MAXIMO = 100_000.0
 COORDENADA_MAXIMA = 200_000.0
 
 CLAVE_EDDN = "eddn"
+CLAVE_SPANSH = "spansh"
+
+CLAVE_RETENCION = "retencion"
+VISITADOS_DIAS_POR_DEFECTO = 3.0
+ANTIGUEDAD_MAXIMA_DIAS_POR_DEFECTO = 30.0
+DIAS_DE_RETENCION_MAXIMOS = 365.0
 
 
 def _seccion_journal(config: Path) -> dict:
@@ -87,6 +95,19 @@ def _centro(seccion: dict) -> tuple[str, tuple[float, float, float]]:
     return nombre.strip(), coordenadas
 
 
+def configuracion_legible(config: Path) -> bool:
+    """False si config.json existe y no se pudo leer (cerrado un instante por otro programa, roto).
+
+    Entonces `esfera()` y los plazos devuelven los valores por defecto, que no son los del
+    usuario: nadie debe borrar datos basándose en ellos.
+    """
+    try:
+        archivo.leer(config)
+    except (OSError, archivo.ConfigCorrupta):
+        return False
+    return True
+
+
 def esfera(config: Path) -> Esfera:
     """Centro y radio de interés; el usuario los puede editar en config.json."""
     seccion = archivo.leer_o_vacio(config).get(CLAVE_ESFERA)
@@ -96,6 +117,133 @@ def esfera(config: Path) -> Esfera:
     if radio is None or not 0 < radio <= RADIO_MAXIMO:
         radio = RADIO_POR_DEFECTO
     return Esfera(nombre, centro, radio)
+
+
+def guardar_esfera(config: Path, esfera: Esfera) -> bool:
+    """False si no se pudo escribir (el valor antiguo sigue vigente en el archivo)."""
+    x, y, z = esfera.centro
+    valor = {
+        "centro": {"nombre": esfera.nombre, "x": x, "y": y, "z": z},
+        "radio": esfera.radio,
+    }
+    try:
+        return archivo.fusionar(config, CLAVE_ESFERA, valor)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def _dias(config: Path, clave: str, por_defecto: float) -> float:
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_RETENCION)
+    dias = _numero(seccion.get(clave)) if isinstance(seccion, dict) else None
+    return dias if dias is not None and 0 < dias <= DIAS_DE_RETENCION_MAXIMOS else por_defecto
+
+
+def dias_de_mercados_visitados(config: Path) -> float:
+    """Cuánto se guarda un mercado visitado fuera de la esfera (regla 3 de la 5.4)."""
+    return _dias(config, "visitados_dias", VISITADOS_DIAS_POR_DEFECTO)
+
+
+def antiguedad_maxima_de_precios(config: Path) -> float:
+    """Días tras los cuales un precio se borra, esté donde esté (regla 4 de la 5.4)."""
+    return _dias(config, "antiguedad_maxima_dias", ANTIGUEDAD_MAXIMA_DIAS_POR_DEFECTO)
+
+
+def antiguedad_maxima_con_memoria(
+    config: Path, segundos: float = 60.0, reloj: Callable[[], float] = time.monotonic
+) -> Callable[[], float]:
+    """Como `antiguedad_maxima_de_precios`, pero leyendo el archivo como mucho cada `segundos`.
+
+    EDDN la consulta con cada mensaje (decenas por segundo).
+    """
+    guardado: list[float] = []
+
+    def leer() -> float:
+        ahora = reloj()
+        if not guardado or ahora - guardado[1] >= segundos:
+            guardado[:] = [antiguedad_maxima_de_precios(config), ahora]
+        return guardado[0]
+
+    return leer
+
+
+def guardar_retencion(config: Path, visitados_dias: float, antiguedad_maxima_dias: float) -> bool:
+    valor = {"visitados_dias": visitados_dias, "antiguedad_maxima_dias": antiguedad_maxima_dias}
+    try:
+        return archivo.fusionar(config, CLAVE_RETENCION, valor)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def guardar_eddn_activado(config: Path, activado: bool) -> bool:
+    try:
+        return archivo.fusionar(config, CLAVE_EDDN, {"activado": activado})
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+@dataclass(frozen=True)
+class UltimaDescarga:
+    fecha: str
+    # La esfera con la que se descargó.
+    esfera: Esfera
+    # Lo que de ella sigue guardado: se encoge si luego se reduce la esfera sin descargar.
+    # None si ya no es una esfera (el centro se movió y solo queda la intersección).
+    cobertura: Esfera | None
+
+
+def _esfera_de(seccion: dict) -> Esfera | None:
+    radio = _numero(seccion.get("radio"))
+    nombre, centro = _centro(seccion)
+    if radio is None or not 0 < radio <= RADIO_MAXIMO:
+        return None
+    return Esfera(nombre, centro, radio)
+
+
+def _a_dict(esfera: Esfera) -> dict:
+    x, y, z = esfera.centro
+    return {"centro": {"nombre": esfera.nombre, "x": x, "y": y, "z": z}, "radio": esfera.radio}
+
+
+def ultima_descarga(config: Path) -> UltimaDescarga | None:
+    """La esfera con que se descargó Spansh, cuándo y cuánto de ella sigue guardado."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_SPANSH)
+    if not isinstance(seccion, dict) or not isinstance(seccion.get("fecha"), str):
+        return None
+    esfera = _esfera_de(seccion)
+    if esfera is None:
+        return None
+    # Sin la clave (una descarga anterior a este ajuste) se supone que sigue entera.
+    if "cobertura" not in seccion:
+        return UltimaDescarga(seccion["fecha"], esfera, esfera)
+    cobertura = seccion["cobertura"]
+    return UltimaDescarga(
+        seccion["fecha"], esfera, _esfera_de(cobertura) if isinstance(cobertura, dict) else None
+    )
+
+
+def guardar_ultima_descarga(config: Path, fecha: str, esfera: Esfera) -> bool:
+    """Una descarga nueva: su cobertura es entera."""
+    try:
+        return archivo.fusionar(config, CLAVE_SPANSH, {"fecha": fecha, **_a_dict(esfera)})
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def guardar_cobertura(config: Path, cobertura: Esfera | None) -> bool:
+    """Anota lo que sigue guardado de la última descarga. False si no hay o no se pudo escribir."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_SPANSH)
+    if not isinstance(seccion, dict):
+        return False
+    nueva = {**seccion, "cobertura": _a_dict(cobertura) if cobertura else None}
+    try:
+        return archivo.fusionar(config, CLAVE_SPANSH, nueva)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
 
 
 def eddn_activado(config: Path) -> bool:

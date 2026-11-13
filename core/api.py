@@ -3,7 +3,8 @@
 pywebview expone todos los métodos públicos y también recorre los atributos
 públicos que sean objetos: por eso todo lo interno lleva guion bajo. Ningún
 método recibe rutas ni datos de la interfaz; la carpeta del journal se elige
-con el diálogo nativo de Windows.
+con el diálogo nativo de Windows. Los datos de Spansh, la esfera y la retención
+llegan como texto y números simples y `Datos` los valida antes de usarlos.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from pathlib import Path
 
 from core.config import ajustes
 from core.config.rutas import Ubicacion
+from core.datos import Datos
 from core.journal import carpeta
 from core.nucleo import Nucleo
 from core.state import vista
@@ -21,6 +23,8 @@ from core.state import vista
 registro = logging.getLogger("luna.api")
 
 Selector = Callable[[], str | None]
+
+_NO_DISPONIBLE = {"error": "no_disponible"}
 
 
 class Api:
@@ -32,6 +36,8 @@ class Api:
         base_disponible: bool,
         elegir_carpeta: Selector,
         estado_eddn: Callable[[], str] = lambda: "desactivado",
+        datos: Datos | None = None,
+        avisos_de_base: Callable[[], tuple[str, ...]] = tuple,
     ) -> None:
         self._nucleo = nucleo
         self._ubicacion = ubicacion
@@ -39,21 +45,30 @@ class Api:
         self._base_disponible = base_disponible
         self._elegir_carpeta = elegir_carpeta
         self._estado_eddn = estado_eddn
+        self._datos = datos
+        self._avisos_de_base = avisos_de_base
 
     def estado(self) -> dict:
         contexto = vista.Contexto(
             journal=self._nucleo.estado_del_journal(),
             motivo_datos=self._ubicacion.motivo,
-            avisos_datos=self._ubicacion.avisos,
+            avisos_datos=(*self._ubicacion.avisos, *self._avisos_de_base()),
             base_disponible=self._base_disponible,
             eddn=self._estado_eddn(),
+            **self._contexto_de_datos(),
         )
         return vista.a_diccionario(self._nucleo.estado(), contexto)
+
+    def _contexto_de_datos(self) -> dict:
+        if self._datos is None:
+            return {}
+        return {"esfera": self._datos.esfera_actual(), "spansh": self._datos.spansh()}
 
     def configuracion(self) -> dict:
         elegida = ajustes.carpeta_journal(self._config)
         usada = carpeta.resolver(elegida)
         return {
+            **(self._datos.configuracion() if self._datos else {}),
             "journal": {
                 "carpeta": str(usada) if usada else None,
                 "automatica": elegida is None,
@@ -75,6 +90,35 @@ class Api:
 
     def usar_carpeta_automatica(self) -> dict:
         return self._con_resultado(self._guardar_carpeta(None))
+
+    def spansh(self) -> dict:
+        return self._datos.spansh() if self._datos else _NO_DISPONIBLE
+
+    def proponer_esfera(self, nombre: str, radio: float) -> dict:
+        """Lo que hay que enseñar antes de confirmar un cambio de centro o de radio."""
+        return self._datos.proponer_esfera(nombre, radio) if self._datos else _NO_DISPONIBLE
+
+    def aplicar_esfera(self, nombre: str, radio: float, descargar: bool) -> dict:
+        if self._datos is None:
+            return _NO_DISPONIBLE
+        return self._datos.aplicar_esfera(nombre, radio, descargar)
+
+    def guardar_retencion(self, visitados_dias: float, antiguedad_maxima_dias: float) -> dict:
+        if self._datos is None:
+            return _NO_DISPONIBLE
+        return self._datos.guardar_retencion(visitados_dias, antiguedad_maxima_dias)
+
+    def establecer_eddn(self, activado: bool) -> dict:
+        return self._datos.establecer_eddn(activado) if self._datos else _NO_DISPONIBLE
+
+    def reanudar_descarga(self) -> dict:
+        return self._datos.reanudar() if self._datos else _NO_DISPONIBLE
+
+    def pausar_descarga(self) -> dict:
+        return self._datos.pausar() if self._datos else _NO_DISPONIBLE
+
+    def cancelar_descarga(self) -> dict:
+        return self._datos.cancelar() if self._datos else _NO_DISPONIBLE
 
     def _con_resultado(self, guardado: bool) -> dict:
         return {**self.configuracion(), "no_guardado": not guardado}
