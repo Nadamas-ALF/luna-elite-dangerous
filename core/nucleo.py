@@ -19,7 +19,7 @@ from core.config import ajustes
 from core.db import comandante, mercado
 from core.db.escritor import Escritor
 from core.esfera import Esfera, EsferaViva
-from core.journal import archivos, carpeta, lector
+from core.journal import archivos, carpeta, lector, tiempos
 from core.journal import mercado as mercado_del_juego
 from core.state import vista
 from core.state.estado import Estado, NaveActual, aplicar
@@ -59,6 +59,8 @@ class Nucleo:
         self._seguidor: lector.Seguidor | None = None
         self._marcas = _Marcas()
         self._pasos_sin_carpeta = PASOS_ENTRE_BUSQUEDAS
+        # Solo lo toca el hilo del núcleo.
+        self._cronometro = tiempos.Cronometro()
 
     def iniciar(self) -> None:
         if self._escritor is not None:
@@ -125,6 +127,7 @@ class Nucleo:
 
     def _reconstruir(self) -> None:
         lectura = self._seguidor.iniciar(ajustes.dias_journal(self._config))
+        self._cronometro = tiempos.Cronometro()
         estado = self._plegar(Estado(), lectura.eventos)
         self._marcas = _Marcas()
         estado = self._con_archivos(estado)
@@ -145,14 +148,31 @@ class Nucleo:
             return estado
         comandantes: dict[str, tuple[str, str]] = {}
         naves: dict[tuple[str, int], tuple[NaveActual, str]] = {}
+        muestras: list[comandante.MuestraDeTiempo] = []
         for evento in eventos:
             estado = aplicar(estado, evento)
             if estado.fid and estado.comandante:
                 comandantes[estado.fid] = (estado.comandante, estado.ultimo_evento or "")
             if evento.get("event") == "Loadout" and _es_guardable(estado):
                 naves[(estado.fid, estado.nave.ship_id)] = (estado.nave, estado.ultimo_evento or "")
-        self._guardar(comandantes, naves)
+            muestras += self._medir(estado, evento)
+        self._guardar(comandantes, naves, muestras)
         return estado
+
+    def _medir(self, estado: Estado, evento: dict) -> list[comandante.MuestraDeTiempo]:
+        """Muestras de tiempo de la nave en la que se cerraron (8.1); de Legacy, ninguna."""
+        if estado.legacy:
+            self._cronometro = tiempos.Cronometro()
+            return []
+        self._cronometro, nuevas = tiempos.medir(self._cronometro, evento)
+        if not nuevas or not _es_guardable(estado):
+            return []
+        return [
+            comandante.MuestraDeTiempo(
+                estado.fid, estado.nave.ship_id, m.tramo, m.fin, m.segundos, m.distancia_ls
+            )
+            for m in nuevas
+        ]
 
     def _con_archivos(self, estado: Estado) -> Estado:
         """Cargo.json y Status.json: se releen solo cuando el juego los reescribe."""
@@ -187,8 +207,10 @@ class Nucleo:
             lambda guardado: guardado and self._bus.publicar(events.MERCADO_ACTUALIZADO, market_id),
         )
 
-    def _guardar(self, comandantes: dict, naves: dict) -> None:
-        """Cada comandante visto se da de alta antes que sus naves (clave foránea)."""
+    def _guardar(
+        self, comandantes: dict, naves: dict, muestras: list[comandante.MuestraDeTiempo]
+    ) -> None:
+        """Cada comandante visto se da de alta antes que sus naves y muestras (clave foránea)."""
         if self._escritor is None:
             return
         for fid, (nombre, visto) in comandantes.items():
@@ -200,6 +222,8 @@ class Nucleo:
         for (dueno, ship_id), (actual, fecha) in naves.items():
             ficha = _ficha(dueno, ship_id, actual, fecha)
             self._escritor.encolar(lambda c, ficha=ficha: comandante.guardar_nave(c, ficha))
+        if muestras:
+            self._escritor.encolar(lambda c: comandante.guardar_muestras(c, muestras))
 
     def _publicar(self, estado: Estado, anterior: Estado | None) -> None:
         with self._candado:

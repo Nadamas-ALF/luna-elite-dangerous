@@ -10,6 +10,7 @@ import time
 
 import pytest
 
+from modules.comercio import timing
 from modules.comercio.engine import candidatos, rutas
 from modules.comercio.engine.calculo import Curva
 from tests.mercado_de_prueba import AHORA, base_vacia, hace, perfil
@@ -66,7 +67,9 @@ def _mercado(azar: random.Random, market_id: int) -> list[tuple]:
 def test_un_salto_y_bucle_responden_en_menos_de_2_s(base, modo):
     p = perfil(capacidad=720, rango=25.0, distancia_max_ly=50)
     inicio = time.perf_counter()
-    resultado = modo(candidatos.cargar(base, p, (0.0, 0.0, 0.0), AHORA), p, Curva())
+    resultado = modo(
+        candidatos.cargar(base, p, (0.0, 0.0, 0.0), AHORA), p, Curva(), timing.POR_DEFECTO
+    )
     duracion = time.perf_counter() - inicio
     assert resultado, "la base sintética tiene que dar rutas"
     assert duracion < LIMITE, f"{duracion:.2f} s"

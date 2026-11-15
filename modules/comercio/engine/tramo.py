@@ -8,11 +8,11 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import Protocol
 
-from modules.comercio import timing
 from modules.comercio.engine import calculo
 from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import Precio
 from modules.comercio.engine.perfil import Perfil
+from modules.comercio.timing import Tiempos
 
 RESULTADOS = 50
 
@@ -44,7 +44,9 @@ class Tramo:
         return self.ganancia_hora * self.confianza
 
 
-def evaluar(compra: Precio, venta: Precio, perfil: Perfil, curva: Curva) -> Tramo | None:
+def evaluar(
+    compra: Precio, venta: Precio, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> Tramo | None:
     """None si no deja ganancia o no cabe ni una tonelada."""
     if venta.precio <= compra.precio or venta.estacion.market_id == compra.estacion.market_id:
         return None
@@ -62,7 +64,7 @@ def evaluar(compra: Precio, venta: Precio, perfil: Perfil, curva: Curva) -> Tram
         toneladas=toneladas,
         distancia_ly=distancia,
         saltos=saltos,
-        segundos=timing.tramo(saltos, destino.distancia_ls, destino.planetaria),
+        segundos=tiempos.tramo(saltos, destino.distancia_ls, destino.planetaria),
         confianza=calculo.confianza(max(compra.horas, venta.horas), curva),
     )
 

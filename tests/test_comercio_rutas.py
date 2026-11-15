@@ -32,7 +32,7 @@ def cargar(base, p):
 
 def un_salto(base, **cambios):
     p = perfil(**cambios)
-    return rutas.un_salto(cargar(base, p), p, CURVA)
+    return rutas.un_salto(cargar(base, p), p, CURVA, timing.POR_DEFECTO)
 
 
 def test_un_salto_calcula_los_pasos_de_la_seccion_7_2(base):
@@ -46,7 +46,7 @@ def test_un_salto_calcula_los_pasos_de_la_seccion_7_2(base):
     assert tramo.ganancia_viaje == 80_000
     assert tramo.saltos == 2
     assert tramo.distancia_ly == pytest.approx(30)
-    assert tramo.segundos == pytest.approx(timing.tramo(2, 1000, planetaria=False))
+    assert tramo.segundos == pytest.approx(timing.POR_DEFECTO.tramo(2, 1000, planetaria=False))
     assert tramo.ganancia_hora == pytest.approx(80_000 * 3600 / tramo.segundos)
     assert tramo.confianza == 1.0
     assert tramo.puntuacion == tramo.ganancia_hora
@@ -100,7 +100,7 @@ def test_el_bucle_exige_ganancia_en_los_dos_sentidos(base):
     compra(base, 3, "gold", 10_000)
     vende(base, 2, "silver", 4000)
     compra(base, 1, "silver", 4500)
-    [bucle] = rutas.bucle(cargar(base, perfil()), perfil(), CURVA)
+    [bucle] = rutas.bucle(cargar(base, perfil()), perfil(), CURVA, timing.POR_DEFECTO)
     assert bucle.ida.compra.mercancia == "gold"
     assert bucle.vuelta.compra.mercancia == "silver"
     assert {bucle.ida.compra.estacion.market_id, bucle.vuelta.compra.estacion.market_id} == {1, 2}
@@ -118,7 +118,7 @@ def test_la_vuelta_se_busca_entre_todas_las_mercancias_no_solo_las_mejores(base,
     vende(base, 2, "silver", 4000)
     vende(base, 3, "silver", 3000)
     compra(base, 1, "silver", 4500)
-    bucles = rutas.bucle(cargar(base, perfil()), perfil(), CURVA)
+    bucles = rutas.bucle(cargar(base, perfil()), perfil(), CURVA, timing.POR_DEFECTO)
     assert any(b.vuelta.compra.estacion.market_id == 2 for b in bucles)
 
 
@@ -129,7 +129,7 @@ def test_una_pareja_aparece_una_sola_vez_en_los_bucles(base):
     compra(base, 2, "gold", 10_000)
     vende(base, 2, "silver", 4000)
     compra(base, 1, "silver", 4500)
-    assert len(rutas.bucle(cargar(base, perfil()), perfil(), CURVA)) == 1
+    assert len(rutas.bucle(cargar(base, perfil()), perfil(), CURVA, timing.POR_DEFECTO)) == 1
 
 
 def test_desde_aqui_empareja_el_mercado_actual_con_los_compradores_del_radio(base):
@@ -139,7 +139,7 @@ def test_desde_aqui_empareja_el_mercado_actual_con_los_compradores_del_radio(bas
     compra(base, 2, "gold", 10_000)
     p = perfil()
     ofertas = candidatos.ofertas_de_la_estacion(base, 1, p, AHORA)
-    [tramo] = ahora.desde_aqui(cargar(base, p), ofertas, p, CURVA)
+    [tramo] = ahora.desde_aqui(cargar(base, p), ofertas, p, CURVA, timing.POR_DEFECTO)
     assert tramo.venta.estacion.market_id == 2
 
 
@@ -151,7 +151,7 @@ def test_vender_carga_ordena_por_ingreso_y_da_la_ganancia_solo_si_se_sabe_lo_pag
     compra(base, 2, "silver", 5000)
     p = perfil()
     carga = [Carga("gold", 100, 9000), Carga("silver", 10, None), Carga("tea", 5, None)]
-    ventas = ahora.vender_carga(cargar(base, p), carga, ORIGEN, p, CURVA)
+    ventas = ahora.vender_carga(cargar(base, p), carga, ORIGEN, p, CURVA, timing.POR_DEFECTO)
     oro = ventas["gold"]
     assert [v.venta.estacion.market_id for v in oro] == [3, 2]
     assert oro[0].toneladas == 100

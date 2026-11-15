@@ -34,18 +34,14 @@ function dato(lado) {
   return valor;
 }
 
+/** Cada parte con su duración y de dónde sale (SPEC.md §8.4); sin salto no hay salida. */
 function tiempo(tramo) {
-  const partes = Object.fromEntries(
-    ['saltos', 'supercrucero', 'atraque', 'comercio'].map((parte) => [
-      parte,
-      formato.duracion(tramo.tiempo[parte]),
-    ]),
-  );
-  return [
-    formato.duracion(tramo.segundos),
-    nota(texto(clave('desglose'), partes)),
-    nota(texto(clave(`fuente.${tramo.tiempo.fuente}`))),
-  ];
+  const partes = tramo.tiempo.filter((p) => p.segundos > 0).map((p) => nota(texto(clave('parte'), {
+    parte: texto(clave(`partes.${p.parte}`)),
+    duracion: formato.duracion(p.segundos),
+    fuente: texto(clave(`fuente.${p.fuente}`), { muestras: p.muestras }),
+  })));
+  return [formato.duracion(tramo.segundos), ...partes];
 }
 
 function llegada(lado) {

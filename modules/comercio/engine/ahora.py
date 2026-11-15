@@ -6,12 +6,12 @@ import heapq
 import math
 from dataclasses import dataclass
 
-from modules.comercio import timing
 from modules.comercio.engine import calculo
 from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import Candidatos, Posicion, Precio
 from modules.comercio.engine.perfil import Perfil
 from modules.comercio.engine.tramo import Tramo, evaluar, mejores
+from modules.comercio.timing import Tiempos
 
 DESTINOS_POR_MERCANCIA = 10
 
@@ -54,7 +54,9 @@ class Venta:
         return self.ingreso_hora * self.confianza
 
 
-def _vender(carga: Carga, venta: Precio, origen: Posicion, perfil: Perfil, curva: Curva) -> Venta:
+def _vender(
+    carga: Carga, venta: Precio, origen: Posicion, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> Venta:
     distancia = math.dist(origen, venta.estacion.posicion)
     saltos = calculo.saltos(distancia, perfil.rango)
     destino = venta.estacion
@@ -64,20 +66,25 @@ def _vender(carga: Carga, venta: Precio, origen: Posicion, perfil: Perfil, curva
         toneladas=min(carga.cantidad, venta.cantidad),
         distancia_ly=distancia,
         saltos=saltos,
-        segundos=timing.tramo(saltos, destino.distancia_ls, destino.planetaria),
+        segundos=tiempos.tramo(saltos, destino.distancia_ls, destino.planetaria),
         confianza=calculo.confianza(venta.horas, curva),
     )
 
 
 def vender_carga(
-    candidatos: Candidatos, carga: list[Carga], origen: Posicion, perfil: Perfil, curva: Curva
+    candidatos: Candidatos,
+    carga: list[Carga],
+    origen: Posicion,
+    perfil: Perfil,
+    curva: Curva,
+    tiempos: Tiempos,
 ) -> dict[str, list[Venta]]:
     """Los mejores compradores de cada mercancía de la bodega; vacía si nadie la compra."""
     return {
         articulo.mercancia: heapq.nlargest(
             DESTINOS_POR_MERCANCIA,
             (
-                _vender(articulo, venta, origen, perfil, curva)
+                _vender(articulo, venta, origen, perfil, curva, tiempos)
                 for venta in candidatos.demandas.get(articulo.mercancia, ())
             ),
             key=lambda v: v.puntuacion,
@@ -87,11 +94,11 @@ def vender_carga(
 
 
 def desde_aqui(
-    candidatos: Candidatos, ofertas: list[Precio], perfil: Perfil, curva: Curva
+    candidatos: Candidatos, ofertas: list[Precio], perfil: Perfil, curva: Curva, tiempos: Tiempos
 ) -> list[Tramo]:
     """Lo que vende tu estación contra todos los compradores del radio, no solo los K mejores."""
     tramos = (
-        evaluar(oferta, venta, perfil, curva)
+        evaluar(oferta, venta, perfil, curva, tiempos)
         for oferta in ofertas
         for venta in candidatos.demandas.get(oferta.mercancia, ())
     )

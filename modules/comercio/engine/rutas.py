@@ -21,6 +21,7 @@ from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import Candidatos, Precio
 from modules.comercio.engine.perfil import Perfil
 from modules.comercio.engine.tramo import Tramo, evaluar, mejores
+from modules.comercio.timing import Tiempos
 
 K_POR_MERCANCIA = 25
 TRAMOS_PARA_BUCLE = 3_000
@@ -37,7 +38,9 @@ def _mejores_compradores(demandas: list[Precio], capacidad: int) -> list[Precio]
     )
 
 
-def _pares(candidatos: Candidatos, perfil: Perfil, curva: Curva) -> Iterator[Tramo]:
+def _pares(
+    candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> Iterator[Tramo]:
     for mercancia, ofertas in candidatos.ofertas.items():
         demandas = candidatos.demandas.get(mercancia)
         if not demandas:
@@ -45,13 +48,13 @@ def _pares(candidatos: Candidatos, perfil: Perfil, curva: Curva) -> Iterator[Tra
         compradores = _mejores_compradores(demandas, perfil.capacidad)
         for compra in _mas_baratos(ofertas):
             for venta in compradores:
-                tramo = evaluar(compra, venta, perfil, curva)
+                tramo = evaluar(compra, venta, perfil, curva, tiempos)
                 if tramo is not None:
                     yield tramo
 
 
-def un_salto(candidatos: Candidatos, perfil: Perfil, curva: Curva) -> list[Tramo]:
-    return mejores(_pares(candidatos, perfil, curva), perfil.orden)
+def un_salto(candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos) -> list[Tramo]:
+    return mejores(_pares(candidatos, perfil, curva, tiempos), perfil.orden)
 
 
 @dataclass(frozen=True, slots=True)
@@ -89,7 +92,12 @@ class Bucle:
 
 
 def mejor_entre(
-    candidatos: Candidatos, origen: int, destino: int, perfil: Perfil, curva: Curva
+    candidatos: Candidatos,
+    origen: int,
+    destino: int,
+    perfil: Perfil,
+    curva: Curva,
+    tiempos: Tiempos,
 ) -> Tramo | None:
     """El mejor trato de `origen` a `destino` con cualquier mercancía.
 
@@ -99,7 +107,7 @@ def mejor_entre(
     ofertas = candidatos.ofertas_de.get(origen, {})
     demandas = candidatos.demandas_de.get(destino, {})
     tramos = (
-        evaluar(oferta, demandas[mercancia], perfil, curva)
+        evaluar(oferta, demandas[mercancia], perfil, curva, tiempos)
         for mercancia, oferta in ofertas.items()
         if mercancia in demandas
     )
@@ -107,11 +115,11 @@ def mejor_entre(
 
 
 def _pares_de_estaciones(
-    candidatos: Candidatos, perfil: Perfil, curva: Curva
+    candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos
 ) -> list[tuple[int, int]]:
     """Las parejas de los mejores tramos de ida, sin repetir la misma en sentido contrario."""
     tramos = heapq.nlargest(
-        TRAMOS_PARA_BUCLE, _pares(candidatos, perfil, curva), key=lambda t: t.puntuacion
+        TRAMOS_PARA_BUCLE, _pares(candidatos, perfil, curva, tiempos), key=lambda t: t.puntuacion
     )
     vistas: set[frozenset[int]] = set()
     parejas = []
@@ -123,13 +131,15 @@ def _pares_de_estaciones(
     return parejas
 
 
-def _bucles(candidatos: Candidatos, perfil: Perfil, curva: Curva) -> Iterator[Bucle]:
-    for a, b in _pares_de_estaciones(candidatos, perfil, curva):
-        ida = mejor_entre(candidatos, a, b, perfil, curva)
-        vuelta = mejor_entre(candidatos, b, a, perfil, curva)
+def _bucles(
+    candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> Iterator[Bucle]:
+    for a, b in _pares_de_estaciones(candidatos, perfil, curva, tiempos):
+        ida = mejor_entre(candidatos, a, b, perfil, curva, tiempos)
+        vuelta = mejor_entre(candidatos, b, a, perfil, curva, tiempos)
         if ida is not None and vuelta is not None:
             yield Bucle(ida, vuelta)
 
 
-def bucle(candidatos: Candidatos, perfil: Perfil, curva: Curva) -> list[Bucle]:
-    return mejores(_bucles(candidatos, perfil, curva), perfil.orden)
+def bucle(candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos) -> list[Bucle]:
+    return mejores(_bucles(candidatos, perfil, curva, tiempos), perfil.orden)

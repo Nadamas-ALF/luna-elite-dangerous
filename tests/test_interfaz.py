@@ -355,7 +355,9 @@ def test_los_textos_de_comercio_aceptan_sus_valores():
         "comercio.rutas.detalle.llegada": {"ls"},
         "comercio.rutas.detalle.llegada_planetaria": {"ls"},
         "comercio.rutas.detalle.distancia_valor": {"ly", "saltos"},
-        "comercio.rutas.detalle.desglose": {"saltos", "supercrucero", "atraque", "comercio"},
+        "comercio.rutas.detalle.parte": {"parte", "duracion", "fuente"},
+        "comercio.rutas.detalle.fuente.comandante": {"muestras"},
+        "comercio.rutas.detalle.fuente.nave": {"muestras"},
         "comercio.rutas.detalle.ganancia_sesion": {"horas"},
         "comercio.rutas.detalle.copiar_aria": {"sistema"},
         "comercio.ahora.actualizado": {"hora"},
@@ -396,7 +398,11 @@ def test_hay_texto_para_cada_columna_error_y_fuente_de_rutas():
             "sin_respuesta",
         )
     ]
-    claves.append(f"comercio.rutas.detalle.fuente.{timing.FUENTE_POR_DEFECTO}")
+    claves += [f"comercio.rutas.detalle.fuente.{fuente}" for fuente in timing.FUENTES]
+    claves += [
+        f"comercio.rutas.detalle.partes.{parte}"
+        for parte in timing.POR_DEFECTO.partes(1, 0, planetaria=False)
+    ]
     assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
 
 

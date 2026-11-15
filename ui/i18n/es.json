@@ -249,9 +249,18 @@
         "distancia": "Distancia",
         "distancia_valor": "{ly} en {saltos} saltos, en línea recta: con pocas estrellas pueden ser más.",
         "tiempo": "Tiempo estimado",
-        "desglose": "Saltos {saltos}, supercrucero {supercrucero}, atraque {atraque}, comercio {comercio}.",
+        "parte": "{parte}: {duracion}, {fuente}.",
+        "partes": {
+          "salida": "Salida y primer salto",
+          "saltos": "Resto de saltos",
+          "supercrucero": "Supercrucero",
+          "atraque": "Atraque",
+          "comercio": "Comercio"
+        },
         "fuente": {
-          "por_defecto": "Tiempos por defecto: todavía no hay muestras tuyas."
+          "por_defecto": "por defecto",
+          "comandante": "tu promedio ({muestras} muestras)",
+          "nave": "esta nave ({muestras} muestras)"
         },
         "ganancia_hora": "Ganancia por hora",
         "ganancia_sesion": "En {horas} h de sesión",

@@ -28,7 +28,7 @@ from core.config import ajustes
 from core.db import mercado
 from core.db.escritor import Escritor, Trabajo, abrir_lectura
 from core.state.estado import Estado, precio_de_compra, vendibles
-from modules.comercio import perfiles, salida
+from modules.comercio import perfiles, salida, timing
 from modules.comercio.engine import ahora as modo_ahora
 from modules.comercio.engine import candidatos, rutas
 from modules.comercio.engine.calculo import Curva
@@ -130,7 +130,8 @@ class Comercio:
             with self._turno_rutas.empezar() as parar, self._lectura() as conexion:
                 centro = _centro(conexion, perfil, estado)
                 cargados = candidatos.cargar(conexion, perfil, centro, self._reloj(), parar=parar)
-                resultados = buscar(cargados, perfil, self._curva())
+                tiempos = _tiempos(conexion, estado)
+                resultados = buscar(cargados, perfil, self._curva(), tiempos)
                 nombres = salida.nombres_de_mercancias(conexion)
                 _comprobar(parar)
         except _Rechazo as rechazo:
@@ -139,7 +140,7 @@ class Comercio:
             return {"cancelada": True}
         return {
             "modo": modo,
-            "resultados": [convertir(r, nombres, perfil.horas_sesion) for r in resultados],
+            "resultados": [convertir(r, nombres, perfil.horas_sesion, tiempos) for r in resultados],
         }
 
     def ahora(self, datos: object) -> dict:
@@ -179,16 +180,17 @@ class Comercio:
             conexion, perfil, estado.posicion, momento, raras=True, parar=parar
         )
         nombres = salida.nombres_de_mercancias(conexion)
+        tiempos = _tiempos(conexion, estado)
         carga = _carga(estado)
-        ventas = modo_ahora.vender_carga(cargados, carga, estado.posicion, perfil, curva)
+        ventas = modo_ahora.vender_carga(cargados, carga, estado.posicion, perfil, curva, tiempos)
         market_id = estado.estacion.market_id if estado.estacion else None
         desde_aqui = None
         if market_id is not None:
             ofertas = candidatos.ofertas_de_la_estacion(conexion, market_id, perfil, momento)
-            tramos = modo_ahora.desde_aqui(cargados, ofertas, perfil, curva)
-            desde_aqui = [salida.tramo(t, nombres, perfil.horas_sesion) for t in tramos]
+            tramos = modo_ahora.desde_aqui(cargados, ofertas, perfil, curva, tiempos)
+            desde_aqui = [salida.tramo(t, nombres, perfil.horas_sesion, tiempos) for t in tramos]
         return {
-            "vender": [_vender(articulo, ventas, nombres) for articulo in carga],
+            "vender": [_vender(articulo, ventas, nombres, tiempos) for articulo in carga],
             "desde_aqui": desde_aqui,
         }
 
@@ -351,12 +353,21 @@ def _carga(estado: Estado) -> list[modo_ahora.Carga]:
     ]
 
 
+def _tiempos(conexion: sqlite3.Connection, estado: Estado) -> timing.Tiempos:
+    """Los de la nave en la que vas: un perfil guardado de otra nave no cambia cómo juegas."""
+    ship_id = estado.nave.ship_id if estado.nave else None
+    return timing.cargar(conexion, estado.fid, ship_id)
+
+
 def _vender(
-    articulo: modo_ahora.Carga, ventas: dict[str, list[modo_ahora.Venta]], nombres: dict
+    articulo: modo_ahora.Carga,
+    ventas: dict[str, list[modo_ahora.Venta]],
+    nombres: dict,
+    tiempos: timing.Tiempos,
 ) -> dict:
     return {
         "mercancia": salida.mercancia(articulo.mercancia, nombres),
         "cantidad": articulo.cantidad,
         "precio_compra": articulo.precio_compra,
-        "destinos": [salida.venta(v) for v in ventas.get(articulo.mercancia, ())],
+        "destinos": [salida.venta(v, tiempos) for v in ventas.get(articulo.mercancia, ())],
     }

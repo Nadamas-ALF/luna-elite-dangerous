@@ -92,6 +92,19 @@ MIGRACIONES: tuple[str, ...] = (
         parametros TEXT NOT NULL
     );
     """,
+    # Muestras de tiempo (5.2, 8.1). `fin` es la marca del evento que cierra la muestra:
+    # al releer el journal al arrancar, la misma muestra no se guarda dos veces.
+    """
+    CREATE TABLE timing_samples (
+        fid          TEXT    NOT NULL REFERENCES commanders(fid),
+        ship_id      INTEGER NOT NULL,
+        tramo        TEXT    NOT NULL,
+        fin          TEXT    NOT NULL,
+        segundos     REAL    NOT NULL,
+        distancia_ls REAL,
+        PRIMARY KEY (fid, ship_id, tramo, fin)
+    ) WITHOUT ROWID;
+    """,
 )
 
 

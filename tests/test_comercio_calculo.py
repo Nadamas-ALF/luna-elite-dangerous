@@ -1,8 +1,6 @@
-import math
 
 import pytest
 
-from modules.comercio import timing
 from modules.comercio.engine import calculo
 from modules.comercio.engine.calculo import Curva
 
@@ -50,13 +48,3 @@ def test_una_curva_sin_sentido_se_rechaza(valores):
         Curva(**valores)
 
 
-def test_el_supercrucero_sigue_el_ajuste_de_los_journals():
-    assert timing.supercrucero(0) == pytest.approx(110)
-    assert timing.supercrucero(100) == pytest.approx(110 + 32 * math.log(2))
-    assert timing.supercrucero(5000) > timing.supercrucero(1000) > timing.supercrucero(100)
-
-
-def test_un_tramo_suma_saltos_supercrucero_atraque_y_comercio():
-    orbital = timing.tramo(3, 0, planetaria=False)
-    assert orbital == pytest.approx(3 * 50 + 110 + 90 + 60)
-    assert timing.tramo(3, 0, planetaria=True) - orbital == pytest.approx(90)

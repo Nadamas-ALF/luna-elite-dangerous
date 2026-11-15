@@ -62,10 +62,15 @@ def test_un_salto_devuelve_las_columnas_de_la_7_2_con_el_nombre_en_espanol(ruta,
     assert primero["ganancia_tonelada"] == 1_000
     assert primero["toneladas"] == 100
     assert primero["ganancia_sesion"] == pytest.approx(primero["ganancia_hora"])
-    assert sum(v for k, v in primero["tiempo"].items() if k != "fuente") == pytest.approx(
-        primero["segundos"]
-    )
-    assert primero["tiempo"]["fuente"] == "por_defecto"
+    assert sum(p["segundos"] for p in primero["tiempo"]) == pytest.approx(primero["segundos"])
+    assert [p["parte"] for p in primero["tiempo"]] == [
+        "salida",
+        "saltos",
+        "supercrucero",
+        "atraque",
+        "comercio",
+    ]
+    assert {p["fuente"] for p in primero["tiempo"]} == {"por_defecto"}
     # Sin nombre en la tabla, se enseña el símbolo.
     plata = next(r for r in respuesta["resultados"] if r["mercancia"]["simbolo"] == "silver")
     assert plata["mercancia"]["nombre"] == "silver"
@@ -400,3 +405,31 @@ def test_si_la_configuracion_no_se_puede_escribir_se_avisa(ruta, tmp_path, monke
     monkeypatch.setattr(ajustes, "guardar_busqueda", lambda *_: False)
     respuesta = comercio(ruta, tmp_path).guardar_ajustes_de_busqueda(7, ["orbital"])
     assert respuesta == {"error": "no_guardado"}
+
+
+def test_la_busqueda_usa_los_tiempos_de_la_nave_en_la_que_vas(ruta, tmp_path):
+    from core.state.estado import NaveActual
+
+    conexion = sqlite3.connect(ruta, isolation_level=None)
+    conexion.execute("INSERT INTO commanders VALUES ('F1', 'CMDR Prueba', '2026-11-14')")
+    for i in range(12):
+        conexion.execute(
+            "INSERT INTO timing_samples VALUES ('F1', 14, 'comercio', ?, 300.0, NULL)",
+            (f"2026-11-14T10:00:{i:02d}Z",),
+        )
+    conexion.close()
+    nave = NaveActual(14, "panthermkii", "", "", 1120, 64.0, None)
+    estado = replace(AQUI, fid="F1", nave=nave)
+
+    respuesta = comercio(ruta, tmp_path, estado).buscar_rutas("un_salto", datos())
+
+    primero = respuesta["resultados"][0]
+    partes = {p["parte"]: p for p in primero["tiempo"]}
+    assert partes["comercio"] == {
+        "parte": "comercio",
+        "segundos": 300.0,
+        "fuente": "nave",
+        "muestras": 12,
+    }
+    assert partes["saltos"]["fuente"] == "por_defecto"
+    assert primero["segundos"] == pytest.approx(sum(p["segundos"] for p in primero["tiempo"]))

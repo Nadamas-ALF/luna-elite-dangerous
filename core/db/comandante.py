@@ -51,3 +51,22 @@ def guardar_nave(conexion: sqlite3.Connection, ficha: FichaDeNave) -> None:
             ficha.actualizado,
         ),
     )
+
+
+@dataclass(frozen=True)
+class MuestraDeTiempo:
+    fid: str
+    ship_id: int
+    tramo: str
+    fin: str
+    segundos: float
+    distancia_ls: float | None
+
+
+def guardar_muestras(conexion: sqlite3.Connection, muestras: list[MuestraDeTiempo]) -> None:
+    """Al reconstruir se relee el journal: una muestra ya guardada se deja como está."""
+    conexion.executemany(
+        "INSERT OR IGNORE INTO timing_samples (fid, ship_id, tramo, fin, segundos, distancia_ls) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        [(m.fid, m.ship_id, m.tramo, m.fin, m.segundos, m.distancia_ls) for m in muestras],
+    )

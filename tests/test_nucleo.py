@@ -386,3 +386,49 @@ def test_la_distancia_de_un_sistema_propio_se_mide_desde_el_centro_configurado(
     finally:
         nucleo.detener()
         escritor.detener()
+
+
+def _muestras_guardadas(ruta_base: Path) -> list[tuple]:
+    conexion = abrir_lectura(ruta_base)
+    try:
+        return conexion.execute(
+            "SELECT fid, ship_id, tramo, segundos FROM timing_samples ORDER BY fin, tramo"
+        ).fetchall()
+    finally:
+        conexion.close()
+
+
+def test_guarda_las_muestras_de_tiempo_una_sola_vez_aunque_se_relea(
+    tmp_path, juego, config, arrancar
+):
+    shutil.copy(FIXTURES / "viaje_tiempos.log", juego / NOMBRE)
+    ruta_base = tmp_path / "luna.db"
+    for _ in range(2):  # el segundo arranque relee el mismo journal
+        escritor = Escritor(ruta_base)
+        escritor.iniciar()
+        nucleo, _ = arrancar(config, escritor)
+        assert esperar(lambda nucleo=nucleo: nucleo.estado().sistema == "HIP 45251")
+        nucleo.detener()
+        escritor.detener()
+
+    muestras = _muestras_guardadas(ruta_base)
+    assert len(muestras) == 17
+    assert {(fid, ship_id) for fid, ship_id, _, _ in muestras} == {("F0000001", 14)}
+    assert ("F0000001", 14, "salida", 85.0) in muestras
+
+
+def test_las_muestras_nuevas_del_journal_se_guardan_al_llegar(tmp_path, juego, config, arrancar):
+    journal = juego / NOMBRE
+    shutil.copy(FIXTURES / "sesion_comercio.log", journal)
+    ruta_base = tmp_path / "luna.db"
+    escritor = Escritor(ruta_base)
+    escritor.iniciar()
+    nucleo, _ = arrancar(config, escritor)
+    assert esperar(lambda: nucleo.estado().nave is not None)
+
+    anadir(journal, {"timestamp": "2026-11-10T07:00:00Z", "event": "Undocked", "MarketID": 1})
+    anadir(journal, {"timestamp": "2026-11-10T07:01:40Z", "event": "FSDJump"})
+
+    assert esperar(lambda: ("F0000001", 14, "salida", 100.0) in _muestras_guardadas(ruta_base))
+    nucleo.detener()
+    escritor.detener()
