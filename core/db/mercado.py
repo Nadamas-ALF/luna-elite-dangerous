@@ -213,24 +213,33 @@ def guardar_propio(conexion: sqlite3.Connection, mercado: MercadoPropio) -> bool
     )
 
 
-def sistema_por_nombre(conexion: sqlite3.Connection, nombre: str) -> Sistema | None:
+def sistema_por_nombre(
+    conexion: sqlite3.Connection, nombre: str, sin_mayusculas: bool = False
+) -> Sistema | None:
     """El sistema con ese nombre y coordenadas conocidas; None si no hay o es dudoso.
 
     Los nombres son únicos en el juego: si hay dos con el mismo, uno es falso. Gana
     el único de fuente fiable; si no lo hay, no se adivina. Para leer desde otro
     hilo, con conexión propia.
     """
-    filas = conexion.execute(
-        "SELECT system_address, x, y, z, distancia_centro, fuente FROM systems "
-        "WHERE nombre = ? AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL",
-        (nombre,),
-    ).fetchall()
+    filas = _sistemas_llamados(conexion, nombre, "")
+    if not filas and sin_mayusculas:
+        # Un nombre que escribió el usuario: el juego no distingue mayúsculas. Sin índice.
+        filas = _sistemas_llamados(conexion, nombre, " COLLATE NOCASE")
     if len(filas) > 1:
-        filas = [f for f in filas if f[5] != FUENTE_EDDN]
+        filas = [f for f in filas if f[6] != FUENTE_EDDN]
     if len(filas) != 1:
         return None
     fila = filas[0]
-    return Sistema(fila[0], nombre, (fila[1], fila[2], fila[3]), fila[4], fila[5])
+    return Sistema(fila[0], fila[1], (fila[2], fila[3], fila[4]), fila[5], fila[6])
+
+
+def _sistemas_llamados(conexion: sqlite3.Connection, nombre: str, comparacion: str) -> list:
+    return conexion.execute(
+        "SELECT system_address, nombre, x, y, z, distancia_centro, fuente FROM systems "  # noqa: S608
+        f"WHERE nombre = ?{comparacion} AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL",
+        (nombre,),
+    ).fetchall()
 
 
 def nombre_en_uso_por_otro(conexion: sqlite3.Connection, nombre: str, direccion: int) -> bool:

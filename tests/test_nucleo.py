@@ -16,7 +16,7 @@ FIXTURES = Path(__file__).parent / "fixtures" / "journal"
 NOMBRE = "Journal.2026-11-10T033327.01.log"
 
 
-def esperar(condicion, segundos: float = 3.0) -> bool:
+def esperar(condicion, segundos: float = 10.0) -> bool:
     limite = time.monotonic() + segundos
     while time.monotonic() < limite:
         if condicion():

@@ -36,3 +36,12 @@ export const establecerEddn = (activado) => llamar('establecer_eddn', activado);
 export const reanudarDescarga = () => llamar('reanudar_descarga');
 export const pausarDescarga = () => llamar('pausar_descarga');
 export const cancelarDescarga = () => llamar('cancelar_descarga');
+export const perfilInicial = () => llamar('perfil_inicial');
+export const perfilesGuardados = () => llamar('perfiles_guardados');
+export const guardarPerfil = (nombre, perfil) => llamar('guardar_perfil', nombre, perfil);
+export const borrarPerfil = (nombre) => llamar('borrar_perfil', nombre);
+export const buscarRutas = (modo, perfil) => llamar('buscar_rutas', modo, perfil);
+export const ahora = (perfil) => llamar('ahora', perfil);
+export const ajustesDeBusqueda = () => llamar('ajustes_de_busqueda');
+export const guardarAjustesDeBusqueda = (tope, tipos) =>
+  llamar('guardar_ajustes_de_busqueda', tope, tipos);

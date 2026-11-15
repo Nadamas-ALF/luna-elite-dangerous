@@ -1,9 +1,8 @@
 // Pantalla Estado: pinta lo que Python devuelve y, cuando falta un valor, dice
 // por qué con el texto del código de motivo (docs/decisiones.md).
+import { copiar } from './copiar.js';
 import * as formato from './formato.js';
 import { texto } from './i18n.js';
-
-const TIEMPO_COPIADO = 1500;
 
 function campos(raiz) {
   const tabla = {};
@@ -207,23 +206,8 @@ function pintarAvisos(c, datos) {
 export function crearVistaEstado(raiz) {
   const c = campos(raiz);
   let ultimo = null;
-  let temporizadorDeCopia = null;
 
-  c.copiar.addEventListener('click', async () => {
-    const nombre = c.sistema.textContent;
-    try {
-      await navigator.clipboard.writeText(nombre);
-    } catch {
-      // Sin permiso del portapapeles se deja el nombre seleccionado para Ctrl+C.
-      window.getSelection().selectAllChildren(c.sistema);
-      return;
-    }
-    c.copiar.textContent = texto('estado.ubicacion.copiado');
-    clearTimeout(temporizadorDeCopia);
-    temporizadorDeCopia = setTimeout(() => {
-      c.copiar.textContent = texto('estado.ubicacion.copiar');
-    }, TIEMPO_COPIADO);
-  });
+  c.copiar.addEventListener('click', () => copiar(c.copiar, c.sistema.textContent, c.sistema));
 
   /** «Último evento hace N s» cambia con el reloj aunque los datos no cambien. */
   function refrescarTiempos() {

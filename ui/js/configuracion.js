@@ -1,7 +1,7 @@
 // Pantalla Configuración. La carpeta del journal se elige con el diálogo nativo
 // de Windows; esta página nunca escribe una ruta. El resto de los paneles
-// (esfera, Spansh, retención y EDDN) tienen su propio módulo.
-import { crearPanelEddn, crearPanelRetencion } from './ajustes.js';
+// (esfera, Spansh, retención, búsqueda de rutas y EDDN) tienen su propio módulo.
+import { crearPanelComercio, crearPanelEddn, crearPanelRetencion } from './ajustes.js';
 import * as api from './api.js';
 import { crearPanelEsfera } from './esfera.js';
 import { texto } from './i18n.js';
@@ -21,6 +21,7 @@ export function crearVistaConfiguracion(raiz) {
   const esfera = crearPanelEsfera(panel(raiz, 'esfera'), () => spansh.refrescar());
   spansh = crearPanelSpansh(panel(raiz, 'spansh'), () => esfera.revisarActual());
   const retencion = crearPanelRetencion(panel(raiz, 'retencion'));
+  const comercio = crearPanelComercio(panel(raiz, 'comercio'));
   const eddn = crearPanelEddn(panel(raiz, 'eddn'));
 
   function pintar(datos) {
@@ -54,6 +55,7 @@ export function crearVistaConfiguracion(raiz) {
       if (datos.esfera) esfera.cargar(datos.esfera);
       if (datos.retencion) retencion.cargar(datos.retencion);
       if (datos.eddn) eddn.cargar(datos.eddn);
+      comercio.cargar();
       spansh.empezar();
     },
     salir: () => spansh.parar(),

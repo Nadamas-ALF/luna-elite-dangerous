@@ -4,7 +4,8 @@ pywebview expone todos los métodos públicos y también recorre los atributos
 públicos que sean objetos: por eso todo lo interno lleva guion bajo. Ningún
 método recibe rutas ni datos de la interfaz; la carpeta del journal se elige
 con el diálogo nativo de Windows. Los datos de Spansh, la esfera y la retención
-llegan como texto y números simples y `Datos` los valida antes de usarlos.
+llegan como texto y números simples y `Datos` los valida antes de usarlos; los
+perfiles de búsqueda los valida `Comercio`.
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from core.config import ajustes
 from core.config.rutas import Ubicacion
@@ -19,6 +21,9 @@ from core.datos import Datos
 from core.journal import carpeta
 from core.nucleo import Nucleo
 from core.state import vista
+
+if TYPE_CHECKING:
+    from modules.comercio.api import Comercio
 
 registro = logging.getLogger("luna.api")
 
@@ -38,6 +43,7 @@ class Api:
         estado_eddn: Callable[[], str] = lambda: "desactivado",
         datos: Datos | None = None,
         avisos_de_base: Callable[[], tuple[str, ...]] = tuple,
+        comercio: Comercio | None = None,
     ) -> None:
         self._nucleo = nucleo
         self._ubicacion = ubicacion
@@ -47,6 +53,7 @@ class Api:
         self._estado_eddn = estado_eddn
         self._datos = datos
         self._avisos_de_base = avisos_de_base
+        self._comercio = comercio
 
     def estado(self) -> dict:
         contexto = vista.Contexto(
@@ -119,6 +126,32 @@ class Api:
 
     def cancelar_descarga(self) -> dict:
         return self._datos.cancelar() if self._datos else _NO_DISPONIBLE
+
+    def perfil_inicial(self) -> dict:
+        return self._comercio.perfil_inicial() if self._comercio else _NO_DISPONIBLE
+
+    def buscar_rutas(self, modo: str, perfil: dict) -> dict:
+        return self._comercio.buscar_rutas(modo, perfil) if self._comercio else _NO_DISPONIBLE
+
+    def ahora(self, perfil: dict) -> dict:
+        return self._comercio.ahora(perfil) if self._comercio else _NO_DISPONIBLE
+
+    def perfiles_guardados(self) -> dict:
+        return self._comercio.perfiles_guardados() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_perfil(self, nombre: str, perfil: dict) -> dict:
+        return self._comercio.guardar_perfil(nombre, perfil) if self._comercio else _NO_DISPONIBLE
+
+    def borrar_perfil(self, nombre: str) -> dict:
+        return self._comercio.borrar_perfil(nombre) if self._comercio else _NO_DISPONIBLE
+
+    def ajustes_de_busqueda(self) -> dict:
+        return self._comercio.ajustes_de_busqueda() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_ajustes_de_busqueda(self, tope_dias: int, tipos: list) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_ajustes_de_busqueda(tope_dias, tipos)
 
     def _con_resultado(self, guardado: bool) -> dict:
         return {**self.configuracion(), "no_guardado": not guardado}

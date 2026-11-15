@@ -139,3 +139,74 @@ def test_la_antiguedad_con_memoria_lee_el_archivo_solo_cada_intervalo(tmp_path):
 def test_la_antiguedad_con_memoria_usa_el_valor_por_defecto_sin_config(tmp_path):
     leer = ajustes.antiguedad_maxima_con_memoria(tmp_path / "no-existe.json")
     assert leer() == ajustes.ANTIGUEDAD_MAXIMA_DIAS_POR_DEFECTO
+
+
+def test_sin_ajuste_el_tope_de_antiguedad_es_de_siete_dias(tmp_path):
+    assert ajustes.tope_de_antiguedad_dias(tmp_path / "config.json") == 7
+
+
+@pytest.mark.parametrize("dias", [0, 31, -1, 7.5, "7", True, None])
+def test_un_tope_de_antiguedad_invalido_cae_al_de_por_defecto(tmp_path, dias):
+    config = escribir(tmp_path / "config.json", {"comercio": {"tope_antiguedad_dias": dias}})
+    assert ajustes.tope_de_antiguedad_dias(config) == 7
+
+
+def test_la_busqueda_se_guarda_sin_perder_el_resto_de_comercio(tmp_path):
+    config = escribir(
+        tmp_path / "config.json", {"comercio": {"otro": 1}, "eddn": {"activado": True}}
+    )
+    assert ajustes.guardar_busqueda(config, 30, ("orbital",))
+    assert ajustes.tope_de_antiguedad_dias(config) == 30
+    datos = json.loads(config.read_text(encoding="utf-8"))
+    assert datos["comercio"]["otro"] == 1
+    assert datos["eddn"] == {"activado": True}
+
+
+def test_sin_ajuste_un_perfil_nuevo_trae_todos_los_tipos_menos_fleet_carrier(tmp_path):
+    tipos = ajustes.tipos_de_estacion(tmp_path / "config.json")
+    assert tipos == ajustes.TIPOS_DE_ESTACION
+    assert "fleet_carrier" not in tipos
+
+
+@pytest.mark.parametrize(
+    "tipos", [[], ["fleet_carrier"], ["orbital", 3], "orbital", None, ["orbital", "inventado"]]
+)
+def test_unos_tipos_de_estacion_invalidos_caen_a_todos(tmp_path, tipos):
+    config = escribir(tmp_path / "config.json", {"comercio": {"tipos_estacion": tipos}})
+    assert ajustes.tipos_de_estacion(config) == ajustes.TIPOS_DE_ESTACION
+
+
+def test_los_tipos_de_estacion_se_leen_en_orden_canonico_junto_al_tope(tmp_path):
+    config = tmp_path / "config.json"
+    assert ajustes.guardar_busqueda(config, 14, ("asentamiento", "orbital"))
+    assert ajustes.tipos_de_estacion(config) == ("orbital", "asentamiento")
+    assert ajustes.tope_de_antiguedad_dias(config) == 14
+
+
+def test_sin_ajuste_la_confianza_es_la_de_la_especificacion(tmp_path):
+    assert ajustes.curva_de_confianza(tmp_path / "config.json") == (1.0, 24.0, 0.5)
+
+
+def test_la_confianza_se_lee_de_comercio(tmp_path):
+    curva = {"horas_plena": 2, "horas_minima": 48, "minimo": 0.25}
+    config = escribir(tmp_path / "config.json", {"comercio": {"confianza": curva}})
+    assert ajustes.curva_de_confianza(config) == (2.0, 48.0, 0.25)
+
+
+@pytest.mark.parametrize(
+    "curva",
+    [
+        {"horas_plena": 24, "horas_minima": 1, "minimo": 0.5},
+        {"horas_plena": 1, "horas_minima": 24, "minimo": 0},
+        {"horas_plena": 1, "horas_minima": 24, "minimo": 1.5},
+        {"horas_plena": -1, "horas_minima": 24, "minimo": 0.5},
+        {"horas_plena": 1, "horas_minima": 1e9, "minimo": 0.5},
+        {"horas_plena": 1, "horas_minima": 24},
+        {"horas_plena": True, "horas_minima": 24, "minimo": 0.5},
+        {"horas_plena": 1, "horas_minima": 10**400, "minimo": 0.5},
+        [1, 24, 0.5],
+    ],
+)
+def test_una_confianza_invalida_cae_entera_a_la_de_por_defecto(tmp_path, curva):
+    config = escribir(tmp_path / "config.json", {"comercio": {"confianza": curva}})
+    assert ajustes.curva_de_confianza(config) == ajustes.CONFIANZA_POR_DEFECTO

@@ -68,6 +68,9 @@ class Gestor:
         self._leido = self._tamano_archivo = 0
         self._fase = INACTIVA
         self._recuperar_lo_pendiente()
+        if esfera.fiable:
+            # La esfera pudo cambiarse a mano en config.json con LUNA cerrada.
+            self.reducir_cobertura(esfera.actual)
 
     def _recuperar_lo_pendiente(self) -> None:
         """Tras reiniciar LUNA, una descarga a medias sigue siendo reanudable."""

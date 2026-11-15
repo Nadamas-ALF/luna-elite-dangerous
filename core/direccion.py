@@ -45,6 +45,5 @@ def caja(system_address: int) -> tuple[tuple[float, float, float], float]:
 def es_coherente(system_address: int, posicion: tuple[float, float, float]) -> bool:
     esquina, lado = caja(system_address)
     return all(
-        esquina[i] - _TOLERANCIA <= posicion[i] <= esquina[i] + lado + _TOLERANCIA
-        for i in range(3)
+        esquina[i] - _TOLERANCIA <= posicion[i] <= esquina[i] + lado + _TOLERANCIA for i in range(3)
     )

@@ -27,6 +27,7 @@ from core.esfera import EsferaViva
 from core.mantenimiento import Mantenimiento
 from core.nucleo import Nucleo
 from core.spansh.gestor import Gestor
+from modules.comercio.api import Comercio
 
 registro = logging.getLogger("luna")
 
@@ -208,6 +209,12 @@ def main() -> int:
         estado_eddn=eddn.estado,
         datos=datos,
         avisos_de_base=lambda: escritor.avisos if escritor else (),
+        comercio=Comercio(
+            nucleo.estado,
+            config,
+            rutas.archivo_de_base(ubicacion) if escritor else None,
+            escritor,
+        ),
     )
     try:
         comprobar_motor()

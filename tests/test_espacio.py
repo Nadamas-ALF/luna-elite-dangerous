@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 import time
 
 import pytest
@@ -141,19 +142,23 @@ def test_el_arranque_no_espera_a_la_conversion_y_avisa_mientras_dura(tmp_path, m
     ruta = tmp_path / "luna.db"
     crear_base_antigua(ruta)
     original = espacio.convertir
+    puerta, convertida = threading.Event(), threading.Event()
 
     def lenta(conexion, r, al_empezar):
         al_empezar()
-        time.sleep(1.0)
+        puerta.wait(10)
+        convertida.set()
         return original(conexion, r, lambda: None)
 
     monkeypatch.setattr(espacio, "convertir", lenta)
     escritor = Escritor(ruta)
-    inicio = time.monotonic()
     escritor.iniciar()
-    assert time.monotonic() - inicio < 0.9
-    assert esperar(lambda: escritor.avisos == (espacio.AVISO_COMPACTANDO,), 3)
-    assert esperar(lambda: escritor.avisos == (), 5)
+    assert not convertida.is_set()
+    try:
+        assert esperar(lambda: escritor.avisos == (espacio.AVISO_COMPACTANDO,))
+    finally:
+        puerta.set()
+    assert esperar(lambda: escritor.avisos == ())
     escritor.detener()
 
 

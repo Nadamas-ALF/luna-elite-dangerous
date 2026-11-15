@@ -318,6 +318,26 @@ def test_mover_el_centro_sin_descargar_deja_la_cobertura_sin_garantia(tmp_path, 
     assert g.estado()["ultima"] is not None  # sigue constando que se descargó
 
 
+def test_una_esfera_reducida_a_mano_con_luna_cerrada_encoge_la_cobertura_al_arrancar(
+    tmp_path, escritor
+):
+    descargado_con(tmp_path, escritor, Esfera("Sol", (0.0, 0.0, 0.0), 1000.0))
+    menor = Esfera("Sol", (0.0, 0.0, 0.0), 300.0)
+
+    assert montar(tmp_path, escritor, Servidor(CONTENIDO), esfera=menor).cubierta == menor
+    assert ajustes.ultima_descarga(tmp_path / "config.json").cobertura == menor
+
+
+def test_con_la_esfera_de_un_config_ilegible_no_se_toca_la_cobertura(tmp_path, escritor):
+    original = Esfera("Sol", (0.0, 0.0, 0.0), 1000.0)
+    descargado_con(tmp_path, escritor, original)
+    por_defecto = EsferaViva(Esfera("Sol", (0.0, 0.0, 0.0), 100.0), fiable=False)
+
+    g = Gestor(tmp_path / "descargas", tmp_path / "config.json", escritor, por_defecto)
+
+    assert g.cubierta == original
+
+
 def test_reducir_sin_ninguna_descarga_no_hace_nada(tmp_path, escritor):
     g = montar(tmp_path, escritor, Servidor(CONTENIDO))
     g.reducir_cobertura(Esfera("Sol", (0.0, 0.0, 0.0), 10.0))

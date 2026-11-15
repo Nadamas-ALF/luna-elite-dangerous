@@ -184,6 +184,14 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "reanudar_descarga",
         "pausar_descarga",
         "cancelar_descarga",
+        "perfil_inicial",
+        "buscar_rutas",
+        "ahora",
+        "perfiles_guardados",
+        "guardar_perfil",
+        "borrar_perfil",
+        "ajustes_de_busqueda",
+        "guardar_ajustes_de_busqueda",
     }
 
 
@@ -339,6 +347,14 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.reanudar_descarga() == esperado
     assert interfaz.pausar_descarga() == esperado
     assert interfaz.cancelar_descarga() == esperado
+    assert interfaz.perfil_inicial() == esperado
+    assert interfaz.buscar_rutas("un_salto", {}) == esperado
+    assert interfaz.ahora({}) == esperado
+    assert interfaz.perfiles_guardados() == esperado
+    assert interfaz.guardar_perfil("x", {}) == esperado
+    assert interfaz.borrar_perfil("x") == esperado
+    assert interfaz.ajustes_de_busqueda() == esperado
+    assert interfaz.guardar_ajustes_de_busqueda(7, ["orbital"]) == esperado
 
 
 def test_el_estado_de_la_api_lleva_spansh_y_el_centro_vigente(tmp_path):

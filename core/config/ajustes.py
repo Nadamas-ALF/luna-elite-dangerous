@@ -42,6 +42,25 @@ VISITADOS_DIAS_POR_DEFECTO = 3.0
 ANTIGUEDAD_MAXIMA_DIAS_POR_DEFECTO = 30.0
 DIAS_DE_RETENCION_MAXIMOS = 365.0
 
+CLAVE_COMERCIO = "comercio"
+# Tope de la antigüedad que un perfil de búsqueda puede pedir. Sin él, una búsqueda
+# de un año carga toda la base en memoria (E-16). Más de 30 días no tiene sentido:
+# la retención por defecto ya los borra.
+TOPE_ANTIGUEDAD_DIAS_POR_DEFECTO = 7
+TOPE_ANTIGUEDAD_DIAS_MAXIMO = 30
+# Los del filtro de búsqueda, en su orden canónico (decisiones.md, «Fase 5»). Los
+# Fleet Carriers no están: quedan fuera hasta después de la v1.
+TIPOS_DE_ESTACION = (
+    "orbital",
+    "puesto_avanzado",
+    "puerto_planetario",
+    "asentamiento",
+    "colonizacion",
+)
+# Confianza según la antigüedad (7.2, paso 7): plena hasta 1 h, mínima desde 24 h.
+CONFIANZA_POR_DEFECTO = (1.0, 24.0, 0.5)
+CONFIANZA_HORAS_MAXIMAS = TOPE_ANTIGUEDAD_DIAS_MAXIMO * 24.0
+
 
 def _seccion_journal(config: Path) -> dict:
     seccion = archivo.leer_o_vacio(config).get(CLAVE_JOURNAL)
@@ -76,9 +95,13 @@ def guardar_carpeta_journal(config: Path, carpeta: str | None) -> bool:
 
 
 def _numero(valor: object) -> float | None:
-    if isinstance(valor, bool) or not isinstance(valor, (int, float)) or not math.isfinite(valor):
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
         return None
-    return float(valor)
+    try:
+        numero = float(valor)
+    except OverflowError:  # un entero de JSON puede ser de cualquier tamaño
+        return None
+    return numero if math.isfinite(numero) else None
 
 
 def _centro(seccion: dict) -> tuple[str, tuple[float, float, float]]:
@@ -171,6 +194,63 @@ def guardar_retencion(config: Path, visitados_dias: float, antiguedad_maxima_dia
     valor = {"visitados_dias": visitados_dias, "antiguedad_maxima_dias": antiguedad_maxima_dias}
     try:
         return archivo.fusionar(config, CLAVE_RETENCION, valor)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def _seccion_comercio(config: Path) -> dict:
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_COMERCIO)
+    return seccion if isinstance(seccion, dict) else {}
+
+
+def tope_de_antiguedad_dias(config: Path) -> int:
+    """Días de antigüedad que como mucho admite un perfil de búsqueda."""
+    dias = _seccion_comercio(config).get("tope_antiguedad_dias")
+    if isinstance(dias, bool) or not isinstance(dias, int):
+        return TOPE_ANTIGUEDAD_DIAS_POR_DEFECTO
+    if not 1 <= dias <= TOPE_ANTIGUEDAD_DIAS_MAXIMO:
+        return TOPE_ANTIGUEDAD_DIAS_POR_DEFECTO
+    return dias
+
+
+def tipos_de_estacion(config: Path) -> tuple[str, ...]:
+    """Los tipos que un perfil nuevo trae marcados (6.3); todos si el valor no sirve."""
+    tipos = _seccion_comercio(config).get("tipos_estacion")
+    if not isinstance(tipos, list) or not tipos:
+        return TIPOS_DE_ESTACION
+    if any(not isinstance(t, str) or t not in TIPOS_DE_ESTACION for t in tipos):
+        return TIPOS_DE_ESTACION
+    return tuple(t for t in TIPOS_DE_ESTACION if t in tipos)
+
+
+def curva_de_confianza(config: Path) -> tuple[float, float, float]:
+    """(horas_plena, horas_minima, minimo) de `comercio.confianza`; sin interfaz (decisiones.md).
+
+    Los tres van juntos: si uno no sirve, se usan los tres por defecto.
+    """
+    seccion = _seccion_comercio(config).get("confianza")
+    if not isinstance(seccion, dict):
+        return CONFIANZA_POR_DEFECTO
+    plena, minima, minimo = (
+        _numero(seccion.get(c)) for c in ("horas_plena", "horas_minima", "minimo")
+    )
+    if plena is None or minima is None or minimo is None:
+        return CONFIANZA_POR_DEFECTO
+    if not 0 <= plena < minima <= CONFIANZA_HORAS_MAXIMAS or not 0 < minimo <= 1:
+        return CONFIANZA_POR_DEFECTO
+    return plena, minima, minimo
+
+
+def guardar_busqueda(config: Path, tope_dias: int, tipos: tuple[str, ...]) -> bool:
+    """El tope de antigüedad y los tipos de estación, en una sola escritura."""
+    seccion = {
+        **_seccion_comercio(config),
+        "tope_antiguedad_dias": tope_dias,
+        "tipos_estacion": list(tipos),
+    }
+    try:
+        return archivo.fusionar(config, CLAVE_COMERCIO, seccion)
     except OSError:
         registro.exception("no se pudo escribir %s", config)
         return False

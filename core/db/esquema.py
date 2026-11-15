@@ -84,6 +84,14 @@ MIGRACIONES: tuple[str, ...] = (
     "CREATE INDEX precios_por_antiguedad ON market_prices (observado);",
     # Buscar las estaciones de un sistema, para borrarlas o saber si quedan.
     "CREATE INDEX estaciones_por_sistema ON stations (system_address);",
+    # Perfiles de búsqueda guardados (5.2). No dependen del comandante ni de la nave:
+    # se pueden usar desde cualquiera. «Panther» y «panther» son el mismo perfil.
+    """
+    CREATE TABLE search_profiles (
+        nombre     TEXT PRIMARY KEY COLLATE NOCASE,
+        parametros TEXT NOT NULL
+    );
+    """,
 )
 
 

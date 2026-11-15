@@ -122,8 +122,118 @@ def test_carga_con_inventario_y_vacia():
 
     lleno = modulo.aplicar(modulo.Estado(), con_carga)
 
-    assert lleno.carga == (modulo.Mercancia("Oro", 3),)
+    assert lleno.carga == (modulo.Mercancia("Oro", 3, "gold"),)
     assert modulo.aplicar(lleno, vacia).carga == ()
+
+
+def _compra(simbolo: str, toneladas: int, precio: int) -> dict:
+    return {
+        "event": "MarketBuy",
+        "Type": simbolo,
+        "Count": toneladas,
+        "BuyPrice": precio,
+        "TotalCost": toneladas * precio,
+    }
+
+
+def _bodega(**cantidades: int) -> dict:
+    inventario = [{"Name": s, "Count": n} for s, n in cantidades.items()]
+    return {
+        "event": "Cargo",
+        "Vessel": "Ship",
+        "Count": sum(cantidades.values()),
+        "Inventory": inventario,
+    }
+
+
+def test_el_precio_de_compra_es_la_media_de_lo_comprado_desde_que_entro_en_la_bodega():
+    estado = reconstruir(
+        [
+            _compra("gold", 100, 9_000),
+            _bodega(gold=100),
+            _compra("gold", 300, 10_000),
+            _bodega(gold=400),
+        ]
+    )
+
+    assert modulo.precio_de_compra(estado, "gold") == 9_750
+
+
+def test_vender_una_parte_no_cambia_el_precio_de_compra():
+    estado = reconstruir([_compra("gold", 100, 9_000), _bodega(gold=100), _bodega(gold=40)])
+
+    assert modulo.precio_de_compra(estado, "gold") == 9_000
+
+
+def test_lo_que_sale_del_todo_de_la_bodega_olvida_su_precio():
+    estado = reconstruir(
+        [
+            _compra("gold", 100, 9_000),
+            _bodega(gold=100),
+            _bodega(),
+            _compra("gold", 10, 5_000),
+            _bodega(gold=10),
+        ]
+    )
+
+    assert modulo.precio_de_compra(estado, "gold") == 5_000
+
+
+def test_sin_compra_en_el_journal_no_hay_precio():
+    estado = reconstruir([_bodega(silver=5)])
+
+    assert modulo.precio_de_compra(estado, "silver") is None
+
+
+def test_comprar_mas_de_lo_que_ya_llevabas_sin_compra_conocida_no_da_precio():
+    # 100 t de una sesión anterior, que LUNA no vio comprar, y 10 t más ahora.
+    estado = reconstruir([_bodega(gold=100), _compra("gold", 10, 5_000), _bodega(gold=110)])
+
+    assert modulo.precio_de_compra(estado, "gold") is None
+
+
+def test_vaciar_la_bodega_deja_que_la_siguiente_compra_tenga_precio():
+    estado = reconstruir(
+        [_bodega(gold=100), _compra("gold", 10, 5_000), _bodega(), _compra("gold", 10, 5_000)]
+    )
+
+    assert modulo.precio_de_compra(estado, "gold") == 5_000
+
+
+def test_la_carga_de_mision_y_la_robada_no_son_vendibles():
+    evento = {
+        "event": "Cargo",
+        "Vessel": "Ship",
+        "Count": 135,
+        "Inventory": [
+            {"Name": "gold", "Count": 100, "Stolen": 0},
+            {"Name": "gold", "MissionID": 123, "Count": 20, "Stolen": 0},
+            {"Name": "silver", "Count": 15, "Stolen": 5},
+        ],
+    }
+    carga = modulo.aplicar(modulo.Estado(), evento).carga
+
+    assert [m.vendibles for m in carga] == [100, 0, 10]
+    assert modulo.vendibles(carga, "gold") == 100
+    assert modulo.vendibles(carga, "silver") == 10
+
+
+def test_si_solo_queda_carga_de_mision_se_olvida_el_precio_de_compra():
+    solo_mision = {
+        "event": "Cargo",
+        "Vessel": "Ship",
+        "Count": 20,
+        "Inventory": [{"Name": "gold", "MissionID": 123, "Count": 20, "Stolen": 0}],
+    }
+    estado = reconstruir([_compra("gold", 100, 9_000), _bodega(gold=100), solo_mision])
+
+    assert estado.compras == ()
+
+
+def test_una_compra_mal_formada_no_cuenta():
+    roto = {"event": "MarketBuy", "Type": "gold", "Count": "mucho", "TotalCost": 10}
+
+    assert modulo.aplicar(modulo.Estado(), roto).compras == ()
 
 
 def test_la_carga_sin_inventario_espera_al_archivo():

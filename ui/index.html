@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/estado.css">
   <link rel="stylesheet" href="css/configuracion.css">
+  <link rel="stylesheet" href="css/comercio.css">
 </head>
 <body>
   <div class="app">
@@ -25,13 +26,30 @@
       </div>
       <ul class="lateral__lista">
         <li>
-          <button type="button" class="lateral__enlace" data-vista="estado" aria-current="page">
+          <button type="button" class="lateral__enlace" data-vista="estado" aria-current="page"
+                  data-i18n-aria-label="navegacion.estado">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle></svg>
             <span data-i18n="navegacion.estado"></span>
           </button>
         </li>
+        <li class="lateral__grupo" data-i18n="navegacion.comercio"></li>
         <li>
-          <button type="button" class="lateral__enlace" data-vista="configuracion">
+          <button type="button" class="lateral__enlace" data-vista="ahora"
+                  data-i18n-aria-label="navegacion.ahora">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"></path><circle cx="12" cy="10" r="2"></circle></svg>
+            <span data-i18n="navegacion.ahora"></span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="lateral__enlace" data-vista="rutas"
+                  data-i18n-aria-label="navegacion.rutas">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="2.5"></circle><circle cx="18" cy="7" r="2.5"></circle><path d="M8 15.5 16 8.5"></path></svg>
+            <span data-i18n="navegacion.rutas"></span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="lateral__enlace" data-vista="configuracion"
+                  data-i18n-aria-label="navegacion.configuracion">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
             <span data-i18n="navegacion.configuracion"></span>
           </button>
@@ -117,6 +135,203 @@
         </div>
 
         <ul class="avisos" data-campo="avisos"></ul>
+      </section>
+
+      <section id="vista-ahora" class="vista vista--ancha" aria-labelledby="titulo-ahora" hidden>
+        <header class="cabecera">
+          <h1 id="titulo-ahora" class="cabecera__comandante" data-i18n="comercio.ahora.titulo"></h1>
+        </header>
+
+        <div class="ahora">
+          <div class="ahora__barra">
+            <p class="motivo" role="status" data-campo="ahora_estado"></p>
+            <button type="button" class="boton boton--vidrio" data-campo="ahora_actualizar" data-i18n="comercio.ahora.actualizar"></button>
+          </div>
+          <p class="franja franja--advertencia" role="alert" data-campo="ahora_error" hidden></p>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-vender">
+            <h2 id="titulo-vender" class="panel__titulo" data-i18n="comercio.ahora.vender.titulo"></h2>
+            <p class="motivo" data-i18n="comercio.ahora.vender.ayuda"></p>
+            <p class="motivo" data-campo="vender_motivo" hidden></p>
+            <div class="ahora__articulos" data-campo="vender_lista"></div>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-desde-aqui">
+            <h2 id="titulo-desde-aqui" class="panel__titulo" data-i18n="comercio.ahora.desde_aqui.titulo"></h2>
+            <p class="motivo" data-campo="desde_aqui_motivo" hidden></p>
+            <div class="tabla-contenedor" data-campo="desde_aqui_contenedor" hidden>
+              <table class="tabla" data-campo="desde_aqui_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.ahora.desde_aqui.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle-ahora" hidden>
+            <h2 id="titulo-detalle-ahora" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
+            <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="vista-rutas" class="vista vista--ancha" aria-labelledby="titulo-rutas" hidden>
+        <header class="cabecera">
+          <h1 id="titulo-rutas" class="cabecera__comandante" data-i18n="comercio.rutas.titulo"></h1>
+        </header>
+
+        <div class="rutas">
+          <details class="plegable" data-campo="perfil_plegable" open>
+          <summary class="plegable__titulo" data-i18n="comercio.perfil.plegar"></summary>
+          <form class="perfil panel" data-panel="perfil" novalidate aria-labelledby="titulo-perfil">
+            <h2 id="titulo-perfil" class="panel__titulo" data-i18n="comercio.perfil.titulo"></h2>
+            <p class="motivo" data-campo="perfil_sin_nave" data-i18n="comercio.perfil.sin_nave" hidden></p>
+            <fieldset class="grupo">
+            <legend class="grupo__titulo" data-i18n="comercio.perfil.nave"></legend>
+            <div class="campo">
+              <div class="campo__cabecera">
+                <label for="perfil-capacidad" data-i18n="comercio.perfil.capacidad"></label>
+                <span class="marca" data-marca="capacidad" hidden></span>
+              </div>
+              <input id="perfil-capacidad" name="capacidad" class="entrada entrada--corta" type="number" min="1" max="5000" step="1" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <div class="campo__cabecera">
+                <label for="perfil-rango" data-i18n="comercio.perfil.rango"></label>
+                <span class="marca" data-marca="rango" hidden></span>
+              </div>
+              <input id="perfil-rango" name="rango" class="entrada entrada--corta" type="number" min="0.01" max="500" step="any" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <div class="campo__cabecera">
+                <label for="perfil-plataforma" data-i18n="comercio.perfil.plataforma"></label>
+                <span class="marca" data-marca="plataforma" hidden></span>
+              </div>
+              <select id="perfil-plataforma" name="plataforma" class="entrada entrada--corta"><option value="S" data-i18n="comercio.perfil.plataformas.S"></option><option value="M" data-i18n="comercio.perfil.plataformas.M"></option><option value="L" data-i18n="comercio.perfil.plataformas.L"></option></select>
+            </div>
+            <div class="campo">
+              <div class="campo__cabecera">
+                <label for="perfil-creditos" data-i18n="comercio.perfil.creditos"></label>
+                <span class="marca" data-marca="creditos" hidden></span>
+              </div>
+              <input id="perfil-creditos" name="creditos" class="entrada entrada--corta" type="number" min="0" max="9007199254740992" step="1" inputmode="decimal" aria-describedby="perfil-creditos-ayuda">
+              <p id="perfil-creditos-ayuda" class="motivo" data-i18n="comercio.perfil.creditos_ayuda"></p>
+            </div>
+            <div class="acciones">
+              <button type="button" class="boton boton--vidrio" data-campo="perfil_restaurar"
+                      data-i18n="comercio.perfil.restaurar"></button>
+            </div>
+            </fieldset>
+            <fieldset class="grupo">
+            <legend class="grupo__titulo" data-i18n="comercio.perfil.busqueda"></legend>
+            <div class="campo">
+              <div class="campo__cabecera">
+                <label for="perfil-origen" data-i18n="comercio.perfil.origen"></label>
+                <span class="marca" data-marca="origen" hidden></span>
+              </div>
+              <input id="perfil-origen" name="origen" class="entrada" type="text" maxlength="100" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="campo">
+              <label for="perfil-distancia_max_ly" data-i18n="comercio.perfil.distancia_max_ly"></label>
+              <input id="perfil-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number" min="0.01" max="1000" step="any" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <label for="perfil-distancia_max_ls" data-i18n="comercio.perfil.distancia_max_ls"></label>
+              <input id="perfil-distancia_max_ls" name="distancia_max_ls" class="entrada entrada--corta" type="number" min="1" max="10000000" step="any" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <label for="perfil-antiguedad_max_h" data-i18n="comercio.perfil.antiguedad_max_h"></label>
+              <input id="perfil-antiguedad_max_h" name="antiguedad_max_h" class="entrada entrada--corta" type="number" min="0.01" max="720" step="any" inputmode="decimal" aria-describedby="perfil-antiguedad_max_h-ayuda">
+              <p id="perfil-antiguedad_max_h-ayuda" class="motivo" data-campo="perfil_antiguedad_ayuda"></p>
+            </div>
+            <div class="campo">
+              <label for="perfil-stock_minimo_pct" data-i18n="comercio.perfil.stock_minimo_pct"></label>
+              <input id="perfil-stock_minimo_pct" name="stock_minimo_pct" class="entrada entrada--corta" type="number" min="0" max="1000" step="any" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <label for="perfil-horas_sesion" data-i18n="comercio.perfil.horas_sesion"></label>
+              <input id="perfil-horas_sesion" name="horas_sesion" class="entrada entrada--corta" type="number" min="0.01" max="24" step="any" inputmode="decimal">
+            </div>
+            <div class="campo">
+              <label for="perfil-orden" data-i18n="comercio.perfil.orden"></label>
+              <select id="perfil-orden" name="orden" class="entrada"><option value="ganancia_hora" data-i18n="comercio.perfil.ordenes.ganancia_hora"></option><option value="ganancia_viaje" data-i18n="comercio.perfil.ordenes.ganancia_viaje"></option><option value="ganancia_tonelada" data-i18n="comercio.perfil.ordenes.ganancia_tonelada"></option><option value="distancia" data-i18n="comercio.perfil.ordenes.distancia"></option></select>
+            </div>
+            </fieldset>
+            <fieldset class="grupo">
+            <legend class="grupo__titulo" data-i18n="comercio.perfil.datos"></legend>
+            <fieldset class="casillas">
+              <legend data-i18n="comercio.perfil.tipos"></legend>
+              <label class="casilla"><input type="checkbox" name="tipos" value="orbital"><span data-i18n="comercio.perfil.tipo.orbital"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="puesto_avanzado"><span data-i18n="comercio.perfil.tipo.puesto_avanzado"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="puerto_planetario"><span data-i18n="comercio.perfil.tipo.puerto_planetario"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="asentamiento"><span data-i18n="comercio.perfil.tipo.asentamiento"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="colonizacion"><span data-i18n="comercio.perfil.tipo.colonizacion"></span></label>
+              <label class="casilla casilla--apagada"><input type="checkbox" disabled><span data-i18n="comercio.perfil.fleet_carrier"></span></label>
+            </fieldset>
+            <fieldset class="casillas">
+              <legend data-i18n="comercio.perfil.origenes"></legend>
+              <label class="casilla"><input type="checkbox" name="origenes" value="propio"><span data-i18n="comercio.perfil.origen_dato.propio"></span></label>
+              <label class="casilla"><input type="checkbox" name="origenes" value="eddn"><span data-i18n="comercio.perfil.origen_dato.eddn"></span></label>
+              <label class="casilla"><input type="checkbox" name="origenes" value="spansh"><span data-i18n="comercio.perfil.origen_dato.spansh"></span></label>
+            </fieldset>
+            <label class="casilla"><input type="checkbox" name="raras"><span data-i18n="comercio.perfil.raras"></span></label>
+            </fieldset>
+            <p class="franja franja--advertencia" role="alert" data-campo="perfil_error" hidden></p>
+            <p class="motivo" role="status" data-campo="perfil_aviso" hidden></p>
+          </form>
+
+          <section class="panel guardados" data-panel="guardados" aria-labelledby="titulo-guardados">
+            <h2 id="titulo-guardados" class="panel__titulo" data-i18n="comercio.perfil.guardados.titulo"></h2>
+            <p class="motivo" data-campo="guardados_ninguno" data-i18n="comercio.perfil.guardados.ninguno" hidden></p>
+            <div class="campo" data-campo="guardados_eleccion">
+              <label for="guardados-lista" data-i18n="comercio.perfil.guardados.lista"></label>
+              <select id="guardados-lista" class="entrada" data-campo="guardados_lista"></select>
+              <div class="acciones">
+                <button type="button" class="boton boton--vidrio" data-campo="guardados_cargar"
+                        data-i18n="comercio.perfil.guardados.cargar"></button>
+                <button type="button" class="boton boton--vidrio" data-campo="guardados_borrar"
+                        data-i18n="comercio.perfil.guardados.borrar"></button>
+              </div>
+            </div>
+            <form class="campo" data-campo="guardados_formulario" novalidate>
+              <label for="guardados-nombre" data-i18n="comercio.perfil.guardados.nombre"></label>
+              <input id="guardados-nombre" class="entrada" type="text" maxlength="100" autocomplete="off"
+                     data-campo="guardados_nombre">
+              <div class="acciones">
+                <button type="submit" class="boton boton--primario"
+                        data-i18n="comercio.perfil.guardados.guardar"></button>
+              </div>
+            </form>
+            <p class="franja franja--advertencia" role="alert" data-campo="guardados_error" hidden></p>
+            <p class="motivo" role="status" data-campo="guardados_resultado" hidden></p>
+          </section>
+          </details>
+
+          <section class="resultados" aria-labelledby="titulo-resultados">
+            <h2 id="titulo-resultados" class="solo-lectores" data-i18n="comercio.rutas.tabla"></h2>
+            <form class="busqueda" data-campo="busqueda_formulario" novalidate>
+              <fieldset class="modos">
+                <legend class="solo-lectores" data-i18n="comercio.rutas.modo"></legend>
+                <label class="modo"><input type="radio" name="modo" value="un_salto" checked><span data-i18n="comercio.rutas.modos.un_salto"></span></label>
+                <label class="modo"><input type="radio" name="modo" value="bucle"><span data-i18n="comercio.rutas.modos.bucle"></span></label>
+              </fieldset>
+              <button type="submit" class="boton boton--primario" data-i18n="comercio.rutas.buscar"></button>
+            </form>
+            <p class="motivo" role="status" data-campo="resultados_estado"></p>
+            <p class="franja franja--advertencia" role="alert" data-campo="resultados_error" hidden></p>
+            <div class="tabla-contenedor" data-campo="tabla_contenedor" hidden>
+              <table class="tabla" data-campo="tabla">
+                <caption class="solo-lectores" data-i18n="comercio.rutas.tabla"></caption>
+                <thead data-campo="tabla_cabecera"></thead>
+                <tbody data-campo="tabla_cuerpo"></tbody>
+              </table>
+            </div>
+            <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle" hidden>
+              <h2 id="titulo-detalle" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
+              <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+            </section>
+          </section>
+        </div>
       </section>
 
       <section id="vista-configuracion" class="vista" aria-labelledby="titulo-configuracion" hidden>
@@ -231,6 +446,35 @@
             </div>
           </form>
           <p class="motivo" role="status" data-campo="retencion_resultado" hidden></p>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-comercio" data-panel="comercio">
+          <h2 id="titulo-config-comercio" class="panel__titulo" data-i18n="configuracion.comercio.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.comercio.ayuda"></p>
+          <form class="formulario" data-campo="comercio_formulario" novalidate>
+            <div class="campo">
+              <label for="comercio-tope" data-i18n="configuracion.comercio.tope"></label>
+              <input id="comercio-tope" class="entrada entrada--corta" type="number" min="1"
+                     max="30" step="1" inputmode="numeric" data-campo="comercio_tope"
+                     aria-describedby="comercio-tope-ayuda">
+              <p id="comercio-tope-ayuda" class="ayuda" data-campo="comercio_tope_ayuda"></p>
+            </div>
+            <fieldset class="casillas" data-campo="comercio_tipos">
+              <legend data-i18n="configuracion.comercio.tipos"></legend>
+              <label class="casilla"><input type="checkbox" name="tipos" value="orbital"><span data-i18n="comercio.perfil.tipo.orbital"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="puesto_avanzado"><span data-i18n="comercio.perfil.tipo.puesto_avanzado"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="puerto_planetario"><span data-i18n="comercio.perfil.tipo.puerto_planetario"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="asentamiento"><span data-i18n="comercio.perfil.tipo.asentamiento"></span></label>
+              <label class="casilla"><input type="checkbox" name="tipos" value="colonizacion"><span data-i18n="comercio.perfil.tipo.colonizacion"></span></label>
+            </fieldset>
+            <p class="ayuda" data-i18n="configuracion.comercio.fleet_carrier"></p>
+            <p class="franja franja--advertencia" role="alert" data-campo="comercio_error" hidden></p>
+            <div class="acciones">
+              <button type="submit" class="boton boton--primario"
+                      data-i18n="configuracion.comercio.guardar"></button>
+            </div>
+          </form>
+          <p class="motivo" role="status" data-campo="comercio_resultado" hidden></p>
         </section>
 
         <section class="panel panel--ancho" aria-labelledby="titulo-config-eddn" data-panel="eddn">

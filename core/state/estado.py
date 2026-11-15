@@ -11,6 +11,7 @@ from dataclasses import dataclass, replace
 
 from core import estacion as clasificacion
 from core import nave as modelo_nave
+from core.journal import mercado
 
 # El juego Legacy (3.8) y el Live (4.x) comparten carpeta de journal; la
 # versión mayor es lo que los distingue (sección 4.1).
@@ -22,8 +23,43 @@ ERROR_PROPULSOR = "propulsor_desconocido"
 
 @dataclass(frozen=True)
 class Mercancia:
+    """`nombre` es el localizado, para enseñarlo; `simbolo`, el de `market_prices`.
+
+    La carga de misión y la robada no se venden en un mercado corriente.
+    """
+
     nombre: str
     cantidad: int
+    simbolo: str | None = None
+    de_mision: bool = False
+    robadas: int = 0
+
+    @property
+    def vendibles(self) -> int:
+        return 0 if self.de_mision else max(self.cantidad - self.robadas, 0)
+
+
+def vendibles(carga: tuple[Mercancia, ...] | None, simbolo: str) -> int:
+    """Toneladas de esa mercancía que se pueden vender en un mercado corriente."""
+    return sum(m.vendibles for m in carga or () if m.simbolo == simbolo)
+
+
+@dataclass(frozen=True)
+class Compra:
+    """Lo pagado por una mercancía desde que entró en la bodega (como `AvgPricePaid`).
+
+    `completa` es falso si ya había de esa mercancía a bordo sin compra conocida
+    (de una sesión anterior): el precio medio no saldría de toda la carga.
+    """
+
+    simbolo: str
+    toneladas: int
+    coste: int
+    completa: bool = True
+
+    @property
+    def precio_medio(self) -> int:
+        return round(self.coste / self.toneladas)
 
 
 @dataclass(frozen=True)
@@ -64,6 +100,7 @@ class Estado:
     posicion: tuple[float, float, float] | None = None
     estacion: Estacion | None = None
     carga: tuple[Mercancia, ...] | None = None
+    compras: tuple[Compra, ...] = ()
     ultimo_evento: str | None = None
 
 
@@ -220,7 +257,15 @@ def _inventario(evento: dict) -> tuple[Mercancia, ...] | None:
         nombre = _texto(articulo.get("Name_Localised")) or _texto(articulo.get("Name"))
         cantidad = _entero(articulo.get("Count"))
         if nombre and cantidad:
-            carga.append(Mercancia(nombre, cantidad))
+            carga.append(
+                Mercancia(
+                    nombre,
+                    cantidad,
+                    mercado.simbolo(articulo.get("Name")),
+                    de_mision=articulo.get("MissionID") is not None,
+                    robadas=_entero(articulo.get("Stolen")) or 0,
+                )
+            )
     return tuple(carga)
 
 
@@ -228,7 +273,12 @@ def _al_cambiar_carga(estado: Estado, evento: dict) -> Estado:
     if evento.get("Vessel", "Ship") != "Ship":
         return estado
     carga = _inventario(evento)
-    return estado if carga is None else replace(estado, carga=carga)
+    if carga is None:
+        return estado
+    # Lo que ya no se puede vender (salió de la bodega) deja de tener precio de compra.
+    presentes = {m.simbolo for m in carga if m.vendibles > 0}
+    compras = tuple(c for c in estado.compras if c.simbolo in presentes)
+    return replace(estado, carga=carga, compras=compras)
 
 
 def _al_cambiar_estado(estado: Estado, evento: dict) -> Estado:
@@ -239,9 +289,32 @@ def _al_cambiar_estado(estado: Estado, evento: dict) -> Estado:
 
 def _compra(estado: Estado, evento: dict) -> Estado:
     gasto = _entero(evento.get("TotalCost"))
+    estado = replace(estado, compras=_sumar_compra(estado, evento, gasto))
     if estado.creditos is None or gasto is None:
         return estado
     return replace(estado, creditos=estado.creditos - gasto)
+
+
+def _sumar_compra(estado: Estado, evento: dict, gasto: int | None) -> tuple[Compra, ...]:
+    compras = estado.compras
+    simbolo = mercado.simbolo(evento.get("Type"))
+    toneladas = _entero(evento.get("Count"))
+    if simbolo is None or gasto is None or gasto < 0 or not toneladas or toneladas < 0:
+        return compras
+    anterior = next((c for c in compras if c.simbolo == simbolo), None)
+    if anterior is None:
+        anterior = Compra(simbolo, 0, 0, completa=vendibles(estado.carga, simbolo) == 0)
+    otras = tuple(c for c in compras if c.simbolo != simbolo)
+    sumada = replace(
+        anterior, toneladas=anterior.toneladas + toneladas, coste=anterior.coste + gasto
+    )
+    return (*otras, sumada)
+
+
+def precio_de_compra(estado: Estado, simbolo: str) -> int | None:
+    """None si no se conoce lo pagado por toda la carga de esa mercancía que llevas."""
+    compra = next((c for c in estado.compras if c.simbolo == simbolo), None)
+    return compra.precio_medio if compra is not None and compra.completa else None
 
 
 def _venta(estado: Estado, evento: dict) -> Estado:

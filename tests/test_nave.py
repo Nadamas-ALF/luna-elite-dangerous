@@ -28,9 +28,7 @@ def identificar(loadout: dict) -> str:
 
 CASOS = loadouts()
 CON_POTENCIADOR = [
-    c
-    for c in CASOS
-    if any("guardianfsdbooster_size5" in m.get("Item", "") for m in c["Modules"])
+    c for c in CASOS if any("guardianfsdbooster_size5" in m.get("Item", "") for m in c["Modules"])
 ]
 MEDIDO_EN_EL_JUEGO = next(
     c for c in CASOS if c["Ship"] == "panthermkii" and c["CargoCapacity"] == 1120
@@ -122,9 +120,7 @@ def test_el_potenciador_suma_ly_fijos():
     con_potenciador = CON_POTENCIADOR[0]
     sin_potenciador = {
         **con_potenciador,
-        "Modules": [
-            m for m in con_potenciador["Modules"] if m["Slot"] == nave.RANURA_PROPULSOR
-        ],
+        "Modules": [m for m in con_potenciador["Modules"] if m["Slot"] == nave.RANURA_PROPULSOR],
     }
 
     diferencia = nave.rango_maximo(nave.desde_loadout(con_potenciador)) - nave.rango_maximo(

@@ -1,7 +1,10 @@
+import { crearVistaAhora } from './ahora.js';
 import * as api from './api.js';
 import { crearVistaConfiguracion } from './configuracion.js';
 import { crearVistaEstado } from './estado.js';
 import { aplicarTextos, texto, textosFaltantes } from './i18n.js';
+import { crearPanelPerfil } from './perfil.js';
+import { crearVistaRutas } from './rutas.js';
 
 // Con el estado cambiando a ritmo de juego, 750 ms dejan el retraso máximo por
 // debajo de los 2 s de la fase 1 (0,5 s del núcleo + 0,75 s de esta consulta).
@@ -37,7 +40,7 @@ function avisarDeError(clave) {
 }
 
 /** Consulta el estado en bucle sin solapar llamadas; avisa si el núcleo no responde. */
-function consultarEstado(vista) {
+function consultarEstado(alRecibir) {
   let avisoDeError = null;
   let enCurso = false;
 
@@ -45,7 +48,7 @@ function consultarEstado(vista) {
     if (enCurso) return;
     enCurso = true;
     try {
-      vista.mostrar(await api.estado());
+      alRecibir(await api.estado());
       avisoDeError?.remove();
       avisoDeError = null;
     } catch (error) {
@@ -64,10 +67,17 @@ async function arrancar() {
   aplicarTextos(document);
   const estado = crearVistaEstado(document.getElementById('vista-estado'));
   const configuracion = crearVistaConfiguracion(document.getElementById('vista-configuracion'));
+  const vistaRutas = document.getElementById('vista-rutas');
+  const perfil = crearPanelPerfil(vistaRutas);
+  crearVistaRutas(vistaRutas, perfil);
+  const ahora = crearVistaAhora(document.getElementById('vista-ahora'), perfil);
 
   conectarNavegacion((nombre) => {
     if (nombre === 'configuracion') configuracion.cargar();
     else configuracion.salir();
+    if (nombre === 'rutas') perfil.cargar();
+    if (nombre === 'ahora') ahora.mostrar();
+    else ahora.salir();
   });
   mostrarVista(VISTA_INICIAL);
 
@@ -75,7 +85,10 @@ async function arrancar() {
   window.__luna = { textosFaltantes: textosFaltantes(), modulosEs: true };
 
   await api.esperarPuente();
-  consultarEstado(estado);
+  consultarEstado((datos) => {
+    estado.mostrar(datos);
+    ahora.alEstado(datos);
+  });
 }
 
 arrancar();

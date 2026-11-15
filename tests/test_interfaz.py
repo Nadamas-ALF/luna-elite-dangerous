@@ -316,3 +316,121 @@ def test_el_layout_no_fija_anchos_en_pixeles():
     )
     en_pixeles = [f"{nombre}: {valor}" for nombre, valor in propiedades if "px" in valor]
     assert en_pixeles == []
+
+
+def test_hay_etiqueta_para_cada_campo_del_perfil_y_cada_error_de_comercio():
+    """El perfil señala el campo que Python rechaza con `comercio.perfil.${campo}`."""
+    from modules.comercio import api as comercio
+    from modules.comercio.engine import perfil
+
+    claves = [f"comercio.perfil.{campo}" for campo in perfil.CAMPOS]
+    claves += [f"comercio.perfil.tipo.{t}" for t in perfil.TIPOS]
+    claves += [f"comercio.perfil.origen_dato.{o}" for o in perfil.ORIGENES]
+    claves += [f"comercio.perfil.ordenes.{o}" for o in perfil.ORDENES]
+    claves += [f"comercio.perfil.plataformas.{p}" for p in perfil.PLATAFORMAS]
+    claves += [
+        f"comercio.perfil.errores.{codigo}"
+        for codigo in (
+            comercio.ERROR_SIN_BASE,
+            comercio.ERROR_BASE,
+            comercio.ERROR_NO_GUARDADO,
+            "nombre",
+            "no_disponible",
+        )
+    ]
+    assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
+
+
+def test_los_textos_de_comercio_aceptan_sus_valores():
+    ejemplos = {
+        "comercio.perfil.campo_invalido": {"campo"},
+        "comercio.perfil.antiguedad_ayuda": {"horas"},
+        "comercio.perfil.guardados.guardado": {"nombre"},
+        "comercio.perfil.guardados.borrado": {"nombre"},
+        "comercio.perfil.guardados.cargado": {"nombre"},
+        "comercio.rutas.resumen": {"n", "orden"},
+        "comercio.rutas.detalle.ida": {"mercancia"},
+        "comercio.rutas.detalle.vuelta": {"mercancia"},
+        "comercio.rutas.detalle.desde_origen": {"distancia"},
+        "comercio.rutas.detalle.llegada": {"ls"},
+        "comercio.rutas.detalle.llegada_planetaria": {"ls"},
+        "comercio.rutas.detalle.distancia_valor": {"ly", "saltos"},
+        "comercio.rutas.detalle.desglose": {"saltos", "supercrucero", "atraque", "comercio"},
+        "comercio.rutas.detalle.ganancia_sesion": {"horas"},
+        "comercio.rutas.detalle.copiar_aria": {"sistema"},
+        "comercio.ahora.actualizado": {"hora"},
+        "configuracion.comercio.tope_ayuda": {"maximo"},
+        "configuracion.comercio.errores.tope_antiguedad_dias": {"maximo"},
+        "configuracion.comercio.errores.tipos": set(),
+        "comercio.ahora.vender.comprada": {"toneladas", "precio"},
+        "comercio.ahora.vender.sin_precio": {"toneladas"},
+        "comercio.ahora.vender.tabla": {"mercancia"},
+        "comercio.ahora.errores.perfil": {"campo"},
+        "formato.cr_t": {"valor"},
+        "formato.cr_h": {"valor"},
+        "formato.ls": {"valor"},
+        "formato.horas_minutos": {"h", "m"},
+    }
+    for clave, valores in ejemplos.items():
+        assert set(re.findall(r"\{(\w+)\}", buscar(clave))) == valores, clave
+
+
+def test_hay_texto_para_cada_columna_error_y_fuente_de_rutas():
+    from modules.comercio import api as comercio
+    from modules.comercio import timing
+
+    columnas = _columnas("rutas.js")
+    assert columnas, "rutas.js deberia declarar sus columnas"
+    claves = [f"comercio.rutas.columnas.{c}" for c in columnas]
+    claves += [f"comercio.rutas.modos.{m}" for m in comercio.MODOS]
+    claves += [
+        f"comercio.rutas.errores.{codigo}"
+        for codigo in (
+            comercio.ERROR_PARAMETRO,
+            comercio.ERROR_PERFIL,
+            comercio.ERROR_SIN_BASE,
+            comercio.ERROR_LEGACY,
+            comercio.ERROR_ORIGEN,
+            comercio.ERROR_BASE,
+            "no_disponible",
+            "sin_respuesta",
+        )
+    ]
+    claves.append(f"comercio.rutas.detalle.fuente.{timing.FUENTE_POR_DEFECTO}")
+    assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
+
+
+def _columnas(archivo: str) -> set[str]:
+    codigo = (RAIZ / "ui" / "js" / archivo).read_text(encoding="utf-8")
+    return set(re.findall(r"\['(\w+)', (?:ESENCIAL|SECUNDARIA|null)", codigo))
+
+
+def test_hay_texto_para_cada_columna_y_error_de_ahora():
+    from modules.comercio import api as comercio
+
+    columnas = _columnas("ahora.js")
+    assert columnas, "ahora.js deberia declarar las columnas de venta"
+    claves = [f"comercio.ahora.columnas.{c}" for c in columnas]
+    claves += [
+        f"comercio.ahora.errores.{codigo}"
+        for codigo in (
+            comercio.ERROR_PARAMETRO,
+            comercio.ERROR_PERFIL,
+            comercio.ERROR_SIN_BASE,
+            comercio.ERROR_LEGACY,
+            comercio.ERROR_SIN_POSICION,
+            comercio.ERROR_BASE,
+            "no_disponible",
+            "sin_respuesta",
+        )
+    ]
+    assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
+
+
+def test_hay_texto_para_cada_tipo_de_los_ajustes_de_busqueda():
+    from core.config import ajustes
+
+    html = (RAIZ / "ui" / "index.html").read_text(encoding="utf-8")
+    panel = html[html.index('data-panel="comercio"') :]
+    panel = panel[: panel.index("</section>")]
+    assert set(re.findall(r'name="tipos" value="(\w+)"', panel)) == set(ajustes.TIPOS_DE_ESTACION)

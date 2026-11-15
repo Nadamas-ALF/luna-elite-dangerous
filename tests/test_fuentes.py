@@ -82,6 +82,14 @@ def test_un_nombre_con_un_solo_sistema_se_resuelve(base):
     assert mercado.sistema_por_nombre(base, "Colonia").system_address == 1
 
 
+def test_un_nombre_con_otras_mayusculas_se_resuelve_con_el_nombre_de_la_base(base):
+    guardar(base, sistema())
+    encontrado = mercado.sistema_por_nombre(base, "COLONIA", sin_mayusculas=True)
+    assert (encontrado.system_address, encontrado.nombre) == (1, "Colonia")
+    # EDDN pide el nombre exacto: el juego lo escribe siempre igual.
+    assert mercado.sistema_por_nombre(base, "COLONIA") is None
+
+
 def test_con_un_duplicado_gana_el_unico_de_fuente_fiable(base):
     guardar(base, sistema(1, fuente="eddn"), sistema(2, fuente="spansh"))
     assert mercado.sistema_por_nombre(base, "Colonia").system_address == 2

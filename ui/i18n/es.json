@@ -26,6 +26,9 @@
   "navegacion": {
     "etiqueta": "Secciones de LUNA",
     "estado": "Estado",
+    "comercio": "Comercio",
+    "ahora": "Ahora",
+    "rutas": "Rutas",
     "configuracion": "Configuración"
   },
   "formato": {
@@ -42,7 +45,13 @@
     "gib": "{valor} GiB",
     "mib": "{valor} MiB",
     "porcentaje": "{valor} %",
-    "kib": "{valor} KiB"
+    "kib": "{valor} KiB",
+    "cr_t": "{valor} Cr/t",
+    "cr_h": "{valor} Cr/h",
+    "ls": "{valor} ls",
+    "segundos": "{n} s",
+    "minutos": "{n} min",
+    "horas_minutos": "{h} h {m} min"
   },
   "motivos": {
     "sin_comandante": "Sin comandante: el journal aún no trae el evento Commander",
@@ -125,6 +134,203 @@
         "error": "Falló: {motivo}",
         "importando_leyendo": "Importando · leyendo el archivo ({porcentaje})",
         "importando_guardando": "Importando · guardando en la base de datos"
+      }
+    }
+  },
+  "comercio": {
+    "ahora": {
+      "titulo": "Ahora",
+      "actualizar": "Actualizar",
+      "calculando": "Calculando…",
+      "actualizado": "Calculado a las {hora} desde donde estás, con el perfil de búsqueda de Rutas. Se recalcula al atracar, al despegar y al cambiar la carga.",
+      "vender": {
+        "titulo": "Vender la carga",
+        "ayuda": "Ordenados por ingreso por hora: lo que llevas ya está pagado.",
+        "vacia": "La bodega está vacía.",
+        "comprada": "{toneladas} a bordo, compradas a {precio} de media.",
+        "sin_precio": "{toneladas} a bordo. LUNA no vio cuánto pagaste por ellas.",
+        "sin_destinos": "Nadie la compra dentro de la distancia y la antigüedad del perfil.",
+        "tabla": "Dónde vender {mercancia}"
+      },
+      "desde_aqui": {
+        "titulo": "Comprar desde aquí",
+        "sin_atracar": "Atraca en una estación para ver qué comprar en ella.",
+        "nada": "Nada de lo que vende esta estación deja ganancia con el perfil de búsqueda. Si LUNA aún no tiene su mercado, ábrelo en el juego."
+      },
+      "columnas": {
+        "vender": "Vender en",
+        "ingreso_hora": "Cr/h",
+        "antiguedad": "Antigüedad",
+        "precio_venta": "Venta",
+        "toneladas": "Toneladas",
+        "ingreso": "Ingreso",
+        "ganancia": "Ganancia",
+        "saltos": "Saltos",
+        "distancia_ly": "ly",
+        "distancia_ls": "ls llegada",
+        "tiempo": "Tiempo",
+        "origen": "Origen"
+      },
+      "errores": {
+        "perfil": "Revisa «{campo}» en el perfil de búsqueda de Rutas.",
+        "sin_posicion": "LUNA aún no sabe en qué sistema estás. Lo sabrá cuando el juego lo escriba en el journal: al entrar en la partida o al saltar.",
+        "legacy": "Tu journal es de Legacy: LUNA no muestra rutas con datos de Live.",
+        "sin_base": "Sin base de datos, LUNA no tiene precios con los que calcular.",
+        "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+        "parametro": "La interfaz envió una consulta que LUNA no entiende.",
+        "no_disponible": "Esta parte de LUNA no está disponible.",
+        "sin_respuesta": "LUNA no respondió. Pulsa Actualizar para intentarlo de nuevo."
+      }
+    },
+    "rutas": {
+      "titulo": "Rutas",
+      "modo": "Modo",
+      "modos": {
+        "un_salto": "Un salto",
+        "bucle": "Bucle A↔B"
+      },
+      "buscar": "Buscar",
+      "buscando": "Buscando rutas…",
+      "inicial": "Ajusta el perfil y pulsa Buscar.",
+      "resumen": "{n} rutas, ordenadas por {orden}.",
+      "resumen_una": "1 ruta.",
+      "sin_resultados": "Ninguna ruta cumple el perfil. Prueba a ampliar la distancia o la antigüedad máxima, o a bajar el stock mínimo.",
+      "tabla": "Resultados de la búsqueda",
+      "errores": {
+        "legacy": "Tu journal es de Legacy: LUNA no muestra rutas con datos de Live.",
+        "sin_base": "Sin base de datos, LUNA no tiene precios con los que buscar.",
+        "origen_desconocido": "LUNA no conoce las coordenadas del sistema de origen. Escribe uno que esté en la base o el sistema donde estás.",
+        "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+        "parametro": "La interfaz envió una búsqueda que LUNA no entiende.",
+        "perfil": "Revisa el perfil de búsqueda.",
+        "no_disponible": "Esta parte de LUNA no está disponible.",
+        "sin_respuesta": "LUNA no respondió a la búsqueda. Inténtalo de nuevo."
+      },
+      "columnas": {
+        "mercancia": "Mercancía",
+        "comprar": "Comprar en",
+        "precio_compra": "Compra",
+        "vender": "Vender en",
+        "precio_venta": "Venta",
+        "ganancia_tonelada": "Cr/t",
+        "toneladas": "Toneladas",
+        "ganancia_viaje": "Por viaje",
+        "saltos": "Saltos",
+        "distancia_ly": "ly",
+        "distancia_ls": "ls llegada",
+        "tiempo": "Tiempo",
+        "ganancia_hora": "Cr/h",
+        "ganancia_sesion": "En la sesión",
+        "antiguedad": "Antigüedad",
+        "origen": "Origen",
+        "ida": "Ida",
+        "vuelta": "Vuelta",
+        "estacion_a": "Estación A",
+        "estacion_b": "Estación B"
+      },
+      "detalle": {
+        "titulo": "Detalle de la ruta",
+        "ida": "Ida: {mercancia}",
+        "vuelta": "Vuelta: {mercancia}",
+        "total": "Bucle completo",
+        "comprar_en": "Comprar en",
+        "vender_en": "Vender en",
+        "desde_origen": "A {distancia} del origen de la búsqueda.",
+        "llegada": "Llegada a {ls} de la estrella.",
+        "llegada_planetaria": "Llegada a {ls} de la estrella, en un planeta.",
+        "precio_compra": "Precio de compra",
+        "precio_venta": "Precio de venta",
+        "stock": "Stock",
+        "demanda": "Demanda",
+        "dato": "Dato",
+        "toneladas": "Toneladas",
+        "ganancia_tonelada": "Ganancia por tonelada",
+        "ganancia_viaje": "Ganancia por viaje",
+        "distancia": "Distancia",
+        "distancia_valor": "{ly} en {saltos} saltos, en línea recta: con pocas estrellas pueden ser más.",
+        "tiempo": "Tiempo estimado",
+        "desglose": "Saltos {saltos}, supercrucero {supercrucero}, atraque {atraque}, comercio {comercio}.",
+        "fuente": {
+          "por_defecto": "Tiempos por defecto: todavía no hay muestras tuyas."
+        },
+        "ganancia_hora": "Ganancia por hora",
+        "ganancia_sesion": "En {horas} h de sesión",
+        "confianza": "Confianza",
+        "confianza_ayuda": "Baja con la antigüedad del dato más viejo y ordena los resultados.",
+        "copiar_aria": "Copiar el nombre de {sistema}"
+      }
+    },
+    "perfil": {
+      "titulo": "Perfil de búsqueda",
+      "plegar": "Perfil de búsqueda",
+      "de_la_nave": "De tu nave",
+      "manual": "Manual",
+      "restaurar": "Restaurar desde nave",
+      "restaurado": "Valores de tu nave restaurados.",
+      "sin_nave": "LUNA no detecta tu nave: rellena a mano capacidad, rango y plataforma.",
+      "campo_invalido": "Revisa «{campo}».",
+      "nave": "Nave",
+      "busqueda": "Búsqueda",
+      "datos": "Datos",
+      "capacidad": "Capacidad de carga (t)",
+      "rango": "Rango de salto con carga (ly)",
+      "plataforma": "Tamaño de plataforma",
+      "plataformas": {
+        "S": "Pequeña",
+        "M": "Mediana",
+        "L": "Grande"
+      },
+      "creditos": "Créditos disponibles",
+      "creditos_ayuda": "Vacío: sin límite.",
+      "origen": "Sistema de origen",
+      "distancia_max_ly": "Distancia máxima desde el origen (ly)",
+      "distancia_max_ls": "Distancia máxima a la estrella (ls)",
+      "antiguedad_max_h": "Antigüedad máxima de los datos (h)",
+      "antiguedad_ayuda": "Como mucho {horas} h; el tope se cambia en Configuración.",
+      "stock_minimo_pct": "Stock mínimo (% de la bodega)",
+      "tipos": "Tipos de estación",
+      "tipo": {
+        "orbital": "Orbitales",
+        "puesto_avanzado": "Puestos avanzados",
+        "puerto_planetario": "Puertos planetarios",
+        "asentamiento": "Asentamientos de Odyssey",
+        "colonizacion": "Colonización"
+      },
+      "fleet_carrier": "Fleet Carriers (después de la v1)",
+      "origenes": "Origen de los datos",
+      "origen_dato": {
+        "propio": "Propios",
+        "eddn": "EDDN",
+        "spansh": "Spansh"
+      },
+      "raras": "Incluir mercancías raras",
+      "horas_sesion": "Horas de sesión previstas",
+      "orden": "Ordenar por",
+      "ordenes": {
+        "ganancia_hora": "Ganancia por hora",
+        "ganancia_viaje": "Ganancia por viaje",
+        "ganancia_tonelada": "Ganancia por tonelada",
+        "distancia": "Distancia"
+      },
+      "guardados": {
+        "titulo": "Perfiles guardados",
+        "lista": "Perfil guardado",
+        "ninguno": "No hay perfiles guardados.",
+        "cargar": "Cargar",
+        "borrar": "Borrar",
+        "nombre": "Nombre para guardar",
+        "guardar": "Guardar",
+        "guardado": "Perfil «{nombre}» guardado.",
+        "borrado": "Perfil «{nombre}» borrado.",
+        "cargado": "Perfil «{nombre}» cargado.",
+        "pendiente": "LUNA está ocupada guardando otros datos; el perfil se guardará en cuanto termine."
+      },
+      "errores": {
+        "nombre": "Escribe un nombre de hasta 100 caracteres.",
+        "no_guardado": "No se pudo guardar. Los detalles están en luna.log.",
+        "sin_base": "Sin base de datos, LUNA no puede guardar perfiles.",
+        "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+        "no_disponible": "Esta parte de LUNA no está disponible."
       }
     }
   },
@@ -233,6 +439,20 @@
       "antiguedad": "Antigüedad máxima de cualquier precio (días)",
       "guardar": "Guardar",
       "guardado": "Guardado."
+    },
+    "comercio": {
+      "titulo": "Búsqueda de rutas",
+      "ayuda": "Límites y valores por defecto de las búsquedas de Rutas y Ahora.",
+      "tope": "Antigüedad máxima que puede pedir una búsqueda (días)",
+      "tope_ayuda": "De 1 a {maximo} días. Con más días entran precios más viejos de Spansh y las búsquedas tardan más.",
+      "tipos": "Tipos de estación que trae marcados un perfil nuevo",
+      "fleet_carrier": "Los Fleet Carriers no se buscan en esta versión: sus precios cambian sin aviso.",
+      "guardar": "Guardar",
+      "guardado": "Guardado. Rutas y Ahora lo usan desde la próxima búsqueda.",
+      "errores": {
+        "tope_antiguedad_dias": "Escribe un número entero de días, de 1 a {maximo}.",
+        "tipos": "Marca al menos un tipo de estación."
+      }
     },
     "eddn": {
       "titulo": "EDDN",

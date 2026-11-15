@@ -109,7 +109,7 @@ class Descarga:
             return self._terminar(total)
         respuesta = self._pedir(desplazamiento, etag)
         with respuesta:
-            desplazamiento, total = self._aceptar(respuesta, desplazamiento)
+            desplazamiento, total = self._aceptar(respuesta, desplazamiento, etag)
             self._comprobar_espacio(total, desplazamiento)
             self._guardar_meta(respuesta.headers.get("ETag"), total)
             try:
@@ -166,9 +166,13 @@ class Descarga:
         # If-Range: si el archivo cambió, el servidor contesta 200 con el nuevo entero.
         return {"Range": f"bytes={desplazamiento}-", **({"If-Range": etag} if etag else {})}
 
-    def _aceptar(self, respuesta, desplazamiento: int) -> tuple[int, int]:  # noqa: ANN001
+    def _aceptar(self, respuesta, desplazamiento: int, etag: str | None) -> tuple[int, int]:  # noqa: ANN001
         """(desde dónde se escribe, tamaño total) según lo que contestó el servidor."""
         if respuesta.status == 206:
+            # Un servidor que ignore If-Range mandaría el resto de otra versión del archivo.
+            if etag is not None and respuesta.headers.get("ETag") != etag:
+                self.descartar()
+                raise ErrorDeDescarga(MOTIVO_HTTP, "ETag distinto al reanudar")
             coincidencia = _CONTENT_RANGE.fullmatch(respuesta.headers.get("Content-Range", ""))
             if coincidencia is None or int(coincidencia[1]) != desplazamiento:
                 raise ErrorDeDescarga(MOTIVO_HTTP, "Content-Range inesperado")

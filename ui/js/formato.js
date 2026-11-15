@@ -51,3 +51,19 @@ export function hace(marcaIso, ahora = Date.now()) {
   if (horas < 48) return texto('formato.hace_horas', { n: horas });
   return texto('formato.hace_dias', { n: Math.floor(horas / 24) });
 }
+
+export const creditosPorTonelada = (valor) => texto('formato.cr_t', { valor: numero(valor, 0) });
+export const creditosPorHora = (valor) => texto('formato.cr_h', { valor: numero(valor, 0) });
+export const segundosLuz = (valor) => texto('formato.ls', { valor: numero(valor, 0) });
+
+/** «45 s», «12 min», «1 h 5 min». */
+export function duracion(segundos) {
+  if (segundos < 60) return texto('formato.segundos', { n: Math.round(segundos) });
+  const minutos = Math.round(segundos / 60);
+  if (minutos < 60) return texto('formato.minutos', { n: minutos });
+  return texto('formato.horas_minutos', { h: Math.floor(minutos / 60), m: minutos % 60 });
+}
+
+/** «14:05»: la hora local, para decir cuándo se calculó algo. */
+export const hora = (fecha) =>
+  new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' }).format(fecha);

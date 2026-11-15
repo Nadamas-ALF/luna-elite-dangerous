@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import math
 import shutil
+import threading
 from pathlib import Path
 
 from core.config import ajustes
@@ -63,6 +64,8 @@ class Datos:
         self._mantenimiento = mantenimiento
         self._eddn = eddn
         self._abrir = abrir
+        # Entre comprobar «ocupado» y arrancar o limpiar no puede colarse otro cambio.
+        self._candado = threading.Lock()
 
     def configuracion(self) -> dict:
         return {
@@ -130,10 +133,14 @@ class Datos:
             nueva = self._resolver(nombre, radio)
         except ErrorDeCambio as error:
             return {"error": error.motivo}
-        if self._gestor is not None and self._gestor.ocupado():
-            return {"error": ERROR_OCUPADO}
         if descargar and self._gestor is None:
             return {"error": ERROR_SIN_BASE}
+        with self._candado:
+            return self._cambiar_esfera(nueva, descargar)
+
+    def _cambiar_esfera(self, nueva: Esfera, descargar: bool) -> dict:
+        if self._gestor is not None and self._gestor.ocupado():
+            return {"error": ERROR_OCUPADO}
         if not ajustes.guardar_esfera(self._config, nueva):
             return {"error": ERROR_NO_GUARDADO}
         self._esfera.cambiar(nueva)
@@ -174,7 +181,9 @@ class Datos:
     def reanudar(self) -> dict:
         if self._gestor is None:
             return {"error": ERROR_SIN_BASE}
-        return {"ok": True} if self._gestor.iniciar() else {"error": ERROR_OCUPADO}
+        with self._candado:
+            iniciado = self._gestor.iniciar()
+        return {"ok": True} if iniciado else {"error": ERROR_OCUPADO}
 
     def pausar(self) -> dict:
         if self._gestor is not None:

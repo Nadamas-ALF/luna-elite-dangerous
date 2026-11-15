@@ -20,6 +20,8 @@ _CATEGORIA = {
     "coriolis": ORBITAL,
     "orbis": ORBITAL,
     "ocellus": ORBITAL,
+    # El juego aún llama así a algunos Ocellus.
+    "bernal": ORBITAL,
     "dodec": ORBITAL,
     "asteroidbase": ORBITAL,
     "megaship": ORBITAL,
@@ -29,14 +31,25 @@ _CATEGORIA = {
     "crateroutpost": PUESTO_AVANZADO,
     "onfootsettlement": ASENTAMIENTO,
     "fleetcarrier": FLEET_CARRIER,
+    "spaceconstructiondepot": COLONIZACION,
+    "planetaryconstructiondepot": COLONIZACION,
 }
 
-_PLANETARIAS = frozenset({"craterport", "crateroutpost", "surfacestation", "onfootsettlement"})
+_PLANETARIAS = frozenset(
+    {
+        "craterport",
+        "crateroutpost",
+        "surfacestation",
+        "onfootsettlement",
+        "planetaryconstructiondepot",
+    }
+)
 
 
 _NOMBRES_DE_COLONIZACION = (
     "$ext_panel_colonisationship;",
     "orbital construction site:",
+    "planetary construction site:",
     "system colonisation ship",
 )
 

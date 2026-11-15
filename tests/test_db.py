@@ -211,3 +211,19 @@ def test_un_fallo_de_verdad_sigue_dejando_su_error_en_el_registro(escritor, capl
     escritor.encolar(roto)
     escritor.detener()
     assert [r for r in caplog.records if r.levelno >= logging.ERROR]
+
+
+def test_pendientes_cuenta_lo_que_espera_detras_de_un_trabajo_largo(escritor):
+    ocupado, soltar = threading.Event(), threading.Event()
+
+    def largo(_conexion: sqlite3.Connection) -> None:
+        ocupado.set()
+        soltar.wait(5)
+
+    escritor.encolar(largo)
+    ocupado.wait(5)
+    for _ in range(3):
+        escritor.encolar(lambda _c: None)
+
+    assert escritor.pendientes() == 3
+    soltar.set()

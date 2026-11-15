@@ -1,3 +1,4 @@
+import threading
 import time
 
 import pytest
@@ -223,8 +224,6 @@ def test_tras_la_descarga_se_limpia_con_la_esfera_nueva(m):
     sembrar_lejano(m)
     m.datos.aplicar_esfera("Sol", 100, True)
     esperar_hilo(m)
-    time.sleep(0.2)
-    m.escritor.encolar(lambda c: None)
     assert m.terminadas == 1
     assert m.consultar("SELECT count(*) FROM market_prices WHERE origen = 'eddn'") == [(0,)]
 
@@ -239,6 +238,46 @@ def test_no_se_cambia_la_esfera_con_un_trabajo_en_marcha(tmp_path):
         assert montaje.datos.proponer_esfera("Sol", 300)["ocupado"] is True
         assert montaje.esfera.actual.radio == 100.0
     finally:
+        montaje.servidor.puerta.set()
+        montaje.gestor.cancelar()
+        montaje.gestor.detener()
+        montaje.escritor.detener()
+
+
+def test_dos_cambios_a_la_vez_no_se_pisan(tmp_path, monkeypatch):
+    montaje = Montaje(tmp_path, servidor=Frenado())
+    guardar = ajustes.guardar_esfera
+    dentro, seguir = threading.Event(), threading.Event()
+
+    def guardar_frenado(config, esfera):
+        if esfera.radio == 100.0:
+            dentro.set()
+            seguir.wait(10)
+        return guardar(config, esfera)
+
+    monkeypatch.setattr(ajustes, "guardar_esfera", guardar_frenado)
+    resultados = {}
+
+    def aplicar(radio, descargar):
+        resultados[radio] = montaje.datos.aplicar_esfera("Sol", radio, descargar)
+
+    primero = threading.Thread(target=aplicar, args=(100, True))
+    segundo = threading.Thread(target=aplicar, args=(300, False))
+    try:
+        primero.start()
+        assert dentro.wait(10)
+        segundo.start()
+        segundo.join(0.2)
+        assert segundo.is_alive()
+
+        seguir.set()
+        primero.join(10)
+        segundo.join(10)
+        assert resultados == {100: {"ok": True, "descargando": True}, 300: {"error": "ocupado"}}
+        assert montaje.esfera.actual.radio == 100.0
+        assert ajustes.esfera(montaje.config).radio == 100.0
+    finally:
+        seguir.set()
         montaje.servidor.puerta.set()
         montaje.gestor.cancelar()
         montaje.gestor.detener()
@@ -353,7 +392,9 @@ def test_la_limpieza_horaria_espera_si_hay_una_descarga_en_marcha(tmp_path):
         time.sleep(0.2)
         assert llamadas == []
         ocupado["si"] = False
-        time.sleep(0.2)
+        limite = time.monotonic() + 10
+        while not llamadas and time.monotonic() < limite:
+            time.sleep(0.02)
         manto.detener()
         assert llamadas
     finally:

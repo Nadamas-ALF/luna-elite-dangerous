@@ -134,6 +134,26 @@ def test_si_el_archivo_cambio_en_el_servidor_se_empieza_de_cero(tmp_path):
     assert resultado.read_bytes() == nuevo
 
 
+def test_un_206_de_otra_version_del_archivo_se_descarta(tmp_path):
+    servidor = Servidor()
+    servidor.falla_tras = 30_000
+    with pytest.raises(ErrorDeDescarga):
+        descargar(tmp_path, servidor)
+    nuevo = gzip.compress(random.Random(2).randbytes(120_000))  # noqa: S311 - idem
+    servidor.contenido, servidor.etag, servidor.falla_tras = nuevo, '"v2"', None
+
+    def ignora_if_range(url, cabeceras):
+        return servidor(url, {"Range": cabeceras["Range"]})
+
+    with pytest.raises(ErrorDeDescarga) as error:
+        descargar(tmp_path, ignora_if_range)
+    assert error.value.motivo == descarga.MOTIVO_HTTP
+    assert list(tmp_path.iterdir()) == []
+
+    _, resultado, _ = descargar(tmp_path, servidor)
+    assert resultado.read_bytes() == nuevo
+
+
 def test_un_content_range_que_no_empieza_donde_toca_se_rechaza(tmp_path):
     servidor = Servidor()
     servidor.falla_tras = 30_000
@@ -141,7 +161,8 @@ def test_un_content_range_que_no_empieza_donde_toca_se_rechaza(tmp_path):
         descargar(tmp_path, servidor)
 
     def mentiroso(url, cabeceras):
-        return Respuesta(206, {"Content-Range": f"bytes 0-9/{len(CONTENIDO)}"}, b"0" * 10)
+        cabeceras = {"ETag": '"v1"', "Content-Range": f"bytes 0-9/{len(CONTENIDO)}"}
+        return Respuesta(206, cabeceras, b"0" * 10)
 
     with pytest.raises(ErrorDeDescarga) as error:
         descargar(tmp_path, mentiroso)

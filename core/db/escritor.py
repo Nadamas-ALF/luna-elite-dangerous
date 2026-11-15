@@ -89,6 +89,10 @@ class Escritor:
         """
         self._cola.put((trabajo, despues, fallo))
 
+    def pendientes(self) -> int:
+        """Trabajos esperando turno; aproximado, porque otros hilos encolan a la vez (E-05)."""
+        return self._cola.qsize()
+
     def detener(self) -> None:
         """Termina lo ya encolado y cierra la conexión."""
         self._cola.put(_FIN)
