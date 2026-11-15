@@ -102,3 +102,19 @@
 .propuesta .acciones {
   margin-top: calc(var(--espacio) * 2);
 }
+
+.deslizador {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--espacio) * 3);
+}
+
+.deslizador__control {
+  flex: 1 1 12rem;
+  max-width: 20rem;
+  accent-color: var(--accent);
+}
+
+.deslizador__control:disabled + output {
+  color: var(--text-subtle);
+}

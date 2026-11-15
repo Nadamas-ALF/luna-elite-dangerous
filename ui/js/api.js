@@ -45,3 +45,14 @@ export const ahora = (perfil) => llamar('ahora', perfil);
 export const ajustesDeBusqueda = () => llamar('ajustes_de_busqueda');
 export const guardarAjustesDeBusqueda = (tope, tipos) =>
   llamar('guardar_ajustes_de_busqueda', tope, tipos);
+export const rendimiento = (sesion) => llamar('rendimiento', sesion);
+export const ajustesDeSesiones = () => llamar('ajustes_de_sesiones');
+export const guardarAjustesDeSesiones = (horas, porPartida) =>
+  llamar('guardar_ajustes_de_sesiones', horas, porPartida);
+export const reglasDeAlertas = () => llamar('reglas_de_alertas');
+export const guardarReglasDeAlertas = (reglas) => llamar('guardar_reglas_de_alertas', reglas);
+export const avisos = (desdeId) => llamar('avisos', desdeId);
+export const ajustesDeSonido = () => llamar('ajustes_de_sonido');
+export const guardarAjustesDeSonido = (activado, volumen) =>
+  llamar('guardar_ajustes_de_sonido', activado, volumen);
+export const probarSonido = (volumen) => llamar('probar_sonido', volumen);

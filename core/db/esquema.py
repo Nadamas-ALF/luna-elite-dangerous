@@ -105,6 +105,88 @@ MIGRACIONES: tuple[str, ...] = (
         PRIMARY KEY (fid, ship_id, tramo, fin)
     ) WITHOUT ROWID;
     """,
+    # Rendimiento (5.2, 7.5). Las tres se rellenan desde el journal y se releen al
+    # arrancar: cada fila tiene una clave que la identifica para no repetirla.
+    # Estación y sistema van por nombre porque la retención puede borrar `stations`.
+    # `trade_legs` son los tramos de despegue a despegue con su ganancia real, y
+    # `sessions` los bloques de actividad que Rendimiento une en sesiones.
+    """
+    CREATE TABLE trades (
+        fid                 TEXT    NOT NULL REFERENCES commanders(fid),
+        marca               TEXT    NOT NULL,
+        market_id           INTEGER NOT NULL,
+        commodity           TEXT    NOT NULL,
+        venta               INTEGER NOT NULL,
+        cantidad            INTEGER NOT NULL,
+        ship_id             INTEGER,
+        estacion            TEXT,
+        sistema             TEXT,
+        precio              INTEGER NOT NULL,
+        total               INTEGER NOT NULL,
+        precio_medio_compra INTEGER,
+        PRIMARY KEY (fid, marca, market_id, commodity, venta, cantidad)
+    ) WITHOUT ROWID;
+    CREATE TABLE trade_legs (
+        fid               TEXT    NOT NULL REFERENCES commanders(fid),
+        salida            TEXT    NOT NULL,
+        llegada           TEXT    NOT NULL,
+        ship_id           INTEGER,
+        segundos          REAL    NOT NULL,
+        saltos            INTEGER NOT NULL,
+        origen_market_id  INTEGER,
+        origen_estacion   TEXT    NOT NULL,
+        origen_sistema    TEXT    NOT NULL,
+        destino_market_id INTEGER,
+        destino_estacion  TEXT    NOT NULL,
+        destino_sistema   TEXT    NOT NULL,
+        distancia_ly      REAL,
+        rango             REAL,
+        distancia_ls      REAL    NOT NULL,
+        planetaria        INTEGER NOT NULL,
+        ganancia          INTEGER NOT NULL,
+        toneladas         INTEGER NOT NULL,
+        mercancia         TEXT,
+        PRIMARY KEY (fid, salida)
+    ) WITHOUT ROWID;
+    CREATE TABLE sessions (
+        fid          TEXT    NOT NULL REFERENCES commanders(fid),
+        inicio       TEXT    NOT NULL,
+        fin          TEXT    NOT NULL,
+        partida      TEXT    NOT NULL,
+        pausa_previa REAL,
+        saldo_inicio INTEGER,
+        saldo_fin    INTEGER,
+        ganancia     INTEGER NOT NULL,
+        toneladas    INTEGER NOT NULL,
+        saltos       INTEGER NOT NULL,
+        cerrado      INTEGER NOT NULL,
+        PRIMARY KEY (fid, inicio)
+    ) WITHOUT ROWID;
+    """,
+    # Alertas (5.2, 7.4): un solo juego de umbrales (la fila 1) y los avisos emitidos.
+    # `clave` identifica la ruta para no repetir el aviso; `ruta` es lo que enseña la
+    # interfaz, en JSON, tal como estaba al avisar.
+    """
+    CREATE TABLE alert_rules (
+        id                    INTEGER PRIMARY KEY CHECK (id = 1),
+        activadas             INTEGER NOT NULL,
+        ganancia_tonelada_min INTEGER NOT NULL,
+        ganancia_hora_min     INTEGER NOT NULL,
+        distancia_max_ly      REAL    NOT NULL,
+        antiguedad_max_h      REAL    NOT NULL,
+        repetir_min           REAL    NOT NULL,
+        mejora_pct            REAL    NOT NULL
+    );
+    CREATE TABLE alert_log (
+        id            INTEGER PRIMARY KEY,
+        clave         TEXT    NOT NULL,
+        momento       TEXT    NOT NULL,
+        modo          TEXT    NOT NULL,
+        ganancia_hora REAL    NOT NULL,
+        ruta          TEXT    NOT NULL
+    );
+    CREATE INDEX avisos_por_momento ON alert_log (momento);
+    """,
 )
 
 

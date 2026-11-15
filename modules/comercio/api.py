@@ -19,21 +19,22 @@ import sqlite3
 import threading
 from collections.abc import Callable, Iterator
 from contextlib import closing, contextmanager
-from dataclasses import MISSING, fields
+from dataclasses import MISSING, asdict, fields
 from datetime import UTC, datetime
 from pathlib import Path
 
 from core import catalogo
+from core import nave as modelo_nave
 from core.config import ajustes
 from core.db import mercado
 from core.db.escritor import Escritor, Trabajo, abrir_lectura
 from core.state.estado import Estado, precio_de_compra, vendibles
-from modules.comercio import perfiles, salida, timing
+from modules.comercio import alerts, perfiles, rendimiento, salida, timing
 from modules.comercio.engine import ahora as modo_ahora
 from modules.comercio.engine import candidatos, rutas
 from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import BusquedaCancelada, Posicion
-from modules.comercio.engine.perfil import Perfil, PerfilInvalido, desde_dict, rango_de_comercio
+from modules.comercio.engine.perfil import Perfil, PerfilInvalido, desde_dict
 from modules.comercio.engine.perfil import nombre as validar_nombre
 
 registro = logging.getLogger("luna.comercio")
@@ -46,6 +47,12 @@ ERROR_ORIGEN = "origen_desconocido"
 ERROR_SIN_POSICION = "sin_posicion"
 ERROR_BASE = "base"
 ERROR_NO_GUARDADO = "no_guardado"
+ERROR_SIN_COMANDANTE = "sin_comandante"
+ERROR_SESION = "sesion_desconocida"
+ERROR_REGLA = "regla"
+
+# Un inicio de sesión es una marca ISO del journal; más largo no es una sesión.
+LARGO_MAXIMO_DE_SESION = 40
 
 # Lo que se espera al escritor antes de contestar «pendiente»: durante una importación
 # de Spansh puede tardar minutos, y el perfil se guarda igual cuando quede libre.
@@ -95,8 +102,10 @@ class Comercio:
         base: Path | None,
         escritor: Escritor | None,
         reloj: Reloj = lambda: datetime.now(UTC),
+        probar_sonido: Callable[[int], None] | None = None,
     ) -> None:
         self._estado = estado
+        self._probar_sonido = probar_sonido
         self._config = config
         self._base = base
         self._escritor = escritor
@@ -236,6 +245,98 @@ class Comercio:
             return {"error": ERROR_NO_GUARDADO}
         return {"ok": True, **self.ajustes_de_busqueda()}
 
+    def rendimiento(self, sesion: object) -> dict:
+        """Sesiones y, de la elegida, ganancia real por ruta y mercancía (7.5).
+
+        `sesion` es el inicio de una sesión, `"todo"` o None para la última.
+        """
+        if sesion is not None and (
+            not isinstance(sesion, str) or len(sesion) > LARGO_MAXIMO_DE_SESION
+        ):
+            return {"error": ERROR_PARAMETRO, "campo": "sesion"}
+        estado = self._estado()
+        if estado.legacy:
+            return {"error": ERROR_LEGACY}
+        if not estado.fid:
+            return {"error": ERROR_SIN_COMANDANTE}
+        ajuste = ajustes.sesiones(self._config)
+        try:
+            with self._lectura() as conexion:
+                return rendimiento.informe(conexion, estado.fid, sesion, ajuste, self._reloj())
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        except rendimiento.SesionDesconocida:
+            return {"error": ERROR_SESION}
+
+    def ajustes_de_sesiones(self) -> dict:
+        horas, por_partida = ajustes.sesiones(self._config)
+        return {
+            "pausa_horas": horas,
+            "por_partida": por_partida,
+            "minimo": ajustes.PAUSA_HORAS_MINIMA,
+            "maximo": ajustes.PAUSA_HORAS_MAXIMA,
+        }
+
+    def guardar_ajustes_de_sesiones(self, horas: object, por_partida: object) -> dict:
+        if not ajustes.es_pausa_de_sesion(horas):
+            return {"error": ERROR_PARAMETRO, "campo": "pausa_horas"}
+        if not isinstance(por_partida, bool):
+            return {"error": ERROR_PARAMETRO, "campo": "por_partida"}
+        if not ajustes.guardar_sesiones(self._config, horas, por_partida):
+            return {"error": ERROR_NO_GUARDADO}
+        return {"ok": True, **self.ajustes_de_sesiones()}
+
+    def reglas_de_alertas(self) -> dict:
+        try:
+            with self._lectura() as conexion:
+                reglas = alerts.leer_reglas(conexion)
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        return {"reglas": asdict(reglas), "limites": alerts.LIMITES}
+
+    def guardar_reglas_de_alertas(self, datos: object) -> dict:
+        try:
+            reglas = alerts.reglas_desde_dict(datos)
+        except alerts.ReglaInvalida as error:
+            return {"error": ERROR_REGLA, "campo": error.campo}
+        respuesta = self._escribir(lambda conexion: alerts.guardar_reglas(conexion, reglas))
+        return {**respuesta, "reglas": asdict(reglas)} if respuesta.get("ok") else respuesta
+
+    def avisos(self, desde_id: object) -> dict:
+        """Los avisos recientes; con `desde_id`, solo los que llegaron después (7.4)."""
+        if desde_id is not None and (
+            not isinstance(desde_id, int) or isinstance(desde_id, bool) or desde_id < 0
+        ):
+            return {"error": ERROR_PARAMETRO, "campo": "desde_id"}
+        try:
+            with self._lectura() as conexion:
+                ultimo = alerts.ultimo_id(conexion)
+                lista = alerts.avisos(conexion, desde_id, ultimo)
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        return {"avisos": lista, "ultimo": ultimo}
+
+    def ajustes_de_sonido(self) -> dict:
+        activado, volumen = ajustes.sonido(self._config)
+        return {"activado": activado, "volumen": volumen}
+
+    def guardar_ajustes_de_sonido(self, activado: object, volumen: object) -> dict:
+        if not isinstance(activado, bool):
+            return {"error": ERROR_PARAMETRO, "campo": "activado"}
+        if not ajustes.es_volumen(volumen):
+            return {"error": ERROR_PARAMETRO, "campo": "volumen"}
+        if not ajustes.guardar_sonido(self._config, activado, volumen):
+            return {"error": ERROR_NO_GUARDADO}
+        return {"ok": True, **self.ajustes_de_sonido()}
+
+    def probar_sonido(self, volumen: object) -> dict:
+        if not ajustes.es_volumen(volumen):
+            return {"error": ERROR_PARAMETRO, "campo": "volumen"}
+        if self._probar_sonido is None:
+            return {"error": "no_disponible"}
+        self._probar_sonido(volumen)
+        return {"ok": True}
+
     def _entrada(self, datos: object) -> tuple[Perfil, Estado]:
         try:
             perfil = desde_dict(datos, ajustes.tope_de_antiguedad_dias(self._config))
@@ -316,7 +417,11 @@ def _valores_de_la_nave(estado: Estado) -> dict:
     datos = nave.datos if nave else None
     return {
         "capacidad": (nave.capacidad_carga or None) if nave else None,
-        "rango": _centesimas(rango_de_comercio(datos)) if datos and nave.capacidad_carga else None,
+        "rango": (
+            _centesimas(modelo_nave.rango_de_comercio(datos))
+            if datos and nave.capacidad_carga
+            else None
+        ),
         "plataforma": ficha.plataforma if ficha else None,
         "creditos": estado.creditos,
         "origen": estado.sistema,

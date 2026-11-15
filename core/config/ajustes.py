@@ -59,6 +59,15 @@ TIPOS_DE_ESTACION = (
 )
 # Confianza según la antigüedad (7.2, paso 7): plena hasta 1 h, mínima desde 24 h.
 CONFIANZA_POR_DEFECTO = (1.0, 24.0, 0.5)
+
+CLAVE_SONIDO = "sonido"
+VOLUMEN_POR_DEFECTO = 70
+
+CLAVE_RENDIMIENTO = "rendimiento"
+# Una pausa sin actividad de al menos estas horas parte la sesión (decisiones.md, «Fase 7»).
+PAUSA_HORAS_POR_DEFECTO = 1
+PAUSA_HORAS_MINIMA = 1
+PAUSA_HORAS_MAXIMA = 12
 CONFIANZA_HORAS_MAXIMAS = TOPE_ANTIGUEDAD_DIAS_MAXIMO * 24.0
 
 
@@ -251,6 +260,57 @@ def guardar_busqueda(config: Path, tope_dias: int, tipos: tuple[str, ...]) -> bo
     }
     try:
         return archivo.fusionar(config, CLAVE_COMERCIO, seccion)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def es_pausa_de_sesion(horas: object) -> bool:
+    if isinstance(horas, bool) or not isinstance(horas, int):
+        return False
+    return PAUSA_HORAS_MINIMA <= horas <= PAUSA_HORAS_MAXIMA
+
+
+def sesiones(config: Path) -> tuple[int, bool]:
+    """(horas de pausa que parten una sesión, si solo la parte el cierre del juego)."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_RENDIMIENTO)
+    seccion = seccion if isinstance(seccion, dict) else {}
+    horas = seccion.get("pausa_horas")
+    por_partida = seccion.get("por_partida")
+    return (
+        horas if es_pausa_de_sesion(horas) else PAUSA_HORAS_POR_DEFECTO,
+        por_partida if isinstance(por_partida, bool) else False,
+    )
+
+
+def guardar_sesiones(config: Path, horas: int, por_partida: bool) -> bool:
+    try:
+        return archivo.fusionar(
+            config, CLAVE_RENDIMIENTO, {"pausa_horas": horas, "por_partida": por_partida}
+        )
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def es_volumen(volumen: object) -> bool:
+    return isinstance(volumen, int) and not isinstance(volumen, bool) and 0 <= volumen <= 100
+
+
+def sonido(config: Path) -> tuple[bool, int]:
+    """(si las alertas suenan, volumen de 0 a 100) (6.3: activado por defecto)."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_SONIDO)
+    seccion = seccion if isinstance(seccion, dict) else {}
+    activado, volumen = seccion.get("activado"), seccion.get("volumen")
+    return (
+        activado if isinstance(activado, bool) else True,
+        volumen if es_volumen(volumen) else VOLUMEN_POR_DEFECTO,
+    )
+
+
+def guardar_sonido(config: Path, activado: bool, volumen: int) -> bool:
+    try:
+        return archivo.fusionar(config, CLAVE_SONIDO, {"activado": activado, "volumen": volumen})
     except OSError:
         registro.exception("no se pudo escribir %s", config)
         return False

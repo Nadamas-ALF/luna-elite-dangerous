@@ -244,7 +244,7 @@
   background: var(--glass);
 }
 
-.resultado[aria-selected="true"] {
+.resultado[aria-current="true"] {
   background: var(--surface-raised);
   box-shadow: inset 3px 0 0 var(--accent);
 }
@@ -370,4 +370,52 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
+}
+
+/* Rendimiento: una ruta es su estación de origen, una flecha y la de destino. */
+.ruta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--espacio) * 2);
+}
+
+.ruta__flecha {
+  color: var(--text-subtle);
+}
+
+/* Alertas: los umbrales en una rejilla que se reparte el ancho. */
+.formulario__fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: calc(var(--espacio) * 3) calc(var(--espacio) * 5);
+}
+
+/* El aviso de una alerta: arriba a la derecha, por encima de cualquier pantalla y sin
+   tapar la barra lateral. Es lo único que flota en la interfaz. */
+.aviso-alerta {
+  position: fixed;
+  top: calc(var(--espacio) * 4);
+  right: calc(var(--espacio) * 4);
+  z-index: 10;
+  max-width: min(26rem, calc(100vw - var(--ancho-lateral) - var(--espacio) * 8));
+  padding: calc(var(--espacio) * 4);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radio-campo);
+  background: var(--surface-raised);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+}
+
+.aviso-alerta[hidden] {
+  display: none;
+}
+
+.aviso-alerta__titulo {
+  margin: 0 0 var(--espacio);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.aviso-alerta__ruta {
+  margin: 0 0 calc(var(--espacio) * 3);
 }

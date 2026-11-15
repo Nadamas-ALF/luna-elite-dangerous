@@ -143,3 +143,35 @@ def _bucles(
 
 def bucle(candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos) -> list[Bucle]:
     return mejores(_bucles(candidatos, perfil, curva, tiempos), perfil.orden)
+
+
+def tramos_con(
+    candidatos: Candidatos, market_id: int, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> list[Tramo]:
+    """Todos los tramos de un salto que compran o venden en `market_id` (alertas, 7.4).
+
+    Sin el recorte de los K mejores por mercancía: un trato que pasa los umbrales del
+    usuario cuenta aunque haya otros mejores.
+    """
+    tramos = []
+    for mercancia, oferta in candidatos.ofertas_de.get(market_id, {}).items():
+        for venta in candidatos.demandas.get(mercancia, ()):
+            tramos.append(evaluar(oferta, venta, perfil, curva, tiempos))
+    for mercancia, demanda in candidatos.demandas_de.get(market_id, {}).items():
+        for compra in candidatos.ofertas.get(mercancia, ()):
+            tramos.append(evaluar(compra, demanda, perfil, curva, tiempos))
+    return [t for t in tramos if t is not None]
+
+
+def bucles_con(
+    candidatos: Candidatos, market_id: int, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> list[Bucle]:
+    """Los bucles A↔B con `market_id` en una punta, uno por cada otra estación."""
+    otras = (set(candidatos.ofertas_de) | set(candidatos.demandas_de)) - {market_id}
+    bucles = []
+    for otra in otras:
+        ida = mejor_entre(candidatos, market_id, otra, perfil, curva, tiempos)
+        vuelta = mejor_entre(candidatos, otra, market_id, perfil, curva, tiempos) if ida else None
+        if ida is not None and vuelta is not None:
+            bucles.append(Bucle(ida, vuelta))
+    return bucles

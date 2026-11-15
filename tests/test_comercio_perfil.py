@@ -130,4 +130,4 @@ def test_algo_que_no_es_un_diccionario_se_rechaza(datos):
 def test_el_rango_del_perfil_es_el_medido_en_el_juego_con_bodega_y_deposito_llenos():
     """Panther Clipper MkII, 1120 t: 32,03 ly en el panel del juego (verificaciones.md, 4)."""
     barco = nave.desde_loadout(MEDIDO_EN_EL_JUEGO)
-    assert modulo.rango_de_comercio(barco) == pytest.approx(32.03, abs=0.01)
+    assert nave.rango_de_comercio(barco) == pytest.approx(32.03, abs=0.01)

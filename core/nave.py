@@ -163,3 +163,12 @@ def rango_maximo(nave: Nave, carga: float = 0.0) -> float:
     Cuenta solo el combustible de un salto, así que no cambia al repostar.
     """
     return rango(nave, carga=carga, combustible=nave.propulsor.combustible_por_salto)
+
+
+def rango_de_comercio(nave: Nave) -> float:
+    """Bodega y depósito llenos: el caso pesimista, y el que se midió en el juego.
+
+    Al comerciar se reposta en cada estación, así que se sale con el depósito
+    lleno (docs/decisiones.md, «Fase 5»).
+    """
+    return rango(nave, nave.capacidad_carga, nave.capacidad_combustible)

@@ -153,6 +153,39 @@ class Api:
             return _NO_DISPONIBLE
         return self._comercio.guardar_ajustes_de_busqueda(tope_dias, tipos)
 
+    def rendimiento(self, sesion: str | None) -> dict:
+        return self._comercio.rendimiento(sesion) if self._comercio else _NO_DISPONIBLE
+
+    def ajustes_de_sesiones(self) -> dict:
+        return self._comercio.ajustes_de_sesiones() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_ajustes_de_sesiones(self, horas: int, por_partida: bool) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_ajustes_de_sesiones(horas, por_partida)
+
+    def reglas_de_alertas(self) -> dict:
+        return self._comercio.reglas_de_alertas() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_reglas_de_alertas(self, reglas: dict) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_reglas_de_alertas(reglas)
+
+    def avisos(self, desde_id: int | None) -> dict:
+        return self._comercio.avisos(desde_id) if self._comercio else _NO_DISPONIBLE
+
+    def ajustes_de_sonido(self) -> dict:
+        return self._comercio.ajustes_de_sonido() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_ajustes_de_sonido(self, activado: bool, volumen: int) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_ajustes_de_sonido(activado, volumen)
+
+    def probar_sonido(self, volumen: int) -> dict:
+        return self._comercio.probar_sonido(volumen) if self._comercio else _NO_DISPONIBLE
+
     def _con_resultado(self, guardado: bool) -> dict:
         return {**self.configuracion(), "no_guardado": not guardado}
 

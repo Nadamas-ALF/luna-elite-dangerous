@@ -331,3 +331,20 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Todo control que se puede usar enseña la mano, y el desactivado lo dice también con
+   el cursor, no solo con el color (antislop R-39). Las clases de botón y enlace lo
+   ponen por su cuenta; esto cubre los controles nativos. */
+select,
+summary,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  cursor: pointer;
+}
+
+:is(button, select, input, textarea):disabled,
+label:has(> input:disabled) {
+  cursor: not-allowed;
+}

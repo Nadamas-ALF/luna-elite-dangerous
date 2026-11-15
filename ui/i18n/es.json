@@ -29,6 +29,8 @@
     "comercio": "Comercio",
     "ahora": "Ahora",
     "rutas": "Rutas",
+    "alertas": "Alertas",
+    "rendimiento": "Rendimiento",
     "configuracion": "Configuración"
   },
   "formato": {
@@ -341,6 +343,140 @@
         "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
         "no_disponible": "Esta parte de LUNA no está disponible."
       }
+    },
+    "rendimiento": {
+      "titulo": "Rendimiento",
+      "sesion": "Sesión",
+      "opcion": "{fecha} · {duracion}",
+      "opcion_en_curso": "{fecha} · {duracion} · en curso",
+      "todo": "Todo el historial",
+      "actualizar": "Actualizar",
+      "cargando": "Calculando…",
+      "actualizado": "Calculado a las {hora} con lo que LUNA leyó del journal. Pulsa Actualizar para incluir lo último.",
+      "sin_sesiones": "LUNA aún no tiene sesiones. Las saca del journal: juega con LUNA abierta, o ábrela después y leerá los últimos días.",
+      "resumen": {
+        "titulo": "Resumen",
+        "ganancia": "Ganancia real",
+        "tiempo": "Tiempo de juego",
+        "por_hora": "Ganancia por hora",
+        "toneladas": "Toneladas vendidas",
+        "saltos": "Saltos",
+        "saldo": "Saldo",
+        "saldo_valor": "{inicio} → {fin}",
+        "en_curso": "La sesión sigue en curso: las cifras cambiarán mientras juegas."
+      },
+      "comparacion": {
+        "titulo": "Real contra estimado",
+        "resultado": "En {n} tramos de comercio ganaste {real}; LUNA estimaba {estimada} ({desviacion}).",
+        "pocos": "Con menos de {minimo} tramos la comparación es solo orientativa.",
+        "sin_tramos": "No hay tramos que comparar: hace falta despegar de una estación donde compraste y vender con ganancia en otra, sin cerrar el juego por medio."
+      },
+      "rutas": {
+        "titulo": "Por ruta",
+        "ayuda": "Cada tramo va de despegar de una estación donde comerciaste a despegar de la siguiente. La estimación usa tus tiempos calibrados y la ganancia real.",
+        "vacio": "En este periodo no hay tramos de comercio completos.",
+        "hacia": "→",
+        "columnas": {
+          "ruta": "Ruta",
+          "por_hora": "Cr/h real",
+          "desviacion": "Estimado vs. real",
+          "mercancias": "Mercancías",
+          "viajes": "Viajes",
+          "ganancia": "Ganancia",
+          "tiempo": "Tiempo",
+          "estimada": "Cr/h estimada"
+        }
+      },
+      "mercancias": {
+        "titulo": "Por mercancía",
+        "vacio": "En este periodo no vendiste nada.",
+        "sin_precio": "{ganancia} (y {n} ventas sin precio de compra)",
+        "columnas": {
+          "mercancia": "Mercancía",
+          "ganancia": "Ganancia",
+          "toneladas": "Toneladas",
+          "ventas": "Ventas"
+        }
+      },
+      "sesiones": {
+        "titulo": "Historial de sesiones",
+        "ayuda_pausa": "Una sesión es una partida del juego; una pausa de {horas} h o más sin actividad la parte en dos. Se cambia en Configuración.",
+        "ayuda_partida": "Una sesión es una partida del juego entera, de cargarla a cerrar el juego. Se cambia en Configuración.",
+        "en_curso": "En curso",
+        "bloques": "{n} tramos de actividad",
+        "columnas": {
+          "sesion": "Inicio",
+          "ganancia": "Ganancia",
+          "por_hora": "Cr/h",
+          "duracion": "Duración",
+          "toneladas": "Toneladas",
+          "saltos": "Saltos",
+          "saldo": "Saldo al final",
+          "estado_sesion": "Estado"
+        }
+      },
+      "errores": {
+        "sin_comandante": "LUNA aún no sabe quién es el comandante. Lo sabrá en cuanto lea el journal.",
+        "legacy": "El journal es de Legacy: LUNA no calcula rendimiento con él.",
+        "sin_base": "No hay base de datos: sin ella LUNA no guarda compras ni sesiones.",
+        "base": "No se pudo leer la base de datos. El registro de LUNA tiene el detalle.",
+        "parametro": "La interfaz pidió una sesión que no entiende.",
+        "sesion_desconocida": "Esa sesión ya no existe.",
+        "no_disponible": "Rendimiento no está disponible en esta ventana.",
+        "sin_respuesta": "LUNA no respondió. Prueba con Actualizar."
+      }
+    },
+    "alertas": {
+      "titulo": "Alertas",
+      "reglas": {
+        "titulo": "Reglas",
+        "ayuda": "Cuando entra un mercado nuevo (tuyo o de EDDN) o atracas, LUNA busca las rutas de un salto y los bucles A↔B en que esa estación compra o vende, con tu nave y desde donde estás. Avisa de las que pasan los dos umbrales de ganancia.",
+        "activadas": "Avisar de las rutas que pasen estas reglas",
+        "ganancia_tonelada_min": "Ganancia mínima por tonelada (Cr/t)",
+        "ganancia_hora_min": "Ganancia mínima por hora (Cr/h)",
+        "distancia_max_ly": "Distancia máxima desde donde estás (ly)",
+        "antiguedad_max_h": "Antigüedad máxima de los precios (h)",
+        "repetir_min": "No repetir la misma ruta antes de (min)",
+        "mejora_pct": "Salvo que su ganancia por hora mejore más de (%)",
+        "guardar": "Guardar reglas",
+        "guardado": "Guardado. Se aplica al próximo mercado que entre.",
+        "pendiente": "La base de datos está ocupada: las reglas se guardarán en cuanto quede libre.",
+        "cargando": "Cargando las reglas…"
+      },
+      "avisos": {
+        "titulo": "Avisos recientes",
+        "vacio": "Todavía no hay avisos. Llegan cuando un mercado nuevo deja una ruta que pasa las reglas.",
+        "ayuda": "Elige un aviso para ver la ruta tal como estaba cuando avisó.",
+        "flecha": "→",
+        "bucle_flecha": "↔",
+        "ida_y_vuelta": "{ida} / {vuelta}",
+        "columnas": {
+          "ruta": "Ruta",
+          "ganancia_hora": "Cr/h",
+          "cuando": "Cuándo",
+          "mercancias": "Mercancía",
+          "modo": "Tipo",
+          "ganancia_tonelada": "Cr/t"
+        },
+        "cargando": "Cargando los avisos…"
+      },
+      "aviso": {
+        "titulo": "Nueva ruta",
+        "ruta": "{mercancia}: de {desde} a {hasta}, {cr_h}.",
+        "mas": "Y {n} más en Alertas.",
+        "abrir": "Ver la ruta",
+        "cerrar": "Cerrar"
+      },
+      "errores": {
+        "umbral": "«{campo}» tiene que ser un número de {minimo} a {maximo}.",
+        "regla": "La interfaz envió unas reglas que LUNA no entiende.",
+        "sin_base": "No hay base de datos: sin ella LUNA no guarda reglas ni avisos.",
+        "base": "No se pudo leer la base de datos. El registro de LUNA tiene el detalle.",
+        "no_guardado": "LUNA no pudo guardar las reglas. El registro tiene el detalle.",
+        "parametro": "La interfaz pidió algo que LUNA no entiende.",
+        "no_disponible": "Las alertas no están disponibles en esta ventana.",
+        "sin_respuesta": "LUNA no respondió. Vuelve a abrir Alertas para intentarlo."
+      }
     }
   },
   "configuracion": {
@@ -469,6 +605,29 @@
       "activar": "Recibir precios de EDDN",
       "estado": "Estado",
       "sin_base": "Sin base de datos, LUNA no puede guardar lo que recibiría."
+    },
+    "sesiones": {
+      "titulo": "Sesiones de Rendimiento",
+      "ayuda": "Una sesión es una partida del juego. Una pausa larga sin actividad la puede partir en dos; el cambio se aplica también a las sesiones pasadas.",
+      "pausa": "Pausa que parte una sesión",
+      "pausa_valor": "{horas} h",
+      "por_partida": "Solo la parte cerrar el juego",
+      "guardar": "Guardar",
+      "guardado": "Guardado. Rendimiento ya agrupa las sesiones así.",
+      "errores": {
+        "pausa_horas": "Elige de {minimo} a {maximo} horas.",
+        "por_partida": "La casilla no tiene un valor válido."
+      }
+    },
+    "sonido": {
+      "titulo": "Sonido de las alertas",
+      "ayuda": "LUNA suena una vez por cada tanda de avisos, aunque la ventana esté detrás del juego.",
+      "activado": "Sonar al avisar",
+      "volumen": "Volumen",
+      "volumen_valor": "{volumen} %",
+      "guardar": "Guardar",
+      "probar": "Probar el sonido",
+      "guardado": "Guardado."
     }
   }
 }

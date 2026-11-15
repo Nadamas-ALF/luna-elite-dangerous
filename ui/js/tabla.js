@@ -11,6 +11,7 @@ export const SECUNDARIA = 'secundaria';
 // Columnas de texto; las demás llevan cifras, a la derecha y con números tabulares.
 const DE_TEXTO = new Set([
   'mercancia', 'comprar', 'vender', 'ida', 'vuelta', 'estacion_a', 'estacion_b', 'origen',
+  'ruta', 'mercancias', 'sesion', 'estado_sesion', 'cuando', 'modo',
 ]);
 
 function clasesDe(nombre, prioridad) {
@@ -41,13 +42,14 @@ function filaDe(columnas, dato) {
   return fila;
 }
 
+// `aria-selected` solo vale en filas de una rejilla (`grid`); en una tabla normal la
+// fila elegida se anuncia con `aria-current`.
 function seleccionable(fila, cuerpo, alElegir) {
   fila.classList.add('resultado');
   fila.tabIndex = 0;
-  fila.setAttribute('aria-selected', 'false');
   const elegir = () => {
-    for (const otra of cuerpo.rows) otra.setAttribute('aria-selected', 'false');
-    fila.setAttribute('aria-selected', 'true');
+    for (const otra of cuerpo.rows) otra.removeAttribute('aria-current');
+    fila.setAttribute('aria-current', 'true');
     alElegir();
   };
   fila.addEventListener('click', elegir);

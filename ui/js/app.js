@@ -1,9 +1,11 @@
 import { crearVistaAhora } from './ahora.js';
+import { crearVistaAlertas } from './alertas.js';
 import * as api from './api.js';
 import { crearVistaConfiguracion } from './configuracion.js';
 import { crearVistaEstado } from './estado.js';
 import { aplicarTextos, texto, textosFaltantes } from './i18n.js';
 import { crearPanelPerfil } from './perfil.js';
+import { crearVistaRendimiento } from './rendimiento.js';
 import { crearVistaRutas } from './rutas.js';
 
 // Con el estado cambiando a ritmo de juego, 750 ms dejan el retraso máximo por
@@ -71,6 +73,12 @@ async function arrancar() {
   const perfil = crearPanelPerfil(vistaRutas);
   crearVistaRutas(vistaRutas, perfil);
   const ahora = crearVistaAhora(document.getElementById('vista-ahora'), perfil);
+  const rendimiento = crearVistaRendimiento(document.getElementById('vista-rendimiento'));
+  const alertas = crearVistaAlertas(
+    document.getElementById('vista-alertas'),
+    document.querySelector('[data-campo="aviso_alerta"]'),
+    mostrarVista,
+  );
 
   conectarNavegacion((nombre) => {
     if (nombre === 'configuracion') configuracion.cargar();
@@ -78,6 +86,9 @@ async function arrancar() {
     if (nombre === 'rutas') perfil.cargar();
     if (nombre === 'ahora') ahora.mostrar();
     else ahora.salir();
+    if (nombre === 'alertas') alertas.mostrar();
+    else alertas.salir();
+    if (nombre === 'rendimiento') rendimiento.mostrar();
   });
   mostrarVista(VISTA_INICIAL);
 
@@ -85,6 +96,7 @@ async function arrancar() {
   window.__luna = { textosFaltantes: textosFaltantes(), modulosEs: true };
 
   await api.esperarPuente();
+  alertas.vigilar();
   consultarEstado((datos) => {
     estado.mostrar(datos);
     ahora.alEstado(datos);

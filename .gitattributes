@@ -3,3 +3,8 @@
 # Los fixtures se guardan byte a byte: el lector del journal depende de los
 # finales de línea reales del juego (CRLF) y de la codificación original.
 tests/fixtures/** -text
+
+# Binarios de la aplicación.
+*.wav binary
+*.woff2 binary
+*.png binary

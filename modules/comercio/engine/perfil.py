@@ -10,7 +10,6 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, dataclass
 
-from core import nave as modelo_nave
 from core.config import ajustes
 
 PLATAFORMAS = ("S", "M", "L")
@@ -35,15 +34,6 @@ DISTANCIA_LY_MAXIMA = 1_000.0
 DISTANCIA_LS_MAXIMA = 1e7
 STOCK_MAXIMO_PCT = 1_000.0
 HORAS_MAXIMAS = 24.0
-
-
-def rango_de_comercio(nave: modelo_nave.Nave) -> float:
-    """Bodega y depósito llenos: el caso pesimista, y el que se midió en el juego.
-
-    Al comerciar se reposta en cada estación, así que se sale con el depósito
-    lleno (docs/decisiones.md, «Fase 5»).
-    """
-    return modelo_nave.rango(nave, nave.capacidad_carga, nave.capacidad_combustible)
 
 
 class PerfilInvalido(ValueError):

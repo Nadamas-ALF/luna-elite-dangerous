@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from core import catalogo, events
@@ -19,7 +19,7 @@ from core.config import ajustes
 from core.db import comandante, mercado
 from core.db.escritor import Escritor
 from core.esfera import Esfera, EsferaViva
-from core.journal import archivos, carpeta, lector, tiempos
+from core.journal import archivos, carpeta, comercio, lector, sesiones, tiempos
 from core.journal import mercado as mercado_del_juego
 from core.state import vista
 from core.state.estado import Estado, NaveActual, aplicar
@@ -29,6 +29,18 @@ registro = logging.getLogger("luna.nucleo")
 INTERVALO = 0.5
 # Buscar la carpeta cuesta una consulta a Windows: no hace falta cada medio segundo.
 PASOS_ENTRE_BUSQUEDAS = 10
+
+
+@dataclass
+class _Lote:
+    """Lo que un lote de eventos deja para guardar, en un trabajo del escritor por tipo."""
+
+    comandantes: dict[str, tuple[str, str]] = field(default_factory=dict)
+    naves: dict[tuple[str, int], tuple[NaveActual, str]] = field(default_factory=dict)
+    muestras: list[comandante.MuestraDeTiempo] = field(default_factory=list)
+    operaciones: list[tuple[str, int | None, comercio.Operacion]] = field(default_factory=list)
+    tramos: list[tuple[str, comercio.Tramo]] = field(default_factory=list)
+    bloques: list[sesiones.Bloque] = field(default_factory=list)
 
 
 @dataclass
@@ -59,8 +71,11 @@ class Nucleo:
         self._seguidor: lector.Seguidor | None = None
         self._marcas = _Marcas()
         self._pasos_sin_carpeta = PASOS_ENTRE_BUSQUEDAS
-        # Solo lo toca el hilo del núcleo.
+        # Solo los toca el hilo del núcleo.
         self._cronometro = tiempos.Cronometro()
+        self._libro = comercio.Libro()
+        self._actividad = sesiones.Actividad()
+        self._bloque_guardado: sesiones.Bloque | None = None
 
     def iniciar(self) -> None:
         if self._escritor is not None:
@@ -128,6 +143,9 @@ class Nucleo:
     def _reconstruir(self) -> None:
         lectura = self._seguidor.iniciar(ajustes.dias_journal(self._config))
         self._cronometro = tiempos.Cronometro()
+        self._libro = comercio.Libro()
+        self._actividad = sesiones.Actividad()
+        self._bloque_guardado = None
         estado = self._plegar(Estado(), lectura.eventos)
         self._marcas = _Marcas()
         estado = self._con_archivos(estado)
@@ -146,18 +164,39 @@ class Nucleo:
         """Aplica los eventos y guarda en la base lo que cambió, una vez por lote."""
         if not eventos:
             return estado
-        comandantes: dict[str, tuple[str, str]] = {}
-        naves: dict[tuple[str, int], tuple[NaveActual, str]] = {}
-        muestras: list[comandante.MuestraDeTiempo] = []
+        lote = _Lote()
         for evento in eventos:
             estado = aplicar(estado, evento)
             if estado.fid and estado.comandante:
-                comandantes[estado.fid] = (estado.comandante, estado.ultimo_evento or "")
+                lote.comandantes[estado.fid] = (estado.comandante, estado.ultimo_evento or "")
             if evento.get("event") == "Loadout" and _es_guardable(estado):
-                naves[(estado.fid, estado.nave.ship_id)] = (estado.nave, estado.ultimo_evento or "")
-            muestras += self._medir(estado, evento)
-        self._guardar(comandantes, naves, muestras)
+                clave = (estado.fid, estado.nave.ship_id)
+                lote.naves[clave] = (estado.nave, estado.ultimo_evento or "")
+            lote.muestras += self._medir(estado, evento)
+            self._anotar_comercio(estado, evento, lote)
+        if self._actividad.bloque not in (None, self._bloque_guardado):
+            lote.bloques.append(self._actividad.bloque)
+            self._bloque_guardado = self._actividad.bloque
+        self._guardar(lote)
         return estado
+
+    def _anotar_comercio(self, estado: Estado, evento: dict, lote: _Lote) -> None:
+        """Compras, ventas, tramos y bloques de actividad (7.5); de Legacy, nada."""
+        if estado.legacy:
+            self._libro = comercio.Libro()
+            return
+        hecha = comercio.operacion(estado, evento)
+        self._libro, tramo = comercio.anotar(self._libro, estado, evento)
+        self._actividad, cerrado = sesiones.anotar(self._actividad, estado, evento, hecha)
+        if not estado.fid:
+            return
+        ship_id = estado.nave.ship_id if estado.nave else None
+        if hecha is not None:
+            lote.operaciones.append((estado.fid, ship_id, hecha))
+        if tramo is not None:
+            lote.tramos.append((estado.fid, tramo))
+        if cerrado is not None:
+            lote.bloques.append(cerrado)
 
     def _medir(self, estado: Estado, evento: dict) -> list[comandante.MuestraDeTiempo]:
         """Muestras de tiempo de la nave en la que se cerraron (8.1); de Legacy, ninguna."""
@@ -207,23 +246,27 @@ class Nucleo:
             lambda guardado: guardado and self._bus.publicar(events.MERCADO_ACTUALIZADO, market_id),
         )
 
-    def _guardar(
-        self, comandantes: dict, naves: dict, muestras: list[comandante.MuestraDeTiempo]
-    ) -> None:
-        """Cada comandante visto se da de alta antes que sus naves y muestras (clave foránea)."""
+    def _guardar(self, lote: _Lote) -> None:
+        """Cada comandante visto se da de alta antes que lo suyo (clave foránea)."""
         if self._escritor is None:
             return
-        for fid, (nombre, visto) in comandantes.items():
+        for fid, (nombre, visto) in lote.comandantes.items():
             self._escritor.encolar(
                 lambda c, fid=fid, nombre=nombre, visto=visto: comandante.registrar_comandante(
                     c, fid, nombre, visto
                 )
             )
-        for (dueno, ship_id), (actual, fecha) in naves.items():
+        for (dueno, ship_id), (actual, fecha) in lote.naves.items():
             ficha = _ficha(dueno, ship_id, actual, fecha)
             self._escritor.encolar(lambda c, ficha=ficha: comandante.guardar_nave(c, ficha))
-        if muestras:
-            self._escritor.encolar(lambda c: comandante.guardar_muestras(c, muestras))
+        if lote.muestras:
+            self._escritor.encolar(lambda c: comandante.guardar_muestras(c, lote.muestras))
+        if lote.operaciones:
+            self._escritor.encolar(lambda c: comandante.guardar_operaciones(c, lote.operaciones))
+        if lote.tramos:
+            self._escritor.encolar(lambda c: comandante.guardar_tramos(c, lote.tramos))
+        if lote.bloques:
+            self._escritor.encolar(lambda c: comandante.guardar_bloques(c, lote.bloques))
 
     def _publicar(self, estado: Estado, anterior: Estado | None) -> None:
         with self._candado:

@@ -160,3 +160,53 @@ def test_vender_carga_ordena_por_ingreso_y_da_la_ganancia_solo_si_se_sabe_lo_pag
     assert oro[1].toneladas == 50
     assert ventas["silver"][0].ganancia is None
     assert ventas["tea"] == []
+
+
+def test_tramos_con_una_estacion_la_toman_como_compra_y_como_venta(base):
+    estacion(base, 1, sistema(base, 10, 0))
+    estacion(base, 2, sistema(base, 20, 5))
+    estacion(base, 3, sistema(base, 30, 8))
+    vende(base, 1, "gold", 9000)
+    compra(base, 2, "gold", 10_000)
+    vende(base, 3, "silver", 4000)
+    compra(base, 1, "silver", 4500)
+    p = perfil()
+    cargados = cargar(base, p)
+
+    tramos = rutas.tramos_con(cargados, 1, p, CURVA, timing.POR_DEFECTO)
+
+    assert sorted((t.compra.estacion.market_id, t.venta.estacion.market_id) for t in tramos) == [
+        (1, 2),
+        (3, 1),
+    ]
+    assert rutas.tramos_con(cargados, 2, p, CURVA, timing.POR_DEFECTO)[0].compra.mercancia == "gold"
+
+
+def test_tramos_con_una_estacion_no_recorta_a_los_mejores(base):
+    estacion(base, 1, sistema(base, 10, 0))
+    vende(base, 1, "gold", 9000)
+    for n in range(2, 2 + rutas.K_POR_MERCANCIA + 5):
+        estacion(base, n, sistema(base, 10 * n, 1 + n * 0.1))
+        compra(base, n, "gold", 9_100 + n)
+    p = perfil()
+
+    tramos = rutas.tramos_con(cargar(base, p), 1, p, CURVA, timing.POR_DEFECTO)
+
+    assert len(tramos) == rutas.K_POR_MERCANCIA + 5
+
+
+def test_bucles_con_una_estacion(base):
+    estacion(base, 1, sistema(base, 10, 0))
+    estacion(base, 2, sistema(base, 20, 5))
+    estacion(base, 3, sistema(base, 30, 8))
+    vende(base, 1, "gold", 9000)
+    compra(base, 2, "gold", 10_000)
+    vende(base, 2, "silver", 4000)
+    compra(base, 1, "silver", 4500)
+    compra(base, 3, "gold", 9500)
+    p = perfil()
+
+    bucles = rutas.bucles_con(cargar(base, p), 1, p, CURVA, timing.POR_DEFECTO)
+
+    puntas = [(b.ida.venta.estacion.market_id, b.vuelta.compra.estacion.market_id) for b in bucles]
+    assert puntas == [(2, 2)]

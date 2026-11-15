@@ -192,6 +192,15 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "borrar_perfil",
         "ajustes_de_busqueda",
         "guardar_ajustes_de_busqueda",
+        "rendimiento",
+        "ajustes_de_sesiones",
+        "guardar_ajustes_de_sesiones",
+        "reglas_de_alertas",
+        "guardar_reglas_de_alertas",
+        "avisos",
+        "ajustes_de_sonido",
+        "guardar_ajustes_de_sonido",
+        "probar_sonido",
     }
 
 
@@ -355,6 +364,15 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.borrar_perfil("x") == esperado
     assert interfaz.ajustes_de_busqueda() == esperado
     assert interfaz.guardar_ajustes_de_busqueda(7, ["orbital"]) == esperado
+    assert interfaz.rendimiento(None) == esperado
+    assert interfaz.ajustes_de_sesiones() == esperado
+    assert interfaz.guardar_ajustes_de_sesiones(1, False) == esperado
+    assert interfaz.reglas_de_alertas() == esperado
+    assert interfaz.guardar_reglas_de_alertas({}) == esperado
+    assert interfaz.avisos(None) == esperado
+    assert interfaz.ajustes_de_sonido() == esperado
+    assert interfaz.guardar_ajustes_de_sonido(True, 50) == esperado
+    assert interfaz.probar_sonido(50) == esperado
 
 
 def test_el_estado_de_la_api_lleva_spansh_y_el_centro_vigente(tmp_path):

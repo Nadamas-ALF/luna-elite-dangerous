@@ -48,6 +48,20 @@
           </button>
         </li>
         <li>
+          <button type="button" class="lateral__enlace" data-vista="alertas"
+                  data-i18n-aria-label="navegacion.alertas">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+            <span data-i18n="navegacion.alertas"></span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="lateral__enlace" data-vista="rendimiento"
+                  data-i18n-aria-label="navegacion.rendimiento">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19v-7M12 19V5M19 19v-10M3 21h18"></path></svg>
+            <span data-i18n="navegacion.rendimiento"></span>
+          </button>
+        </li>
+        <li>
           <button type="button" class="lateral__enlace" data-vista="configuracion"
                   data-i18n-aria-label="navegacion.configuracion">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
@@ -334,6 +348,156 @@
         </div>
       </section>
 
+      <section id="vista-alertas" class="vista vista--ancha" aria-labelledby="titulo-alertas" hidden>
+        <header class="cabecera">
+          <h1 id="titulo-alertas" class="cabecera__comandante" data-i18n="comercio.alertas.titulo"></h1>
+        </header>
+
+        <div class="ahora">
+          <section class="panel ahora__seccion" aria-labelledby="titulo-alertas-reglas">
+            <h2 id="titulo-alertas-reglas" class="panel__titulo" data-i18n="comercio.alertas.reglas.titulo"></h2>
+            <p class="motivo" data-i18n="comercio.alertas.reglas.ayuda"></p>
+            <form class="formulario" data-campo="reglas_formulario" novalidate>
+              <label class="casilla" for="alertas-activadas">
+                <input id="alertas-activadas" name="activadas" type="checkbox">
+                <span data-i18n="comercio.alertas.reglas.activadas"></span>
+              </label>
+              <div class="formulario__fila">
+              <div class="campo">
+                <label for="alertas-ganancia_tonelada_min" data-i18n="comercio.alertas.reglas.ganancia_tonelada_min"></label>
+                <input id="alertas-ganancia_tonelada_min" name="ganancia_tonelada_min" class="entrada entrada--corta" type="number"
+                       min="0" max="1000000" step="1" inputmode="decimal">
+              </div>
+              <div class="campo">
+                <label for="alertas-ganancia_hora_min" data-i18n="comercio.alertas.reglas.ganancia_hora_min"></label>
+                <input id="alertas-ganancia_hora_min" name="ganancia_hora_min" class="entrada entrada--corta" type="number"
+                       min="0" max="100000000000" step="1" inputmode="decimal">
+              </div>
+              <div class="campo">
+                <label for="alertas-distancia_max_ly" data-i18n="comercio.alertas.reglas.distancia_max_ly"></label>
+                <input id="alertas-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number"
+                       min="0.01" max="1000" step="any" inputmode="decimal">
+              </div>
+              <div class="campo">
+                <label for="alertas-antiguedad_max_h" data-i18n="comercio.alertas.reglas.antiguedad_max_h"></label>
+                <input id="alertas-antiguedad_max_h" name="antiguedad_max_h" class="entrada entrada--corta" type="number"
+                       min="0.01" max="720" step="any" inputmode="decimal">
+              </div>
+              <div class="campo">
+                <label for="alertas-repetir_min" data-i18n="comercio.alertas.reglas.repetir_min"></label>
+                <input id="alertas-repetir_min" name="repetir_min" class="entrada entrada--corta" type="number"
+                       min="1" max="1440" step="any" inputmode="decimal">
+              </div>
+              <div class="campo">
+                <label for="alertas-mejora_pct" data-i18n="comercio.alertas.reglas.mejora_pct"></label>
+                <input id="alertas-mejora_pct" name="mejora_pct" class="entrada entrada--corta" type="number"
+                       min="0" max="1000" step="any" inputmode="decimal">
+              </div>
+              </div>
+              <p class="franja franja--advertencia" role="alert" data-campo="reglas_error" hidden></p>
+              <div class="acciones">
+                <button type="submit" class="boton boton--primario" data-i18n="comercio.alertas.reglas.guardar"></button>
+              </div>
+            </form>
+            <p class="motivo" role="status" data-campo="reglas_resultado" hidden></p>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-alertas-avisos">
+            <h2 id="titulo-alertas-avisos" class="panel__titulo" data-i18n="comercio.alertas.avisos.titulo"></h2>
+            <p class="motivo" role="status" data-campo="avisos_estado"></p>
+            <p class="franja franja--advertencia" role="alert" data-campo="avisos_error" hidden></p>
+            <div class="tabla-contenedor" data-campo="avisos_contenedor" hidden>
+              <table class="tabla" data-campo="avisos_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.alertas.avisos.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle-alerta" tabindex="-1" hidden>
+            <h2 id="titulo-detalle-alerta" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
+            <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="vista-rendimiento" class="vista vista--ancha" aria-labelledby="titulo-rendimiento" hidden>
+        <header class="cabecera">
+          <h1 id="titulo-rendimiento" class="cabecera__comandante" data-i18n="comercio.rendimiento.titulo"></h1>
+        </header>
+
+        <div class="ahora">
+          <div class="ahora__barra">
+            <div class="campo">
+              <label for="rendimiento-sesion" data-i18n="comercio.rendimiento.sesion"></label>
+              <select id="rendimiento-sesion" class="entrada" data-campo="sesion" disabled></select>
+            </div>
+            <button type="button" class="boton boton--vidrio" data-campo="actualizar" data-i18n="comercio.rendimiento.actualizar"></button>
+          </div>
+          <p class="motivo" role="status" data-campo="estado"></p>
+          <p class="franja franja--advertencia" role="alert" data-campo="error" hidden></p>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-resumen" data-campo="resumen" hidden>
+            <h2 id="titulo-rendimiento-resumen" class="panel__titulo" data-i18n="comercio.rendimiento.resumen.titulo"></h2>
+            <p class="motivo" data-campo="resumen_aviso" hidden></p>
+            <dl class="datos">
+              <dt data-i18n="comercio.rendimiento.resumen.ganancia"></dt>
+              <dd class="cifra" data-campo="resumen_ganancia"></dd>
+              <dt data-i18n="comercio.rendimiento.resumen.tiempo"></dt>
+              <dd class="cifra" data-campo="resumen_tiempo"></dd>
+              <dt data-i18n="comercio.rendimiento.resumen.por_hora"></dt>
+              <dd class="cifra" data-campo="resumen_por_hora"></dd>
+              <dt data-i18n="comercio.rendimiento.resumen.toneladas"></dt>
+              <dd class="cifra" data-campo="resumen_toneladas"></dd>
+              <dt data-i18n="comercio.rendimiento.resumen.saltos"></dt>
+              <dd class="cifra" data-campo="resumen_saltos"></dd>
+              <dt data-campo="resumen_saldo_etiqueta" data-i18n="comercio.rendimiento.resumen.saldo"></dt>
+              <dd class="cifra" data-campo="resumen_saldo"></dd>
+            </dl>
+            <h3 class="articulo__titulo" data-i18n="comercio.rendimiento.comparacion.titulo"></h3>
+            <p class="motivo" data-campo="comparacion"></p>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-rutas" data-campo="rutas_panel" hidden>
+            <h2 id="titulo-rendimiento-rutas" class="panel__titulo" data-i18n="comercio.rendimiento.rutas.titulo"></h2>
+            <p class="motivo" data-i18n="comercio.rendimiento.rutas.ayuda"></p>
+            <p class="motivo" data-campo="rutas_vacio" hidden></p>
+            <div class="tabla-contenedor" data-campo="rutas_contenedor" hidden>
+              <table class="tabla" data-campo="rutas_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.rendimiento.rutas.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-mercancias" data-campo="mercancias_panel" hidden>
+            <h2 id="titulo-rendimiento-mercancias" class="panel__titulo" data-i18n="comercio.rendimiento.mercancias.titulo"></h2>
+            <p class="motivo" data-campo="mercancias_vacio" hidden></p>
+            <div class="tabla-contenedor" data-campo="mercancias_contenedor" hidden>
+              <table class="tabla" data-campo="mercancias_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.rendimiento.mercancias.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-sesiones" data-campo="sesiones_panel" hidden>
+            <h2 id="titulo-rendimiento-sesiones" class="panel__titulo" data-i18n="comercio.rendimiento.sesiones.titulo"></h2>
+            <p class="motivo" data-campo="sesiones_ayuda"></p>
+            <div class="tabla-contenedor">
+              <table class="tabla" data-campo="sesiones_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.rendimiento.sesiones.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
       <section id="vista-configuracion" class="vista" aria-labelledby="titulo-configuracion" hidden>
         <header class="cabecera">
           <h1 id="titulo-configuracion" class="cabecera__comandante" data-i18n="configuracion.titulo"></h1>
@@ -477,6 +641,59 @@
           <p class="motivo" role="status" data-campo="comercio_resultado" hidden></p>
         </section>
 
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-sesiones" data-panel="sesiones">
+          <h2 id="titulo-config-sesiones" class="panel__titulo" data-i18n="configuracion.sesiones.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.sesiones.ayuda"></p>
+          <form class="formulario" data-campo="sesiones_formulario" novalidate>
+            <label class="casilla" for="sesiones-por-partida">
+              <input id="sesiones-por-partida" type="checkbox" data-campo="sesiones_por_partida">
+              <span data-i18n="configuracion.sesiones.por_partida"></span>
+            </label>
+            <div class="campo">
+              <label for="sesiones-pausa" data-i18n="configuracion.sesiones.pausa"></label>
+              <div class="deslizador">
+                <input id="sesiones-pausa" class="deslizador__control" type="range" min="1" max="12"
+                       step="1" data-campo="sesiones_pausa" aria-describedby="sesiones-pausa-valor">
+                <output id="sesiones-pausa-valor" class="cifra" for="sesiones-pausa"
+                        data-campo="sesiones_pausa_valor"></output>
+              </div>
+            </div>
+            <p class="franja franja--advertencia" role="alert" data-campo="sesiones_error" hidden></p>
+            <div class="acciones">
+              <button type="submit" class="boton boton--primario"
+                      data-i18n="configuracion.sesiones.guardar"></button>
+            </div>
+          </form>
+          <p class="motivo" role="status" data-campo="sesiones_resultado" hidden></p>
+        </section>
+
+        <section class="panel panel--ancho" aria-labelledby="titulo-config-sonido" data-panel="sonido">
+          <h2 id="titulo-config-sonido" class="panel__titulo" data-i18n="configuracion.sonido.titulo"></h2>
+          <p class="ayuda" data-i18n="configuracion.sonido.ayuda"></p>
+          <form class="formulario" data-campo="sonido_formulario" novalidate>
+            <label class="casilla" for="sonido-activado">
+              <input id="sonido-activado" type="checkbox" data-campo="sonido_activado">
+              <span data-i18n="configuracion.sonido.activado"></span>
+            </label>
+            <div class="campo">
+              <label for="sonido-volumen" data-i18n="configuracion.sonido.volumen"></label>
+              <div class="deslizador">
+                <input id="sonido-volumen" class="deslizador__control" type="range" min="0" max="100"
+                       step="5" data-campo="sonido_volumen" aria-describedby="sonido-volumen-valor">
+                <output id="sonido-volumen-valor" class="cifra" for="sonido-volumen"
+                        data-campo="sonido_volumen_valor"></output>
+              </div>
+            </div>
+            <p class="franja franja--advertencia" role="alert" data-campo="sonido_error" hidden></p>
+            <div class="acciones">
+              <button type="submit" class="boton boton--primario" data-i18n="configuracion.sonido.guardar"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="sonido_probar"
+                      data-i18n="configuracion.sonido.probar"></button>
+            </div>
+          </form>
+          <p class="motivo" role="status" data-campo="sonido_resultado" hidden></p>
+        </section>
+
         <section class="panel panel--ancho" aria-labelledby="titulo-config-eddn" data-panel="eddn">
           <h2 id="titulo-config-eddn" class="panel__titulo" data-i18n="configuracion.eddn.titulo"></h2>
           <p class="ayuda" data-i18n="configuracion.eddn.ayuda"></p>
@@ -497,6 +714,17 @@
         </section>
       </section>
     </main>
+
+    <aside class="aviso-alerta" data-campo="aviso_alerta" aria-labelledby="aviso-alerta-titulo" hidden>
+      <p id="aviso-alerta-titulo" class="aviso-alerta__titulo" data-i18n="comercio.alertas.aviso.titulo"></p>
+      <p class="aviso-alerta__ruta" role="status" data-campo="aviso_texto"></p>
+      <div class="acciones">
+        <button type="button" class="boton boton--primario" data-campo="aviso_abrir"
+                data-i18n="comercio.alertas.aviso.abrir"></button>
+        <button type="button" class="boton boton--vidrio" data-campo="aviso_cerrar"
+                data-i18n="comercio.alertas.aviso.cerrar"></button>
+      </div>
+    </aside>
   </div>
 
   <script type="module" src="js/app.js"></script>

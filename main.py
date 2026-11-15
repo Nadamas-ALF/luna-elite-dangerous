@@ -27,7 +27,9 @@ from core.esfera import EsferaViva
 from core.mantenimiento import Mantenimiento
 from core.nucleo import Nucleo
 from core.spansh.gestor import Gestor
+from modules.comercio.alerts import Alertas
 from modules.comercio.api import Comercio
+from modules.comercio.sonido import Sonido
 
 registro = logging.getLogger("luna")
 
@@ -200,6 +202,27 @@ def main() -> int:
         mantenimiento,
         eddn,
     )
+    sonido = Sonido(config)
+    comercio = Comercio(
+        nucleo.estado,
+        config,
+        rutas.archivo_de_base(ubicacion) if escritor else None,
+        escritor,
+        probar_sonido=sonido.probar,
+    )
+    alertas = (
+        Alertas(
+            bus,
+            nucleo.estado,
+            lambda: comercio.perfil_inicial()["perfil"],
+            config,
+            rutas.archivo_de_base(ubicacion),
+            escritor,
+            sonido.alerta,
+        )
+        if escritor
+        else None
+    )
     api = Api(
         nucleo,
         ubicacion,
@@ -209,16 +232,15 @@ def main() -> int:
         estado_eddn=eddn.estado,
         datos=datos,
         avisos_de_base=lambda: escritor.avisos if escritor else (),
-        comercio=Comercio(
-            nucleo.estado,
-            config,
-            rutas.archivo_de_base(ubicacion) if escritor else None,
-            escritor,
-        ),
+        comercio=comercio,
     )
     try:
         comprobar_motor()
         crear_ventana(ubicacion, titulo, api)
+        sonido.iniciar()
+        if alertas:
+            # Antes que el núcleo y EDDN, para no perder el primer aviso del bus.
+            alertas.iniciar()
         nucleo.iniciar()
         eddn.iniciar()
         if mantenimiento:
@@ -243,6 +265,9 @@ def main() -> int:
             gestor.detener()
         eddn.detener()
         nucleo.detener()
+        if alertas:
+            alertas.detener()
+        sonido.detener()
         if escritor is not None:
             escritor.detener()
     return 0

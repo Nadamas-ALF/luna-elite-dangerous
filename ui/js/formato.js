@@ -32,6 +32,15 @@ export function bytes(valor) {
 export const porcentaje = (parte, total) =>
   texto('formato.porcentaje', { valor: numero((100 * parte) / total, 0) });
 
+/** «+12 %» o «−8 %»: una desviación, con su signo siempre. */
+export function porcentajeConSigno(fraccion) {
+  const valor = new Intl.NumberFormat(LOCALE, {
+    maximumFractionDigits: 0,
+    signDisplay: 'always',
+  }).format(100 * fraccion);
+  return texto('formato.porcentaje', { valor });
+}
+
 /** Sin decimales si el número es entero: «100», pero «37,5». */
 export const cantidad = (valor) => numero(valor, Number.isInteger(valor) ? 0 : 1);
 
@@ -67,3 +76,15 @@ export function duracion(segundos) {
 /** «14:05»: la hora local, para decir cuándo se calculó algo. */
 export const hora = (fecha) =>
   new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' }).format(fecha);
+
+/** «15 nov, 07:53»: una marca ISO del journal en la hora local. */
+export function fechaHora(marcaIso) {
+  const instante = Date.parse(marcaIso);
+  if (Number.isNaN(instante)) return texto('formato.sin_dato');
+  return new Intl.DateTimeFormat(LOCALE, {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(instante);
+}

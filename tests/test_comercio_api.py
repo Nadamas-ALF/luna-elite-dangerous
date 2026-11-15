@@ -13,6 +13,7 @@ from core.state.estado import Compra, Estacion, Estado, Mercancia, aplicar
 from modules.comercio import api as modulo
 from modules.comercio.engine import candidatos
 from modules.comercio.engine.perfil import desde_dict
+from tests.bucle_de_prueba import guardar_el_bucle
 from tests.mercado_de_prueba import AHORA, compra, estacion, perfil, sistema, vende
 
 FIXTURES = Path(__file__).parent / "fixtures" / "journal"
@@ -433,3 +434,144 @@ def test_la_busqueda_usa_los_tiempos_de_la_nave_en_la_que_vas(ruta, tmp_path):
     }
     assert partes["saltos"]["fuente"] == "por_defecto"
     assert primero["segundos"] == pytest.approx(sum(p["segundos"] for p in primero["tiempo"]))
+
+
+def base_con_el_bucle(tmp_path: Path) -> Path:
+    archivo = tmp_path / "rendimiento.db"
+    conexion = sqlite3.connect(archivo, isolation_level=None)
+    esquema.migrar(conexion)
+    guardar_el_bucle(conexion)
+    conexion.execute(
+        "INSERT INTO sessions VALUES ('F0000001', '2026-11-10T03:41:24Z', "
+        "'2026-11-10T08:22:30Z', '2026-11-10T03:41:24Z', NULL, 0, 312382560, 312382560, "
+        "15680, 54, 1)"
+    )
+    conexion.close()
+    return archivo
+
+
+COMANDANTE = replace(AQUI, fid="F0000001")
+
+
+def test_rendimiento_da_la_ultima_sesion_con_sus_rutas_y_mercancias(tmp_path):
+    respuesta = comercio(base_con_el_bucle(tmp_path), tmp_path, COMANDANTE).rendimiento(None)
+
+    assert respuesta["seleccion"] == "2026-11-10T03:41:24Z"
+    assert [s["inicio"] for s in respuesta["sesiones"]] == ["2026-11-10T03:41:24Z"]
+    assert respuesta["sesiones"][0]["en_curso"] is False
+    resumen = respuesta["resumen"]
+    assert (resumen["ganancia"], resumen["toneladas"], resumen["saltos"]) == (
+        312_382_560,
+        15680,
+        54,
+    )
+    assert resumen["comparacion"]["tramos"] == 14
+    assert [len(respuesta["rutas"]), len(respuesta["mercancias"])] == [2, 2]
+    assert respuesta["rutas"][0]["origen"] == {
+        "estacion": "Antonelli Arsenal",
+        "sistema": "HIP 45301",
+    }
+
+
+def test_rendimiento_de_una_sesion_que_no_existe(tmp_path):
+    api = comercio(base_con_el_bucle(tmp_path), tmp_path, COMANDANTE)
+
+    assert api.rendimiento("2026-01-01T00:00:00Z") == {"error": "sesion_desconocida"}
+    assert api.rendimiento("todo")["seleccion"] == "todo"
+
+
+@pytest.mark.parametrize("sesion", [5, ["x"], "x" * 41])
+def test_rendimiento_rechaza_una_sesion_mal_formada(tmp_path, sesion):
+    api = comercio(base_con_el_bucle(tmp_path), tmp_path, COMANDANTE)
+
+    assert api.rendimiento(sesion) == {"error": "parametro", "campo": "sesion"}
+
+
+def test_rendimiento_sin_comandante_ni_sesiones(ruta, tmp_path):
+    assert comercio(ruta, tmp_path).rendimiento(None) == {"error": "sin_comandante"}
+    vacio = comercio(ruta, tmp_path, COMANDANTE).rendimiento(None)
+    assert (vacio["sesiones"], vacio["seleccion"], vacio["resumen"]) == ([], None, None)
+
+
+def test_guardar_el_ajuste_de_sesiones(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+
+    respuesta = api.guardar_ajustes_de_sesiones(3, True)
+
+    assert respuesta == {
+        "ok": True,
+        "pausa_horas": 3,
+        "por_partida": True,
+        "minimo": 1,
+        "maximo": 12,
+    }
+    assert ajustes.sesiones(tmp_path / "config.json") == (3, True)
+
+
+@pytest.mark.parametrize(
+    ("horas", "por_partida", "campo"),
+    [
+        (0, False, "pausa_horas"),
+        (13, False, "pausa_horas"),
+        (True, False, "pausa_horas"),
+        (2.5, False, "pausa_horas"),
+        (2, "si", "por_partida"),
+    ],
+)
+def test_un_ajuste_de_sesiones_invalido_no_se_guarda(ruta, tmp_path, horas, por_partida, campo):
+    api = comercio(ruta, tmp_path)
+
+    assert api.guardar_ajustes_de_sesiones(horas, por_partida) == {
+        "error": "parametro",
+        "campo": campo,
+    }
+    assert ajustes.sesiones(tmp_path / "config.json") == (1, False)
+
+
+def test_reglas_de_alertas_por_defecto_y_guardadas(ruta, tmp_path):
+    escritor = Escritor(ruta)
+    escritor.iniciar()
+    try:
+        api = comercio(ruta, tmp_path, escritor=escritor)
+        respuesta = api.reglas_de_alertas()
+        assert respuesta["reglas"]["activadas"] is False
+        reglas = {**respuesta["reglas"], "activadas": True, "distancia_max_ly": 12.5}
+
+        guardado = api.guardar_reglas_de_alertas(reglas)
+
+        assert guardado["ok"] is True
+        assert api.reglas_de_alertas()["reglas"] == reglas
+    finally:
+        escritor.detener()
+
+
+def test_una_regla_invalida_no_se_guarda(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+    reglas = {**api.reglas_de_alertas()["reglas"], "repetir_min": 0}
+
+    assert api.guardar_reglas_de_alertas(reglas) == {"error": "regla", "campo": "repetir_min"}
+
+
+@pytest.mark.parametrize("desde", [-1, True, "3", 2.0])
+def test_avisos_rechaza_un_desde_mal_formado(ruta, tmp_path, desde):
+    assert comercio(ruta, tmp_path).avisos(desde) == {"error": "parametro", "campo": "desde_id"}
+
+
+def test_avisos_sin_ninguno(ruta, tmp_path):
+    assert comercio(ruta, tmp_path).avisos(None) == {"avisos": [], "ultimo": 0}
+
+
+def test_ajustes_de_sonido(ruta, tmp_path):
+    probados = []
+    api = modulo.Comercio(
+        lambda: AQUI, tmp_path / "config.json", ruta, None, probar_sonido=probados.append
+    )
+
+    assert api.ajustes_de_sonido() == {"activado": True, "volumen": 70}
+    guardado = api.guardar_ajustes_de_sonido(False, 30)
+    assert guardado == {"ok": True, "activado": False, "volumen": 30}
+    assert api.guardar_ajustes_de_sonido(True, 101) == {"error": "parametro", "campo": "volumen"}
+    assert api.guardar_ajustes_de_sonido("si", 30) == {"error": "parametro", "campo": "activado"}
+    assert api.probar_sonido(40) == {"ok": True}
+    assert api.probar_sonido(True) == {"error": "parametro", "campo": "volumen"}
+    assert probados == [40]

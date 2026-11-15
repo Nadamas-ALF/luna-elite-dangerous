@@ -432,3 +432,53 @@ def test_las_muestras_nuevas_del_journal_se_guardan_al_llegar(tmp_path, juego, c
     assert esperar(lambda: ("F0000001", 14, "salida", 100.0) in _muestras_guardadas(ruta_base))
     nucleo.detener()
     escritor.detener()
+
+
+def consulta(ruta_base: Path, sql: str) -> list[tuple]:
+    conexion = abrir_lectura(ruta_base)
+    try:
+        return conexion.execute(sql).fetchall()
+    finally:
+        conexion.close()
+
+
+def test_guarda_compras_tramos_y_sesiones_una_sola_vez_aunque_se_relea(
+    tmp_path, juego, config, arrancar
+):
+    shutil.copy(FIXTURES / "bucle_comercio.log", juego / NOMBRE)
+    ruta_base = tmp_path / "luna.db"
+    for _ in range(2):  # el segundo arranque relee el mismo journal
+        escritor = Escritor(ruta_base)
+        escritor.iniciar()
+        nucleo, _ = arrancar(config, escritor)
+        assert esperar(lambda n=nucleo: n.estado().ultimo_evento == "2026-11-10T08:22:06Z")
+        nucleo.detener()
+        escritor.detener()
+
+    assert consulta(ruta_base, "SELECT COUNT(*), SUM(venta) FROM trades") == [(28, 14)]
+    tramos = consulta(ruta_base, "SELECT fid, origen_estacion, segundos FROM trade_legs")
+    assert len(tramos) == 14
+    assert ("F0000001", "Antonelli Arsenal", 571.0) in tramos
+    assert consulta(ruta_base, "SELECT inicio, fin, ganancia, cerrado FROM sessions") == [
+        ("2026-11-10T03:41:24Z", "2026-11-10T08:22:30Z", 312_382_560, 1)
+    ]
+
+
+def test_la_sesion_abierta_se_actualiza_con_lo_que_llega(tmp_path, juego, config, arrancar):
+    journal = juego / NOMBRE
+    shutil.copy(FIXTURES / "sesion_comercio.log", journal)
+    ruta_base = tmp_path / "luna.db"
+    escritor = Escritor(ruta_base)
+    escritor.iniciar()
+    nucleo, _ = arrancar(config, escritor)
+    assert esperar(lambda: nucleo.estado().nave is not None)
+
+    anadir(journal, {"timestamp": "2026-11-10T07:00:00Z", "event": "FSDJump"})
+
+    def abierta() -> list[tuple]:
+        return consulta(ruta_base, "SELECT inicio, fin, saltos FROM sessions WHERE NOT cerrado")
+
+    # El fixture tiene 77 min sin eventos entre el último salto y el atraque: dos bloques.
+    assert esperar(lambda: abierta() == [("2026-11-10T05:12:30Z", "2026-11-10T07:00:00Z", 1)])
+    nucleo.detener()
+    escritor.detener()
