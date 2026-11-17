@@ -17,7 +17,7 @@
 </head>
 <body>
   <div class="app">
-    <nav class="lateral" data-i18n-aria-label="navegacion.etiqueta">
+    <nav class="lateral" data-i18n-aria-label="navegacion.etiqueta" data-i18n-title="navegacion.etiqueta">
       <div class="lateral__marca">
         <svg class="lateral__luna" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path>
@@ -27,7 +27,7 @@
       <ul class="lateral__lista">
         <li>
           <button type="button" class="lateral__enlace" data-vista="estado" aria-current="page"
-                  data-i18n-aria-label="navegacion.estado">
+                  data-i18n-aria-label="navegacion.estado" data-i18n-title="navegacion.estado">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2.5"></circle></svg>
             <span data-i18n="navegacion.estado"></span>
           </button>
@@ -35,44 +35,56 @@
         <li class="lateral__grupo" data-i18n="navegacion.comercio"></li>
         <li>
           <button type="button" class="lateral__enlace" data-vista="ahora"
-                  data-i18n-aria-label="navegacion.ahora">
+                  data-i18n-aria-label="navegacion.ahora" data-i18n-title="navegacion.ahora">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"></path><circle cx="12" cy="10" r="2"></circle></svg>
             <span data-i18n="navegacion.ahora"></span>
           </button>
         </li>
         <li>
           <button type="button" class="lateral__enlace" data-vista="rutas"
-                  data-i18n-aria-label="navegacion.rutas">
+                  data-i18n-aria-label="navegacion.rutas" data-i18n-title="navegacion.rutas">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="2.5"></circle><circle cx="18" cy="7" r="2.5"></circle><path d="M8 15.5 16 8.5"></path></svg>
             <span data-i18n="navegacion.rutas"></span>
           </button>
         </li>
         <li>
+          <button type="button" class="lateral__enlace" data-vista="fijadas"
+                  data-i18n-aria-label="navegacion.fijadas" data-i18n-title="navegacion.fijadas">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8l-1 6 3 3v2H6v-2l3-3z"></path><path d="M12 15v6"></path></svg>
+            <span data-i18n="navegacion.fijadas"></span>
+          </button>
+        </li>
+        <li>
           <button type="button" class="lateral__enlace" data-vista="alertas"
-                  data-i18n-aria-label="navegacion.alertas">
+                  data-i18n-aria-label="navegacion.alertas" data-i18n-title="navegacion.alertas">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
             <span data-i18n="navegacion.alertas"></span>
           </button>
         </li>
         <li>
           <button type="button" class="lateral__enlace" data-vista="rendimiento"
-                  data-i18n-aria-label="navegacion.rendimiento">
+                  data-i18n-aria-label="navegacion.rendimiento" data-i18n-title="navegacion.rendimiento">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19v-7M12 19V5M19 19v-10M3 21h18"></path></svg>
             <span data-i18n="navegacion.rendimiento"></span>
           </button>
         </li>
         <li>
           <button type="button" class="lateral__enlace" data-vista="configuracion"
-                  data-i18n-aria-label="navegacion.configuracion">
+                  data-i18n-aria-label="navegacion.configuracion" data-i18n-title="navegacion.configuracion">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="17" r="2"></circle></svg>
             <span data-i18n="navegacion.configuracion"></span>
           </button>
         </li>
       </ul>
+      <button type="button" class="lateral__plegar" data-campo="lateral_plegar" aria-expanded="true"
+              data-i18n-aria-label="navegacion.plegar" data-i18n-title="navegacion.plegar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6l-6 6 6 6"></path></svg>
+      </button>
     </nav>
 
     <main class="contenido">
       <section id="vista-estado" class="vista" aria-labelledby="titulo-estado">
+        <div class="vista__fija">
         <header class="cabecera">
           <div class="cabecera__identidad">
             <h1 id="titulo-estado" class="cabecera__comandante" data-campo="comandante"></h1>
@@ -83,7 +95,9 @@
             <span class="cifra" data-campo="saldo"></span>
           </p>
         </header>
+        </div>
 
+        <div class="vista__zona"><div class="vista__cuerpo">
         <p class="motivo" data-campo="comandante_motivo" hidden></p>
 
         <p class="franja franja--advertencia" role="alert" data-campo="franja" hidden></p>
@@ -149,18 +163,22 @@
         </div>
 
         <ul class="avisos" data-campo="avisos"></ul>
+        </div></div>
       </section>
 
       <section id="vista-ahora" class="vista vista--ancha" aria-labelledby="titulo-ahora" hidden>
+        <div class="vista__fija">
         <header class="cabecera">
           <h1 id="titulo-ahora" class="cabecera__comandante" data-i18n="comercio.ahora.titulo"></h1>
         </header>
+        <div class="ahora__barra">
+          <p class="motivo" role="status" data-campo="ahora_estado"></p>
+          <button type="button" class="boton boton--vidrio" data-campo="ahora_actualizar" data-i18n="comercio.ahora.actualizar"></button>
+        </div>
+        </div>
 
+        <div class="vista__zona"><div class="vista__cuerpo">
         <div class="ahora">
-          <div class="ahora__barra">
-            <p class="motivo" role="status" data-campo="ahora_estado"></p>
-            <button type="button" class="boton boton--vidrio" data-campo="ahora_actualizar" data-i18n="comercio.ahora.actualizar"></button>
-          </div>
           <p class="franja franja--advertencia" role="alert" data-campo="ahora_error" hidden></p>
 
           <section class="panel ahora__seccion" aria-labelledby="titulo-vender">
@@ -184,118 +202,135 @@
 
           <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle-ahora" hidden>
             <h2 id="titulo-detalle-ahora" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
-            <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+            <div class="detalle__cuerpo" data-campo="detalle_tramos"></div>
           </section>
         </div>
+        </div></div>
       </section>
 
       <section id="vista-rutas" class="vista vista--ancha" aria-labelledby="titulo-rutas" hidden>
+        <div class="vista__fija">
         <header class="cabecera">
           <h1 id="titulo-rutas" class="cabecera__comandante" data-i18n="comercio.rutas.titulo"></h1>
         </header>
-
-        <div class="rutas">
-          <details class="plegable" data-campo="perfil_plegable" open>
+        <form class="busqueda" data-campo="busqueda_formulario" novalidate>
+            <fieldset class="modos">
+              <legend class="solo-lectores" data-i18n="comercio.rutas.modo"></legend>
+              <label class="modo"><input type="radio" name="modo" value="un_salto" checked><span data-i18n="comercio.rutas.modos.un_salto"></span></label>
+              <label class="modo"><input type="radio" name="modo" value="bucle"><span data-i18n="comercio.rutas.modos.bucle"></span></label>
+            </fieldset>
+            <button type="submit" class="boton boton--primario" data-i18n="comercio.rutas.buscar"></button>
+        </form>
+        <details class="plegable filtros" data-campo="perfil_plegable">
           <summary class="plegable__titulo" data-i18n="comercio.perfil.plegar"></summary>
-          <form class="perfil panel" data-panel="perfil" novalidate aria-labelledby="titulo-perfil">
-            <h2 id="titulo-perfil" class="panel__titulo" data-i18n="comercio.perfil.titulo"></h2>
+          <div class="filtros__cuerpo">
+          <form class="perfil" data-panel="perfil" novalidate data-i18n-aria-label="comercio.perfil.titulo">
             <p class="motivo" data-campo="perfil_sin_nave" data-i18n="comercio.perfil.sin_nave" hidden></p>
-            <fieldset class="grupo">
-            <legend class="grupo__titulo" data-i18n="comercio.perfil.nave"></legend>
-            <div class="campo">
-              <div class="campo__cabecera">
-                <label for="perfil-capacidad" data-i18n="comercio.perfil.capacidad"></label>
-                <span class="marca" data-marca="capacidad" hidden></span>
+            <fieldset class="grupo grupo--busqueda">
+              <legend class="solo-lectores" data-i18n="comercio.perfil.busqueda"></legend>
+              <div class="campo">
+                <div class="campo__cabecera">
+                  <label for="perfil-origen" data-i18n="comercio.perfil.origen"></label>
+                  <span class="marca" data-marca="origen" hidden></span>
+                </div>
+                <input id="perfil-origen" name="origen" class="entrada" type="text" maxlength="100" autocomplete="off" spellcheck="false">
               </div>
-              <input id="perfil-capacidad" name="capacidad" class="entrada entrada--corta" type="number" min="1" max="5000" step="1" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <div class="campo__cabecera">
-                <label for="perfil-rango" data-i18n="comercio.perfil.rango"></label>
-                <span class="marca" data-marca="rango" hidden></span>
+              <div class="campo">
+                <label for="perfil-distancia_max_ly" data-i18n="comercio.perfil.distancia_max_ly"></label>
+                <input id="perfil-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number" min="0.01" max="1000" step="any" inputmode="decimal">
               </div>
-              <input id="perfil-rango" name="rango" class="entrada entrada--corta" type="number" min="0.01" max="500" step="any" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <div class="campo__cabecera">
-                <label for="perfil-plataforma" data-i18n="comercio.perfil.plataforma"></label>
-                <span class="marca" data-marca="plataforma" hidden></span>
+              <div class="campo">
+                <label for="perfil-distancia_max_ls" data-i18n="comercio.perfil.distancia_max_ls"></label>
+                <input id="perfil-distancia_max_ls" name="distancia_max_ls" class="entrada entrada--corta" type="number" min="1" max="10000000" step="any" inputmode="decimal">
               </div>
-              <select id="perfil-plataforma" name="plataforma" class="entrada entrada--corta"><option value="S" data-i18n="comercio.perfil.plataformas.S"></option><option value="M" data-i18n="comercio.perfil.plataformas.M"></option><option value="L" data-i18n="comercio.perfil.plataformas.L"></option></select>
-            </div>
-            <div class="campo">
-              <div class="campo__cabecera">
-                <label for="perfil-creditos" data-i18n="comercio.perfil.creditos"></label>
-                <span class="marca" data-marca="creditos" hidden></span>
+              <div class="campo campo--deslizador">
+                <label for="perfil-antiguedad_max_h" data-i18n="comercio.perfil.antiguedad_max_h"></label>
+                <input id="perfil-antiguedad_max_h" name="antiguedad_max_h" type="range" min="0" max="9" step="1">
+                <output class="deslizador__valor" data-campo="perfil_antiguedad_valor" for="perfil-antiguedad_max_h"></output>
               </div>
-              <input id="perfil-creditos" name="creditos" class="entrada entrada--corta" type="number" min="0" max="9007199254740992" step="1" inputmode="decimal" aria-describedby="perfil-creditos-ayuda">
-              <p id="perfil-creditos-ayuda" class="motivo" data-i18n="comercio.perfil.creditos_ayuda"></p>
-            </div>
-            <div class="acciones">
-              <button type="button" class="boton boton--vidrio" data-campo="perfil_restaurar"
-                      data-i18n="comercio.perfil.restaurar"></button>
-            </div>
-            </fieldset>
-            <fieldset class="grupo">
-            <legend class="grupo__titulo" data-i18n="comercio.perfil.busqueda"></legend>
-            <div class="campo">
-              <div class="campo__cabecera">
-                <label for="perfil-origen" data-i18n="comercio.perfil.origen"></label>
-                <span class="marca" data-marca="origen" hidden></span>
+              <div class="campo">
+                <div class="campo__cabecera">
+                  <label for="perfil-stock_minimo" data-i18n="comercio.perfil.stock_minimo"></label>
+                  <span class="marca" data-marca="stock_minimo" hidden></span>
+                </div>
+                <input id="perfil-stock_minimo" name="stock_minimo" class="entrada entrada--corta" type="text" inputmode="numeric" autocomplete="off" aria-describedby="perfil-stock_minimo-ayuda">
+                <p id="perfil-stock_minimo-ayuda" class="motivo" data-campo="perfil_stock_equivale"></p>
               </div>
-              <input id="perfil-origen" name="origen" class="entrada" type="text" maxlength="100" autocomplete="off" spellcheck="false">
-            </div>
-            <div class="campo">
-              <label for="perfil-distancia_max_ly" data-i18n="comercio.perfil.distancia_max_ly"></label>
-              <input id="perfil-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number" min="0.01" max="1000" step="any" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <label for="perfil-distancia_max_ls" data-i18n="comercio.perfil.distancia_max_ls"></label>
-              <input id="perfil-distancia_max_ls" name="distancia_max_ls" class="entrada entrada--corta" type="number" min="1" max="10000000" step="any" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <label for="perfil-antiguedad_max_h" data-i18n="comercio.perfil.antiguedad_max_h"></label>
-              <input id="perfil-antiguedad_max_h" name="antiguedad_max_h" class="entrada entrada--corta" type="number" min="0.01" max="720" step="any" inputmode="decimal" aria-describedby="perfil-antiguedad_max_h-ayuda">
-              <p id="perfil-antiguedad_max_h-ayuda" class="motivo" data-campo="perfil_antiguedad_ayuda"></p>
-            </div>
-            <div class="campo">
-              <label for="perfil-stock_minimo_pct" data-i18n="comercio.perfil.stock_minimo_pct"></label>
-              <input id="perfil-stock_minimo_pct" name="stock_minimo_pct" class="entrada entrada--corta" type="number" min="0" max="1000" step="any" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <label for="perfil-horas_sesion" data-i18n="comercio.perfil.horas_sesion"></label>
-              <input id="perfil-horas_sesion" name="horas_sesion" class="entrada entrada--corta" type="number" min="0.01" max="24" step="any" inputmode="decimal">
-            </div>
-            <div class="campo">
-              <label for="perfil-orden" data-i18n="comercio.perfil.orden"></label>
-              <select id="perfil-orden" name="orden" class="entrada"><option value="ganancia_hora" data-i18n="comercio.perfil.ordenes.ganancia_hora"></option><option value="ganancia_viaje" data-i18n="comercio.perfil.ordenes.ganancia_viaje"></option><option value="ganancia_tonelada" data-i18n="comercio.perfil.ordenes.ganancia_tonelada"></option><option value="distancia" data-i18n="comercio.perfil.ordenes.distancia"></option></select>
-            </div>
+              <div class="campo">
+                <label for="perfil-ganancia_min" data-i18n="comercio.perfil.ganancia_min"></label>
+                <input id="perfil-ganancia_min" name="ganancia_min" class="entrada entrada--corta" type="text" inputmode="numeric" autocomplete="off">
+              </div>
+              <div class="campo campo--deslizador">
+                <label for="perfil-horas_sesion" data-i18n="comercio.perfil.horas_sesion"></label>
+                <input id="perfil-horas_sesion" name="horas_sesion" type="range" min="1" max="12" step="1">
+                <output class="deslizador__valor" data-campo="perfil_horas_valor" for="perfil-horas_sesion"></output>
+              </div>
+              <div class="campo">
+                <label for="perfil-orden" data-i18n="comercio.perfil.orden"></label>
+                <select id="perfil-orden" name="orden" class="entrada"><option value="ganancia_hora" data-i18n="comercio.perfil.ordenes.ganancia_hora"></option><option value="ganancia_viaje" data-i18n="comercio.perfil.ordenes.ganancia_viaje"></option><option value="ganancia_tonelada" data-i18n="comercio.perfil.ordenes.ganancia_tonelada"></option><option value="distancia" data-i18n="comercio.perfil.ordenes.distancia"></option></select>
+              </div>
             </fieldset>
-            <fieldset class="grupo">
-            <legend class="grupo__titulo" data-i18n="comercio.perfil.datos"></legend>
-            <fieldset class="casillas">
-              <legend data-i18n="comercio.perfil.tipos"></legend>
-              <label class="casilla"><input type="checkbox" name="tipos" value="orbital"><span data-i18n="comercio.perfil.tipo.orbital"></span></label>
-              <label class="casilla"><input type="checkbox" name="tipos" value="puesto_avanzado"><span data-i18n="comercio.perfil.tipo.puesto_avanzado"></span></label>
-              <label class="casilla"><input type="checkbox" name="tipos" value="puerto_planetario"><span data-i18n="comercio.perfil.tipo.puerto_planetario"></span></label>
-              <label class="casilla"><input type="checkbox" name="tipos" value="asentamiento"><span data-i18n="comercio.perfil.tipo.asentamiento"></span></label>
-              <label class="casilla"><input type="checkbox" name="tipos" value="colonizacion"><span data-i18n="comercio.perfil.tipo.colonizacion"></span></label>
-              <label class="casilla casilla--apagada"><input type="checkbox" disabled><span data-i18n="comercio.perfil.fleet_carrier"></span></label>
-            </fieldset>
-            <fieldset class="casillas">
-              <legend data-i18n="comercio.perfil.origenes"></legend>
-              <label class="casilla"><input type="checkbox" name="origenes" value="propio"><span data-i18n="comercio.perfil.origen_dato.propio"></span></label>
-              <label class="casilla"><input type="checkbox" name="origenes" value="eddn"><span data-i18n="comercio.perfil.origen_dato.eddn"></span></label>
-              <label class="casilla"><input type="checkbox" name="origenes" value="spansh"><span data-i18n="comercio.perfil.origen_dato.spansh"></span></label>
-            </fieldset>
-            <label class="casilla"><input type="checkbox" name="raras"><span data-i18n="comercio.perfil.raras"></span></label>
-            </fieldset>
+            <details class="grupo-plegable" name="grupo-barra">
+              <summary class="grupo__titulo" data-i18n="comercio.perfil.datos"></summary>
+              <div class="grupo-plegable__cuerpo">
+                <fieldset class="casillas">
+                  <legend data-i18n="comercio.perfil.tipos"></legend>
+                  <label class="casilla"><input type="checkbox" name="tipos" value="orbital"><span data-i18n="comercio.perfil.tipo.orbital"></span></label>
+                  <label class="casilla"><input type="checkbox" name="tipos" value="puesto_avanzado"><span data-i18n="comercio.perfil.tipo.puesto_avanzado"></span></label>
+                  <label class="casilla"><input type="checkbox" name="tipos" value="puerto_planetario"><span data-i18n="comercio.perfil.tipo.puerto_planetario"></span></label>
+                  <label class="casilla"><input type="checkbox" name="tipos" value="asentamiento"><span data-i18n="comercio.perfil.tipo.asentamiento"></span></label>
+                  <label class="casilla"><input type="checkbox" name="tipos" value="colonizacion"><span data-i18n="comercio.perfil.tipo.colonizacion"></span></label>
+                  <label class="casilla casilla--apagada"><input type="checkbox" disabled><span data-i18n="comercio.perfil.fleet_carrier"></span></label>
+                </fieldset>
+                <fieldset class="casillas">
+                  <legend data-i18n="comercio.perfil.origenes"></legend>
+                  <label class="casilla"><input type="checkbox" name="origenes" value="propio"><span data-i18n="comercio.perfil.origen_dato.propio"></span></label>
+                  <label class="casilla"><input type="checkbox" name="origenes" value="eddn"><span data-i18n="comercio.perfil.origen_dato.eddn"></span></label>
+                  <label class="casilla"><input type="checkbox" name="origenes" value="spansh"><span data-i18n="comercio.perfil.origen_dato.spansh"></span></label>
+                </fieldset>
+                <label class="casilla"><input type="checkbox" name="raras"><span data-i18n="comercio.perfil.raras"></span></label>
+              </div>
+            </details>
+            <details class="grupo-plegable" name="grupo-barra">
+              <summary class="grupo__titulo" data-i18n="comercio.perfil.nave"></summary>
+              <div class="grupo-plegable__cuerpo">
+                <div class="campo">
+                  <div class="campo__cabecera">
+                    <label for="perfil-capacidad" data-i18n="comercio.perfil.capacidad"></label>
+                    <span class="marca" data-marca="capacidad" hidden></span>
+                  </div>
+                  <input id="perfil-capacidad" name="capacidad" class="entrada entrada--corta" type="number" min="1" max="5000" step="1" inputmode="decimal">
+                </div>
+                <div class="campo">
+                  <div class="campo__cabecera">
+                    <label for="perfil-rango" data-i18n="comercio.perfil.rango"></label>
+                    <span class="marca" data-marca="rango" hidden></span>
+                  </div>
+                  <input id="perfil-rango" name="rango" class="entrada entrada--corta" type="number" min="0.01" max="500" step="any" inputmode="decimal">
+                </div>
+                <div class="campo">
+                  <div class="campo__cabecera">
+                    <label for="perfil-plataforma" data-i18n="comercio.perfil.plataforma"></label>
+                    <span class="marca" data-marca="plataforma" hidden></span>
+                  </div>
+                  <select id="perfil-plataforma" name="plataforma" class="entrada entrada--corta"><option value="S" data-i18n="comercio.perfil.plataformas.S"></option><option value="M" data-i18n="comercio.perfil.plataformas.M"></option><option value="L" data-i18n="comercio.perfil.plataformas.L"></option></select>
+                </div>
+                <label class="casilla"><input type="checkbox" name="limitar_saldo"><span data-i18n="comercio.perfil.limitar_saldo"></span></label>
+                <p class="motivo" data-campo="perfil_saldo"></p>
+                <div class="acciones">
+                  <button type="button" class="boton boton--vidrio" data-campo="perfil_restaurar"
+                          data-i18n="comercio.perfil.restaurar"></button>
+                </div>
+              </div>
+            </details>
             <p class="franja franja--advertencia" role="alert" data-campo="perfil_error" hidden></p>
             <p class="motivo" role="status" data-campo="perfil_aviso" hidden></p>
           </form>
 
-          <section class="panel guardados" data-panel="guardados" aria-labelledby="titulo-guardados">
-            <h2 id="titulo-guardados" class="panel__titulo" data-i18n="comercio.perfil.guardados.titulo"></h2>
+          <details class="grupo-plegable grupo-plegable--derecha" name="grupo-barra">
+          <summary class="grupo__titulo" data-i18n="comercio.perfil.guardados.titulo"></summary>
+          <section class="grupo-plegable__cuerpo guardados" data-panel="guardados" aria-labelledby="titulo-guardados">
+            <h2 id="titulo-guardados" class="solo-lectores" data-i18n="comercio.perfil.guardados.titulo"></h2>
             <p class="motivo" data-campo="guardados_ninguno" data-i18n="comercio.perfil.guardados.ninguno" hidden></p>
             <div class="campo" data-campo="guardados_eleccion">
               <label for="guardados-lista" data-i18n="comercio.perfil.guardados.lista"></label>
@@ -320,18 +355,31 @@
             <p class="motivo" role="status" data-campo="guardados_resultado" hidden></p>
           </section>
           </details>
+          <details class="grupo-plegable grupo-plegable--derecha" name="grupo-barra">
+          <summary class="grupo__titulo" data-i18n="comercio.estaciones.titulo"></summary>
+          <section class="grupo-plegable__cuerpo buscador" aria-labelledby="titulo-buscador">
+            <h2 id="titulo-buscador" class="solo-lectores" data-i18n="comercio.estaciones.titulo"></h2>
+            <form class="campo" data-campo="buscador_formulario" novalidate>
+              <label for="buscador-texto" data-i18n="comercio.estaciones.texto"></label>
+              <input id="buscador-texto" class="entrada" type="text" maxlength="100" autocomplete="off" spellcheck="false" data-campo="buscador_texto">
+              <div class="acciones">
+                <button type="submit" class="boton boton--vidrio" data-i18n="comercio.estaciones.buscar"></button>
+              </div>
+            </form>
+            <p class="motivo" role="status" data-campo="buscador_estado" hidden></p>
+            <ul class="buscador__lista" data-campo="buscador_lista"></ul>
+          </section>
+          </details>
+          </div>
+        </details>
+        </div>
 
+        <div class="vista__zona"><div class="vista__cuerpo">
+        <div class="rutas">
           <section class="resultados" aria-labelledby="titulo-resultados">
             <h2 id="titulo-resultados" class="solo-lectores" data-i18n="comercio.rutas.tabla"></h2>
-            <form class="busqueda" data-campo="busqueda_formulario" novalidate>
-              <fieldset class="modos">
-                <legend class="solo-lectores" data-i18n="comercio.rutas.modo"></legend>
-                <label class="modo"><input type="radio" name="modo" value="un_salto" checked><span data-i18n="comercio.rutas.modos.un_salto"></span></label>
-                <label class="modo"><input type="radio" name="modo" value="bucle"><span data-i18n="comercio.rutas.modos.bucle"></span></label>
-              </fieldset>
-              <button type="submit" class="boton boton--primario" data-i18n="comercio.rutas.buscar"></button>
-            </form>
             <p class="motivo" role="status" data-campo="resultados_estado"></p>
+            <div class="motivo" role="status" data-campo="resultados_explicacion" hidden></div>
             <p class="franja franja--advertencia" role="alert" data-campo="resultados_error" hidden></p>
             <div class="tabla-contenedor" data-campo="tabla_contenedor" hidden>
               <table class="tabla" data-campo="tabla">
@@ -342,17 +390,100 @@
             </div>
             <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle" hidden>
               <h2 id="titulo-detalle" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
-              <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+              <div class="detalle__cuerpo" data-campo="detalle_tramos"></div>
             </section>
           </section>
         </div>
+        </div></div>
+      </section>
+
+      <section id="vista-fijadas" class="vista vista--ancha" aria-labelledby="titulo-fijadas" hidden>
+        <div class="vista__fija">
+        <header class="cabecera">
+          <h1 id="titulo-fijadas" class="cabecera__comandante" data-i18n="comercio.fijadas.titulo"></h1>
+        </header>
+        <section class="panel en-curso" aria-labelledby="titulo-en-curso">
+          <h2 id="titulo-en-curso" class="panel__titulo" data-i18n="comercio.fijadas.en_curso.titulo"></h2>
+          <div class="en-curso__cuerpo" data-campo="en_curso_cuerpo"></div>
+          <div class="acciones">
+            <button type="button" class="boton boton--vidrio" data-campo="en_curso_fijar" data-i18n="comercio.fijadas.en_curso.fijar" hidden></button>
+            <p class="motivo" role="status" data-campo="en_curso_aviso" hidden></p>
+          </div>
+        </section>
+        <div class="ahora__barra">
+          <p class="motivo" role="status" data-campo="fijadas_estado"></p>
+          <div class="acciones">
+            <button type="button" class="boton boton--vidrio" data-campo="fijadas_estimar" aria-expanded="false" aria-controls="panel-estimar" data-i18n="comercio.fijadas.estimar.abrir"></button>
+            <button type="button" class="boton boton--vidrio" data-campo="fijadas_actualizar" data-i18n="comercio.fijadas.actualizar"></button>
+          </div>
+        </div>
+        </div>
+
+        <div class="vista__zona"><div class="vista__cuerpo">
+        <div class="ahora">
+          <p class="franja franja--advertencia" role="alert" data-campo="fijadas_error" hidden></p>
+
+          <section id="panel-estimar" class="panel ahora__seccion estimar" aria-labelledby="titulo-estimar" data-campo="estimar_panel" hidden>
+            <h2 id="titulo-estimar" class="panel__titulo" data-i18n="comercio.fijadas.estimar.titulo"></h2>
+            <p class="motivo" data-i18n="comercio.fijadas.estimar.ayuda"></p>
+            <form class="campo" data-campo="buscador_formulario" novalidate>
+              <label for="estimar-buscador-texto" data-i18n="comercio.estaciones.texto"></label>
+              <input id="estimar-buscador-texto" class="entrada" type="text" maxlength="100" autocomplete="off" spellcheck="false" data-campo="buscador_texto">
+              <div class="acciones">
+                <button type="submit" class="boton boton--vidrio" data-i18n="comercio.estaciones.buscar"></button>
+              </div>
+            </form>
+            <p class="motivo" role="status" data-campo="buscador_estado" hidden></p>
+            <ul class="buscador__lista" data-campo="buscador_lista"></ul>
+            <h3 class="estimar__subtitulo" data-i18n="comercio.fijadas.estimar.elegidas"></h3>
+            <p class="motivo" data-campo="estimar_vacio" data-i18n="comercio.fijadas.estimar.sin_paradas"></p>
+            <ol class="estimar__paradas" data-campo="estimar_paradas"></ol>
+            <label class="casilla" for="estimar-cerrada">
+              <input id="estimar-cerrada" type="checkbox" data-campo="estimar_cerrada">
+              <span data-i18n="comercio.fijadas.estimar.cerrada"></span>
+            </label>
+            <div class="acciones">
+              <button type="button" class="boton boton--primario" data-campo="estimar_calcular" data-i18n="comercio.fijadas.estimar.calcular"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="estimar_fijar" data-i18n="comercio.fijadas.estimar.fijar"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="estimar_cerrar" data-i18n="comercio.fijadas.estimar.cerrar"></button>
+            </div>
+            <p class="franja franja--advertencia" role="alert" data-campo="estimar_error" hidden></p>
+            <p class="motivo" role="status" data-campo="estimar_resultado" hidden></p>
+            <div class="detalle__cuerpo" data-campo="estimar_detalle"></div>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-fijadas-tabla">
+            <h2 id="titulo-fijadas-tabla" class="panel__titulo" data-i18n="comercio.fijadas.tabla.titulo"></h2>
+            <p class="motivo" data-campo="fijadas_vacio" data-i18n="comercio.fijadas.tabla.vacio" hidden></p>
+            <div class="tabla-contenedor" data-campo="fijadas_contenedor" hidden>
+              <table class="tabla" data-campo="fijadas_tabla">
+                <caption class="solo-lectores" data-i18n="comercio.fijadas.tabla.titulo"></caption>
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle-fijada" tabindex="-1" hidden>
+            <h2 id="titulo-detalle-fijada" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
+            <div class="acciones">
+              <button type="button" class="boton boton--vidrio" data-campo="detalle_quitar" data-i18n="comercio.fijadas.quitar"></button>
+              <p class="motivo" role="status" data-campo="detalle_aviso" hidden></p>
+            </div>
+            <div class="detalle__cuerpo" data-campo="detalle_tramos"></div>
+          </section>
+        </div>
+        </div></div>
       </section>
 
       <section id="vista-alertas" class="vista vista--ancha" aria-labelledby="titulo-alertas" hidden>
+        <div class="vista__fija">
         <header class="cabecera">
           <h1 id="titulo-alertas" class="cabecera__comandante" data-i18n="comercio.alertas.titulo"></h1>
         </header>
+        </div>
 
+        <div class="vista__zona"><div class="vista__cuerpo">
         <div class="ahora">
           <section class="panel ahora__seccion" aria-labelledby="titulo-alertas-reglas">
             <h2 id="titulo-alertas-reglas" class="panel__titulo" data-i18n="comercio.alertas.reglas.titulo"></h2>
@@ -364,34 +495,40 @@
               </label>
               <div class="formulario__fila">
               <div class="campo">
-                <label for="alertas-ganancia_tonelada_min" data-i18n="comercio.alertas.reglas.ganancia_tonelada_min"></label>
-                <input id="alertas-ganancia_tonelada_min" name="ganancia_tonelada_min" class="entrada entrada--corta" type="number"
-                       min="0" max="1000000" step="1" inputmode="decimal">
+                <label for="alertas-ganancia_tonelada_min" data-i18n="comercio.alertas.reglas.rotulo.ganancia_tonelada_min"></label>
+                <input id="alertas-ganancia_tonelada_min" name="ganancia_tonelada_min" class="entrada entrada--corta" type="text" inputmode="numeric" autocomplete="off"
+                       aria-describedby="alertas-ganancia_tonelada_min-ayuda">
+                <p id="alertas-ganancia_tonelada_min-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.ganancia_tonelada_min"></p>
               </div>
               <div class="campo">
-                <label for="alertas-ganancia_hora_min" data-i18n="comercio.alertas.reglas.ganancia_hora_min"></label>
-                <input id="alertas-ganancia_hora_min" name="ganancia_hora_min" class="entrada entrada--corta" type="number"
-                       min="0" max="100000000000" step="1" inputmode="decimal">
+                <label for="alertas-ganancia_hora_min" data-i18n="comercio.alertas.reglas.rotulo.ganancia_hora_min"></label>
+                <input id="alertas-ganancia_hora_min" name="ganancia_hora_min" class="entrada entrada--corta" type="text" inputmode="numeric" autocomplete="off"
+                       aria-describedby="alertas-ganancia_hora_min-ayuda">
+                <p id="alertas-ganancia_hora_min-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.ganancia_hora_min"></p>
               </div>
               <div class="campo">
-                <label for="alertas-distancia_max_ly" data-i18n="comercio.alertas.reglas.distancia_max_ly"></label>
-                <input id="alertas-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number"
-                       min="0.01" max="1000" step="any" inputmode="decimal">
+                <label for="alertas-distancia_max_ly" data-i18n="comercio.alertas.reglas.rotulo.distancia_max_ly"></label>
+                <input id="alertas-distancia_max_ly" name="distancia_max_ly" class="entrada entrada--corta" type="number" min="0.01" max="1000" step="any" inputmode="decimal"
+                       aria-describedby="alertas-distancia_max_ly-ayuda">
+                <p id="alertas-distancia_max_ly-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.distancia_max_ly"></p>
               </div>
               <div class="campo">
-                <label for="alertas-antiguedad_max_h" data-i18n="comercio.alertas.reglas.antiguedad_max_h"></label>
-                <input id="alertas-antiguedad_max_h" name="antiguedad_max_h" class="entrada entrada--corta" type="number"
-                       min="0.01" max="720" step="any" inputmode="decimal">
+                <label for="alertas-antiguedad_max_h" data-i18n="comercio.alertas.reglas.rotulo.antiguedad_max_h"></label>
+                <input id="alertas-antiguedad_max_h" name="antiguedad_max_h" class="entrada entrada--corta" type="number" min="0.01" max="720" step="any" inputmode="decimal"
+                       aria-describedby="alertas-antiguedad_max_h-ayuda">
+                <p id="alertas-antiguedad_max_h-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.antiguedad_max_h"></p>
               </div>
               <div class="campo">
-                <label for="alertas-repetir_min" data-i18n="comercio.alertas.reglas.repetir_min"></label>
-                <input id="alertas-repetir_min" name="repetir_min" class="entrada entrada--corta" type="number"
-                       min="1" max="1440" step="any" inputmode="decimal">
+                <label for="alertas-repetir_min" data-i18n="comercio.alertas.reglas.rotulo.repetir_min"></label>
+                <input id="alertas-repetir_min" name="repetir_min" class="entrada entrada--corta" type="number" min="1" max="1440" step="any" inputmode="decimal"
+                       aria-describedby="alertas-repetir_min-ayuda">
+                <p id="alertas-repetir_min-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.repetir_min"></p>
               </div>
               <div class="campo">
-                <label for="alertas-mejora_pct" data-i18n="comercio.alertas.reglas.mejora_pct"></label>
-                <input id="alertas-mejora_pct" name="mejora_pct" class="entrada entrada--corta" type="number"
-                       min="0" max="1000" step="any" inputmode="decimal">
+                <label for="alertas-mejora_pct" data-i18n="comercio.alertas.reglas.rotulo.mejora_pct"></label>
+                <input id="alertas-mejora_pct" name="mejora_pct" class="entrada entrada--corta" type="number" min="0" max="1000" step="any" inputmode="decimal"
+                       aria-describedby="alertas-mejora_pct-ayuda">
+                <p id="alertas-mejora_pct-ayuda" class="motivo" data-i18n="comercio.alertas.reglas.ayuda_de.mejora_pct"></p>
               </div>
               </div>
               <p class="franja franja--advertencia" role="alert" data-campo="reglas_error" hidden></p>
@@ -400,6 +537,33 @@
               </div>
             </form>
             <p class="motivo" role="status" data-campo="reglas_resultado" hidden></p>
+          </section>
+
+          <section class="panel ahora__seccion" aria-labelledby="titulo-alertas-en-curso">
+            <h2 id="titulo-alertas-en-curso" class="panel__titulo" data-i18n="comercio.alertas.en_curso.titulo"></h2>
+            <p class="motivo" data-i18n="comercio.alertas.en_curso.ayuda"></p>
+            <form class="formulario" data-campo="en_curso_formulario" novalidate>
+              <label class="casilla" for="en-curso-aviso_mejor">
+                <input id="en-curso-aviso_mejor" name="aviso_mejor" type="checkbox">
+                <span data-i18n="comercio.alertas.en_curso.aviso_mejor"></span>
+              </label>
+              <div class="campo">
+                <label for="en-curso-margen_pct" data-i18n="comercio.alertas.en_curso.margen"></label>
+                <input id="en-curso-margen_pct" name="margen_pct" class="entrada entrada--corta" type="number" min="1" max="1000" step="any" inputmode="decimal"
+                       aria-describedby="en-curso-margen_pct-ayuda">
+                <p id="en-curso-margen_pct-ayuda" class="motivo" data-i18n="comercio.alertas.en_curso.margen_ayuda"></p>
+              </div>
+              <label class="casilla" for="en-curso-portapapeles">
+                <input id="en-curso-portapapeles" name="portapapeles" type="checkbox" aria-describedby="en-curso-portapapeles-ayuda">
+                <span data-i18n="comercio.alertas.en_curso.portapapeles"></span>
+              </label>
+              <p id="en-curso-portapapeles-ayuda" class="motivo" data-i18n="comercio.alertas.en_curso.portapapeles_ayuda"></p>
+              <p class="franja franja--advertencia" role="alert" data-campo="en_curso_error" hidden></p>
+              <div class="acciones">
+                <button type="submit" class="boton boton--primario" data-i18n="comercio.alertas.en_curso.guardar"></button>
+              </div>
+            </form>
+            <p class="motivo" role="status" data-campo="en_curso_resultado" hidden></p>
           </section>
 
           <section class="panel ahora__seccion" aria-labelledby="titulo-alertas-avisos">
@@ -417,51 +581,66 @@
 
           <section class="panel detalle" data-campo="detalle" aria-labelledby="titulo-detalle-alerta" tabindex="-1" hidden>
             <h2 id="titulo-detalle-alerta" class="panel__titulo" data-i18n="comercio.rutas.detalle.titulo"></h2>
-            <div class="detalle__tramos" data-campo="detalle_tramos"></div>
+            <div class="detalle__cuerpo" data-campo="detalle_tramos"></div>
           </section>
         </div>
+        </div></div>
       </section>
 
       <section id="vista-rendimiento" class="vista vista--ancha" aria-labelledby="titulo-rendimiento" hidden>
+        <div class="vista__fija">
         <header class="cabecera">
           <h1 id="titulo-rendimiento" class="cabecera__comandante" data-i18n="comercio.rendimiento.titulo"></h1>
         </header>
+        <div class="ahora__barra">
+          <div class="campo">
+            <label for="rendimiento-sesion" data-i18n="comercio.rendimiento.sesion"></label>
+            <select id="rendimiento-sesion" class="entrada" data-campo="sesion" disabled></select>
+          </div>
+          <label class="casilla">
+            <input type="checkbox" data-campo="omitir_vacias">
+            <span data-i18n="comercio.rendimiento.omitir_vacias"></span>
+          </label>
+          <button type="button" class="boton boton--vidrio" data-campo="actualizar" data-i18n="comercio.rendimiento.actualizar"></button>
+        </div>
+        <dl class="dinero" data-campo="dinero" hidden>
+          <div class="dinero__dato">
+            <dt data-i18n="comercio.rendimiento.dinero.saldo"></dt>
+            <dd class="cifra dinero__cifra" data-campo="dinero_saldo"></dd>
+          </div>
+          <div class="dinero__dato">
+            <dt data-i18n="comercio.rendimiento.dinero.ganancia"></dt>
+            <dd class="cifra dinero__cifra" data-campo="dinero_ganancia"></dd>
+          </div>
+          <div class="dinero__dato">
+            <dt data-i18n="comercio.rendimiento.dinero.por_hora"></dt>
+            <dd class="cifra dinero__cifra" data-campo="dinero_por_hora"></dd>
+            <dd class="dinero__variacion" data-campo="dinero_variacion" hidden></dd>
+          </div>
+        </dl>
+        <div class="pestanas" role="tablist" data-campo="pestanas" data-i18n-aria-label="comercio.rendimiento.pestanas.etiqueta" hidden>
+          <button type="button" role="tab" class="pestana" id="pestana-rendimiento-rutas" aria-controls="panel-rendimiento-rutas" data-pestana="rutas" data-i18n="comercio.rendimiento.rutas.titulo"></button>
+          <button type="button" role="tab" class="pestana" id="pestana-rendimiento-mercancias" aria-controls="panel-rendimiento-mercancias" data-pestana="mercancias" data-i18n="comercio.rendimiento.mercancias.titulo"></button>
+          <button type="button" role="tab" class="pestana" id="pestana-rendimiento-sesiones" aria-controls="panel-rendimiento-sesiones" data-pestana="sesiones" data-i18n="comercio.rendimiento.sesiones.titulo"></button>
+        </div>
+        </div>
 
+        <div class="vista__zona"><div class="vista__cuerpo">
         <div class="ahora">
           <div class="ahora__barra">
-            <div class="campo">
-              <label for="rendimiento-sesion" data-i18n="comercio.rendimiento.sesion"></label>
-              <select id="rendimiento-sesion" class="entrada" data-campo="sesion" disabled></select>
+            <div class="barra__botones">
+              <button type="button" class="boton boton--vidrio" data-campo="importar" data-i18n="comercio.rendimiento.importar.boton" data-i18n-title="comercio.rendimiento.importar.ayuda"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="importar_cancelar" data-i18n="comercio.rendimiento.importar.cancelar" hidden></button>
             </div>
-            <button type="button" class="boton boton--vidrio" data-campo="actualizar" data-i18n="comercio.rendimiento.actualizar"></button>
+            <p class="motivo" role="status" data-campo="importacion" hidden></p>
           </div>
           <p class="motivo" role="status" data-campo="estado"></p>
           <p class="franja franja--advertencia" role="alert" data-campo="error" hidden></p>
+          <p class="motivo" data-campo="dinero_detalle" hidden></p>
 
-          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-resumen" data-campo="resumen" hidden>
-            <h2 id="titulo-rendimiento-resumen" class="panel__titulo" data-i18n="comercio.rendimiento.resumen.titulo"></h2>
-            <p class="motivo" data-campo="resumen_aviso" hidden></p>
-            <dl class="datos">
-              <dt data-i18n="comercio.rendimiento.resumen.ganancia"></dt>
-              <dd class="cifra" data-campo="resumen_ganancia"></dd>
-              <dt data-i18n="comercio.rendimiento.resumen.tiempo"></dt>
-              <dd class="cifra" data-campo="resumen_tiempo"></dd>
-              <dt data-i18n="comercio.rendimiento.resumen.por_hora"></dt>
-              <dd class="cifra" data-campo="resumen_por_hora"></dd>
-              <dt data-i18n="comercio.rendimiento.resumen.toneladas"></dt>
-              <dd class="cifra" data-campo="resumen_toneladas"></dd>
-              <dt data-i18n="comercio.rendimiento.resumen.saltos"></dt>
-              <dd class="cifra" data-campo="resumen_saltos"></dd>
-              <dt data-campo="resumen_saldo_etiqueta" data-i18n="comercio.rendimiento.resumen.saldo"></dt>
-              <dd class="cifra" data-campo="resumen_saldo"></dd>
-            </dl>
-            <h3 class="articulo__titulo" data-i18n="comercio.rendimiento.comparacion.titulo"></h3>
-            <p class="motivo" data-campo="comparacion"></p>
-          </section>
-
-          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-rutas" data-campo="rutas_panel" hidden>
-            <h2 id="titulo-rendimiento-rutas" class="panel__titulo" data-i18n="comercio.rendimiento.rutas.titulo"></h2>
+          <section class="ahora__seccion" id="panel-rendimiento-rutas" role="tabpanel" aria-labelledby="pestana-rendimiento-rutas" data-campo="rutas_panel" hidden>
             <p class="motivo" data-i18n="comercio.rendimiento.rutas.ayuda"></p>
+            <p class="motivo" data-campo="comparacion"></p>
             <p class="motivo" data-campo="rutas_vacio" hidden></p>
             <div class="tabla-contenedor" data-campo="rutas_contenedor" hidden>
               <table class="tabla" data-campo="rutas_tabla">
@@ -472,8 +651,7 @@
             </div>
           </section>
 
-          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-mercancias" data-campo="mercancias_panel" hidden>
-            <h2 id="titulo-rendimiento-mercancias" class="panel__titulo" data-i18n="comercio.rendimiento.mercancias.titulo"></h2>
+          <section class="ahora__seccion" id="panel-rendimiento-mercancias" role="tabpanel" aria-labelledby="pestana-rendimiento-mercancias" data-campo="mercancias_panel" hidden>
             <p class="motivo" data-campo="mercancias_vacio" hidden></p>
             <div class="tabla-contenedor" data-campo="mercancias_contenedor" hidden>
               <table class="tabla" data-campo="mercancias_tabla">
@@ -484,9 +662,9 @@
             </div>
           </section>
 
-          <section class="panel ahora__seccion" aria-labelledby="titulo-rendimiento-sesiones" data-campo="sesiones_panel" hidden>
-            <h2 id="titulo-rendimiento-sesiones" class="panel__titulo" data-i18n="comercio.rendimiento.sesiones.titulo"></h2>
+          <section class="ahora__seccion" id="panel-rendimiento-sesiones" role="tabpanel" aria-labelledby="pestana-rendimiento-sesiones" data-campo="sesiones_panel" hidden>
             <p class="motivo" data-campo="sesiones_ayuda"></p>
+            <p class="motivo" data-i18n="comercio.rendimiento.sesiones.ayuda_importar"></p>
             <div class="tabla-contenedor">
               <table class="tabla" data-campo="sesiones_tabla">
                 <caption class="solo-lectores" data-i18n="comercio.rendimiento.sesiones.titulo"></caption>
@@ -496,15 +674,24 @@
             </div>
           </section>
         </div>
+        </div></div>
       </section>
 
       <section id="vista-configuracion" class="vista" aria-labelledby="titulo-configuracion" hidden>
+        <div class="vista__fija">
         <header class="cabecera">
           <h1 id="titulo-configuracion" class="cabecera__comandante" data-i18n="configuracion.titulo"></h1>
         </header>
+        </div>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-journal">
-          <h2 id="titulo-config-journal" class="panel__titulo" data-i18n="configuracion.journal.titulo"></h2>
+        <div class="vista__zona"><div class="vista__cuerpo">
+
+        <details class="panel panel--ancho plegable" data-panel="journal" data-seccion="journal">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-journal" class="panel__titulo" data-i18n="configuracion.journal.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.journal.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.journal.ayuda"></p>
           <dl class="datos">
             <dt data-i18n="configuracion.journal.carpeta"></dt>
@@ -520,11 +707,27 @@
             <button type="button" class="boton boton--vidrio" data-campo="carpeta_automatica"
                     data-i18n="configuracion.journal.automatica"></button>
           </div>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-esfera" data-panel="esfera">
-          <h2 id="titulo-config-esfera" class="panel__titulo" data-i18n="configuracion.esfera.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="esfera" data-seccion="esfera">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-esfera" class="panel__titulo" data-i18n="configuracion.esfera.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.esfera.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.esfera.ayuda"></p>
+          <div class="guia" data-campo="esfera_guia">
+            <h3 class="campo__subtitulo" data-i18n="configuracion.esfera.guia.titulo"></h3>
+            <p class="franja" data-campo="esfera_antes_de_descargar" data-i18n="configuracion.esfera.guia.antes_de_descargar" hidden></p>
+            <ul class="guia__lista">
+              <li data-i18n="configuracion.esfera.guia.radio_100"></li>
+              <li data-i18n="configuracion.esfera.guia.radio_250"></li>
+              <li data-i18n="configuracion.esfera.guia.radio_500"></li>
+              <li data-i18n="configuracion.esfera.guia.radio_1000"></li>
+            </ul>
+            <p class="motivo" data-i18n="configuracion.esfera.guia.ampliar"></p>
+          </div>
           <dl class="datos">
             <dt data-i18n="configuracion.esfera.actual"></dt>
             <dd data-campo="esfera_actual"></dd>
@@ -546,6 +749,8 @@
             <div class="acciones">
               <button type="submit" class="boton boton--primario" data-campo="esfera_revisar"
                       data-i18n="configuracion.esfera.revisar"></button>
+              <button type="button" class="boton" data-campo="esfera_dejar_de_comprobar"
+                      data-i18n="configuracion.esfera.dejar_de_comprobar" hidden></button>
             </div>
           </form>
           <div class="propuesta" data-campo="esfera_propuesta" hidden>
@@ -562,10 +767,15 @@
             </div>
           </div>
           <p class="motivo" role="status" data-campo="esfera_resultado" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-spansh" data-panel="spansh">
-          <h2 id="titulo-config-spansh" class="panel__titulo" data-i18n="configuracion.spansh.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="spansh" data-seccion="spansh">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-spansh" class="panel__titulo" data-i18n="configuracion.spansh.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.spansh.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.spansh.ayuda"></p>
           <dl class="datos">
             <dt data-i18n="configuracion.spansh.fase_etiqueta"></dt>
@@ -587,10 +797,15 @@
             <button type="button" class="boton boton--vidrio" data-campo="spansh_cancelar"
                     data-i18n="configuracion.spansh.cancelar" hidden></button>
           </div>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-retencion" data-panel="retencion">
-          <h2 id="titulo-config-retencion" class="panel__titulo" data-i18n="configuracion.retencion.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="retencion" data-seccion="retencion">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-retencion" class="panel__titulo" data-i18n="configuracion.retencion.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.retencion.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.retencion.ayuda"></p>
           <form class="formulario" data-campo="retencion_formulario" novalidate>
             <div class="campo">
@@ -610,10 +825,15 @@
             </div>
           </form>
           <p class="motivo" role="status" data-campo="retencion_resultado" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-comercio" data-panel="comercio">
-          <h2 id="titulo-config-comercio" class="panel__titulo" data-i18n="configuracion.comercio.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="comercio" data-seccion="comercio">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-comercio" class="panel__titulo" data-i18n="configuracion.comercio.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.comercio.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.comercio.ayuda"></p>
           <form class="formulario" data-campo="comercio_formulario" novalidate>
             <div class="campo">
@@ -639,10 +859,15 @@
             </div>
           </form>
           <p class="motivo" role="status" data-campo="comercio_resultado" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-sesiones" data-panel="sesiones">
-          <h2 id="titulo-config-sesiones" class="panel__titulo" data-i18n="configuracion.sesiones.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="sesiones" data-seccion="sesiones">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-sesiones" class="panel__titulo" data-i18n="configuracion.sesiones.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.sesiones.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.sesiones.ayuda"></p>
           <form class="formulario" data-campo="sesiones_formulario" novalidate>
             <label class="casilla" for="sesiones-por-partida">
@@ -665,10 +890,15 @@
             </div>
           </form>
           <p class="motivo" role="status" data-campo="sesiones_resultado" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-sonido" data-panel="sonido">
-          <h2 id="titulo-config-sonido" class="panel__titulo" data-i18n="configuracion.sonido.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="sonido" data-seccion="sonido">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-sonido" class="panel__titulo" data-i18n="configuracion.sonido.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.sonido.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.sonido.ayuda"></p>
           <form class="formulario" data-campo="sonido_formulario" novalidate>
             <label class="casilla" for="sonido-activado">
@@ -692,10 +922,69 @@
             </div>
           </form>
           <p class="motivo" role="status" data-campo="sonido_resultado" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-eddn" data-panel="eddn">
-          <h2 id="titulo-config-eddn" class="panel__titulo" data-i18n="configuracion.eddn.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="lectura" data-seccion="lectura">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-lectura" class="panel__titulo" data-i18n="configuracion.lectura.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.lectura.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
+          <p class="ayuda" data-i18n="configuracion.lectura.ayuda"></p>
+          <div class="formulario">
+            <div class="campo">
+              <p class="campo__titulo" id="lectura-letra-titulo" data-i18n="configuracion.lectura.tamano_letra_titulo"></p>
+              <fieldset class="modos" aria-labelledby="lectura-letra-titulo" aria-describedby="lectura-letra-ayuda" data-campo="lectura_letra"></fieldset>
+              <p id="lectura-letra-ayuda" class="motivo" data-i18n="configuracion.lectura.tamano_letra_ayuda"></p>
+            </div>
+            <div class="campo">
+              <p class="campo__titulo" id="lectura-densidad-titulo" data-i18n="configuracion.lectura.densidad_titulo"></p>
+              <fieldset class="modos" aria-labelledby="lectura-densidad-titulo" aria-describedby="lectura-densidad-ayuda" data-campo="lectura_densidad"></fieldset>
+              <p id="lectura-densidad-ayuda" class="motivo" data-i18n="configuracion.lectura.densidad_ayuda"></p>
+            </div>
+            <fieldset class="campo" aria-describedby="lectura-columnas-ayuda">
+              <legend class="campo__titulo" data-i18n="configuracion.lectura.columnas_titulo"></legend>
+              <p id="lectura-columnas-ayuda" class="motivo" data-i18n="configuracion.lectura.columnas_ayuda"></p>
+              <fieldset class="rejilla-casillas" aria-labelledby="lectura-columnas-un-salto">
+                <legend id="lectura-columnas-un-salto" class="campo__subtitulo" data-i18n="comercio.rutas.modos.un_salto"></legend>
+                <div class="rejilla-casillas__lista" data-campo="lectura_columnas_un_salto"></div>
+              </fieldset>
+              <fieldset class="rejilla-casillas" aria-labelledby="lectura-columnas-bucle">
+                <legend id="lectura-columnas-bucle" class="campo__subtitulo" data-i18n="comercio.rutas.modos.bucle"></legend>
+                <div class="rejilla-casillas__lista" data-campo="lectura_columnas_bucle"></div>
+              </fieldset>
+            </fieldset>
+          </div>
+          <p class="franja franja--advertencia" role="alert" data-campo="lectura_error" hidden></p>
+          <p class="motivo" role="status" data-campo="lectura_resultado" hidden></p>
+          </div>
+        </details>
+
+        <details class="panel panel--ancho plegable" data-panel="ventana" data-seccion="ventana">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-ventana" class="panel__titulo" data-i18n="configuracion.ventana.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.ventana.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
+          <p class="ayuda" data-i18n="configuracion.ventana.ayuda"></p>
+          <label class="casilla" for="ventana-encima">
+            <input id="ventana-encima" type="checkbox" data-campo="ventana_encima"
+                   aria-describedby="ventana-encima-ayuda">
+            <span data-i18n="configuracion.ventana.encima"></span>
+          </label>
+          <p id="ventana-encima-ayuda" class="motivo" data-i18n="configuracion.ventana.encima_ayuda"></p>
+          <p class="franja franja--advertencia" role="alert" data-campo="ventana_error" hidden></p>
+          <p class="motivo" role="status" data-campo="ventana_resultado" hidden></p>
+          </div>
+        </details>
+
+        <details class="panel panel--ancho plegable" data-panel="eddn" data-seccion="eddn">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-eddn" class="panel__titulo" data-i18n="configuracion.eddn.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.eddn.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
           <p class="ayuda" data-i18n="configuracion.eddn.ayuda"></p>
           <label class="casilla" for="eddn-activado">
             <input id="eddn-activado" type="checkbox" data-campo="eddn_activado">
@@ -703,15 +992,52 @@
           </label>
           <p class="motivo" data-campo="eddn_sin_base" data-i18n="configuracion.eddn.sin_base" hidden></p>
           <p class="franja franja--advertencia" role="alert" data-campo="eddn_error" hidden></p>
-        </section>
+          </div>
+        </details>
 
-        <section class="panel panel--ancho" aria-labelledby="titulo-config-datos">
-          <h2 id="titulo-config-datos" class="panel__titulo" data-i18n="configuracion.datos.titulo"></h2>
+        <details class="panel panel--ancho plegable" data-panel="datos" data-seccion="datos">
+          <summary class="plegable__cabecera">
+            <h2 id="titulo-config-datos" class="panel__titulo" data-i18n="configuracion.datos.titulo"></h2>
+            <span class="plegable__linea" data-i18n="configuracion.datos.linea"></span>
+          </summary>
+          <div class="plegable__cuerpo">
+          <p class="ayuda" data-i18n="configuracion.datos.ayuda"></p>
           <dl class="datos">
             <dt data-i18n="configuracion.datos.carpeta"></dt>
             <dd class="seleccionable" data-campo="config_datos"></dd>
+            <dt data-i18n="configuracion.datos.base"></dt>
+            <dd data-campo="espacio_base"></dd>
+            <dt data-i18n="configuracion.datos.descargas"></dt>
+            <dd data-campo="espacio_descargas"></dd>
+            <dt data-i18n="configuracion.datos.libre"></dt>
+            <dd data-campo="espacio_libre"></dd>
           </dl>
-        </section>
+          <h3 class="campo__subtitulo" data-i18n="configuracion.borrar.titulo"></h3>
+          <p class="ayuda" data-i18n="configuracion.borrar.ayuda"></p>
+          <div class="acciones">
+            <button type="button" class="boton boton--vidrio" data-campo="borrar_pedir"
+                    aria-describedby="borrar-ocupado" data-i18n="configuracion.borrar.pedir"></button>
+          </div>
+          <p id="borrar-ocupado" class="motivo" data-campo="borrar_ocupado"
+             data-i18n="configuracion.borrar.ocupado" hidden></p>
+          <div class="propuesta" data-campo="borrar_confirmacion" role="alertdialog"
+               aria-labelledby="borrar-titulo" hidden>
+            <h3 id="borrar-titulo" class="propuesta__titulo" data-i18n="configuracion.borrar.confirmar_titulo"></h3>
+            <p data-i18n="configuracion.borrar.se_pierde"></p>
+            <p data-i18n="configuracion.borrar.se_conserva"></p>
+            <p data-i18n="configuracion.borrar.despues"></p>
+            <div class="acciones">
+              <button type="button" class="boton boton--primario" data-campo="borrar_confirmar"
+                      data-i18n="configuracion.borrar.confirmar"></button>
+              <button type="button" class="boton boton--vidrio" data-campo="borrar_cancelar"
+                      data-i18n="configuracion.borrar.cancelar"></button>
+            </div>
+          </div>
+          <p class="franja franja--advertencia" role="alert" data-campo="borrar_error" hidden></p>
+          <p class="motivo" role="status" data-campo="borrar_resultado" hidden></p>
+          </div>
+        </details>
+        </div></div>
       </section>
     </main>
 

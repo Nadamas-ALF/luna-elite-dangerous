@@ -140,3 +140,37 @@ def test_fusionar_dice_si_escribio(tmp_path, monkeypatch):
 
     monkeypatch.setattr(type(config), "read_text", ocupado)
     assert archivo.fusionar(config, "ventana", {"ancho": 2}) is False
+
+
+def test_fusionar_campos_escribe_todos_a_la_vez_y_conserva_los_demas(tmp_path):
+    ruta = tmp_path / "config.json"
+    archivo.fusionar(ruta, "seccion", {"a": 1, "otro": 9})
+
+    assert archivo.fusionar_campos(ruta, "seccion", {"a": 2, "b": 3})
+
+    assert archivo.leer(ruta)["seccion"] == {"a": 2, "otro": 9, "b": 3}
+
+
+def test_guardar_mientras_otro_hilo_lee_espera_y_guarda(tmp_path):
+    """En Windows, reemplazar un archivo abierto por otro falla con acceso denegado (E-42)."""
+    import threading
+
+    config = tmp_path / "config.json"
+    archivo.escribir(config, {"a": 1})
+    abierto = config.open(encoding="utf-8")
+    threading.Timer(0.2, abierto.close).start()
+
+    assert archivo.fusionar(config, "b", 2)
+    assert archivo.leer(config) == {"a": 1, "b": 2}
+    assert list(tmp_path.glob("*.tmp")) == []
+
+
+def test_si_sigue_bloqueado_se_rinde_sin_dejar_temporales(tmp_path, monkeypatch):
+    config = tmp_path / "config.json"
+    archivo.escribir(config, {"a": 1})
+    monkeypatch.setattr(archivo, "ESPERA_ENTRE_REINTENTOS", 0)
+    with config.open(encoding="utf-8"), pytest.raises(PermissionError):
+        archivo.escribir(config, {"a": 2})
+
+    assert archivo.leer(config) == {"a": 1}
+    assert list(tmp_path.glob("*.tmp")) == []

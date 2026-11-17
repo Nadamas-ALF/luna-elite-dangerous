@@ -85,5 +85,6 @@ def perfil(**cambios) -> Perfil:
         "plataforma": "L",
         "creditos": None,
         "origen": "S1",
+        "stock_minimo": 100,
     }
     return Perfil(**{**valores, **cambios})

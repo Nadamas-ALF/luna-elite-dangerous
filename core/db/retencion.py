@@ -177,6 +177,31 @@ def limpiar(
     )
 
 
+def borrar_mercados(
+    conexion: sqlite3.Connection, lote: int = LOTE_DE_MERCADOS, *, conservar: str | None = None
+) -> bool:
+    """Un lote del vaciado de la zona de mercado; True si borró algo y hay que volver a llamar.
+
+    Primero las estaciones (sus precios se van con ellas por la cascada) y, cuando no queda
+    ninguna, los sistemas. Solo toca `systems`, `stations` y `market_prices`: el resto de la
+    base son datos del comandante (regla 7 de la 5.4) y no se mira.
+
+    El sistema llamado `conservar` (el centro de la esfera) se queda sin sus estaciones: sin
+    él no se podría revisar ni cambiar la esfera por su nombre hasta volver a verlo (E-37).
+    """
+    estaciones = [m for (m,) in conexion.execute("SELECT market_id FROM stations LIMIT ?", (lote,))]
+    if estaciones:
+        conexion.executemany("DELETE FROM stations WHERE market_id = ?", [(m,) for m in estaciones])
+        return True
+    consulta = (
+        "SELECT system_address FROM systems "
+        "WHERE nombre IS NULL OR nombre <> COALESCE(?, '') COLLATE NOCASE LIMIT ?"
+    )
+    sistemas = [d for (d,) in conexion.execute(consulta, (conservar, lote))]
+    conexion.executemany("DELETE FROM systems WHERE system_address = ?", [(d,) for d in sistemas])
+    return bool(sistemas)
+
+
 def _distancia(x: float, y: float, z: float, cx: float, cy: float, cz: float) -> float:
     return math.dist((x, y, z), (cx, cy, cz))
 

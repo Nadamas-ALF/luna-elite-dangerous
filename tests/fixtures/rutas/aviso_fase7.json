@@ -1,0 +1,164 @@
+{
+  "id": 1,
+  "momento": "2026-11-15T20:00:00Z",
+  "modo": "bucle",
+  "ganancia_hora": 706472.0774549154,
+  "ruta": {
+    "ida": {
+      "mercancia": {
+        "simbolo": "gold",
+        "nombre": "Oro"
+      },
+      "compra": {
+        "market_id": 101,
+        "estacion": "E101",
+        "sistema": "S1",
+        "distancia_ls": 100.0,
+        "planetaria": false,
+        "distancia_origen": 0.0,
+        "precio": 9000,
+        "cantidad": 10000,
+        "origen": "eddn",
+        "observado": "2026-11-13T11:30:00Z",
+        "horas": 0.5
+      },
+      "venta": {
+        "market_id": 202,
+        "estacion": "E202",
+        "sistema": "S2",
+        "distancia_ls": 100.0,
+        "planetaria": false,
+        "distancia_origen": 10.0,
+        "precio": 10000,
+        "cantidad": 10000,
+        "origen": "eddn",
+        "observado": "2026-11-13T11:30:00Z",
+        "horas": 0.5
+      },
+      "ganancia_tonelada": 1000,
+      "toneladas": 100,
+      "ganancia_viaje": 100000,
+      "saltos": 1,
+      "distancia_ly": 10.0,
+      "segundos": 382.18070977791825,
+      "tiempo": [
+        {
+          "parte": "salida",
+          "segundos": 100.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "saltos",
+          "segundos": 0.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "supercrucero",
+          "segundos": 132.18070977791825,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "atraque",
+          "segundos": 90.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "comercio",
+          "segundos": 60.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        }
+      ],
+      "ganancia_hora": 941962.7699398872,
+      "ganancia_sesion": 941962.7699398872,
+      "confianza": 1.0,
+      "puntuacion": 941962.7699398872
+    },
+    "vuelta": {
+      "mercancia": {
+        "simbolo": "silver",
+        "nombre": "silver"
+      },
+      "compra": {
+        "market_id": 202,
+        "estacion": "E202",
+        "sistema": "S2",
+        "distancia_ls": 100.0,
+        "planetaria": false,
+        "distancia_origen": 10.0,
+        "precio": 4000,
+        "cantidad": 10000,
+        "origen": "eddn",
+        "observado": "2026-11-13T11:30:00Z",
+        "horas": 0.5
+      },
+      "venta": {
+        "market_id": 101,
+        "estacion": "E101",
+        "sistema": "S1",
+        "distancia_ls": 100.0,
+        "planetaria": false,
+        "distancia_origen": 0.0,
+        "precio": 4500,
+        "cantidad": 10000,
+        "origen": "eddn",
+        "observado": "2026-11-13T11:30:00Z",
+        "horas": 0.5
+      },
+      "ganancia_tonelada": 500,
+      "toneladas": 100,
+      "ganancia_viaje": 50000,
+      "saltos": 1,
+      "distancia_ly": 10.0,
+      "segundos": 382.18070977791825,
+      "tiempo": [
+        {
+          "parte": "salida",
+          "segundos": 100.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "saltos",
+          "segundos": 0.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "supercrucero",
+          "segundos": 132.18070977791825,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "atraque",
+          "segundos": 90.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        },
+        {
+          "parte": "comercio",
+          "segundos": 60.0,
+          "fuente": "por_defecto",
+          "muestras": 0
+        }
+      ],
+      "ganancia_hora": 470981.3849699436,
+      "ganancia_sesion": 470981.3849699436,
+      "confianza": 1.0,
+      "puntuacion": 470981.3849699436
+    },
+    "ganancia_tonelada": 1500,
+    "ganancia_viaje": 150000,
+    "distancia_ly": 10.0,
+    "segundos": 764.3614195558365,
+    "ganancia_hora": 706472.0774549154,
+    "ganancia_sesion": 706472.0774549154,
+    "confianza": 1.0,
+    "puntuacion": 706472.0774549154
+  }
+}

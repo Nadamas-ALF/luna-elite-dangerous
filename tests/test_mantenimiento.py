@@ -322,6 +322,26 @@ def test_cuando_el_config_vuelve_a_leerse_se_usa_la_esfera_del_usuario(escritor,
     assert sistemas(tmp_path / "luna.db") == ["S1", "S2", "S3"]
 
 
+def test_al_corregir_la_esfera_viva_se_avisa_con_la_del_usuario(escritor, tmp_path):
+    """El gestor de Spansh ajusta con ella la cobertura anotada de la descarga (E-15)."""
+    config = tmp_path / "config.json"
+    config.write_text("{roto", encoding="utf-8")
+    viva = EsferaViva(Esfera("Sol", (0.0, 0.0, 0.0), 100.0), fiable=False)
+    corregidas = []
+    manto = Mantenimiento(
+        escritor, viva, config, 3600.0, lambda: AHORA, al_corregir_esfera=corregidas.append
+    )
+    manto.aplicar_esfera()
+    assert corregidas == []
+
+    ajustes.guardar_esfera(config, Esfera("Sol", (0.0, 0.0, 0.0), 40.0))
+    manto.aplicar_esfera()
+    manto.aplicar_esfera()
+    escritor.detener()
+
+    assert [esfera.radio for esfera in corregidas] == [40.0]
+
+
 def test_un_config_cerrado_por_otro_programa_tampoco_limpia(escritor, tmp_path, monkeypatch):
     sembrar_a(escritor, 50.0, 900.0)
     (tmp_path / "config.json").write_text("{}", encoding="utf-8")

@@ -152,3 +152,37 @@ def test_la_carpeta_se_resuelve_por_windows():
 def test_una_carpeta_configurada_que_no_existe_cae_a_la_de_windows(tmp_path):
     assert carpeta.resolver(str(tmp_path)) == tmp_path
     assert carpeta.resolver(str(tmp_path / "no-existe")) == carpeta.resolver(None)
+
+
+def test_los_nombres_antiguos_se_ordenan_por_su_fecha(tmp_path):
+    for nombre in (
+        "Journal.2026-11-12T100000.01.log",
+        "Journal.211001033327.01.log",
+        "Journal.2022-03-15T080000.01.log",
+        "Journal.211001033327.02.log",
+        "Journal.191231235959.01.log",
+    ):
+        journal(tmp_path, nombre, linea("Fileheader"))
+
+    assert [j.name for j in lector.listar(tmp_path)] == [
+        "Journal.191231235959.01.log",
+        "Journal.211001033327.01.log",
+        "Journal.211001033327.02.log",
+        "Journal.2022-03-15T080000.01.log",
+        "Journal.2026-11-12T100000.01.log",
+    ]
+
+
+def test_un_journal_antiguo_en_la_carpeta_no_aparta_del_actual(tmp_path):
+    journal(tmp_path, "Journal.211001033327.01.log", linea("Fileheader"))
+    actual = journal(tmp_path, "Journal.2026-11-12T100000.01.log", linea("Fileheader"))
+    seguidor = lector.Seguidor(tmp_path)
+
+    assert seguidor.iniciar(dias=100_000).archivo == actual.name
+
+    with actual.open("a", encoding="utf-8", newline="\n") as f:
+        f.write(linea("Docked"))
+    resultado = seguidor.nuevos()
+
+    assert [e["event"] for e in resultado.eventos] == ["Docked"]
+    assert resultado.archivo == actual.name

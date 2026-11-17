@@ -47,20 +47,20 @@ _CONDICION_DE_TIPO = {
 # Una estación de EDDN sin `Docked` previo no tiene categoría; si tiene plataforma, vale.
 _SIEMPRE = "s.categoria = 'desconocida'"
 
-_DESDE = (
+CAJA = (
     "FROM stations s JOIN systems y ON y.system_address = s.system_address "
-    "WHERE y.x BETWEEN ? AND ? AND y.y BETWEEN ? AND ? AND y.z BETWEEN ? AND ? "
-    "AND s.distancia_ls <= ? AND s.plataforma IN ({plataformas}) AND ({tipos})"
+    "WHERE y.x BETWEEN ? AND ? AND y.y BETWEEN ? AND ? AND y.z BETWEEN ? AND ?"
 )
+DESDE = CAJA + " AND s.distancia_ls <= ? AND s.plataforma IN ({plataformas}) AND ({tipos})"
 
 _ESTACIONES = (
-    "SELECT s.market_id, s.nombre, y.nombre, y.x, y.y, y.z, s.distancia_ls, s.planetaria " + _DESDE
+    "SELECT s.market_id, s.nombre, y.nombre, y.x, y.y, y.z, s.distancia_ls, s.planetaria " + DESDE
 )
 
 _PRECIOS = (
     "SELECT p.market_id, p.commodity, p.buy_price, p.sell_price, p.stock, p.demand, "  # noqa: S608
     "p.origen, p.observado FROM market_prices p WHERE p.market_id IN (SELECT s.market_id "
-    + _DESDE
+    + DESDE
     + ") AND p.observado >= ? AND p.origen IN ({origenes}) "
     "AND ((p.stock >= ? AND p.buy_price > 0) OR (p.demand > 0 AND p.sell_price > 0)) "
     "AND (? OR p.commodity NOT IN (SELECT simbolo FROM commodities WHERE rara = 1))"
@@ -116,12 +116,12 @@ def marca(momento: datetime) -> str:
     return momento.astimezone(UTC).strftime(FORMATO_MARCA)
 
 
-def _plataformas_validas(necesaria: str) -> tuple[str, ...]:
+def plataformas_validas(necesaria: str) -> tuple[str, ...]:
     return PLATAFORMAS[PLATAFORMAS.index(necesaria) :]
 
 
-def _consulta(plantilla: str, perfil: Perfil) -> str:
-    plataformas = _plataformas_validas(perfil.plataforma)
+def consulta(plantilla: str, perfil: Perfil) -> str:
+    plataformas = plataformas_validas(perfil.plataforma)
     tipos = " OR ".join([_SIEMPRE, *(_CONDICION_DE_TIPO[t] for t in perfil.tipos)])
     return plantilla.format(
         plataformas=", ".join("?" * len(plataformas)),
@@ -130,20 +130,20 @@ def _consulta(plantilla: str, perfil: Perfil) -> str:
     )
 
 
-def _parametros_de_estacion(perfil: Perfil, centro: Posicion) -> list:
+def parametros_de_estacion(perfil: Perfil, centro: Posicion) -> list:
     caja = [
         v for eje in centro for v in (eje - perfil.distancia_max_ly, eje + perfil.distancia_max_ly)
     ]
-    return [*caja, perfil.distancia_max_ls, *_plataformas_validas(perfil.plataforma)]
+    return [*caja, perfil.distancia_max_ls, *plataformas_validas(perfil.plataforma)]
 
 
 def _estaciones(
     conexion: sqlite3.Connection, perfil: Perfil, centro: Posicion
 ) -> dict[int, Estacion]:
-    sql = _consulta(_ESTACIONES, perfil)
+    sql = consulta(_ESTACIONES, perfil)
     estaciones = {}
     for market_id, nombre, sistema, x, y, z, ls, planetaria in conexion.execute(
-        sql, _parametros_de_estacion(perfil, centro)
+        sql, parametros_de_estacion(perfil, centro)
     ):
         distancia = math.dist(centro, (x, y, z))
         if distancia <= perfil.distancia_max_ly:
@@ -162,7 +162,7 @@ def _momento(observado: str) -> datetime | None:
     return momento if momento.tzinfo is not None else None
 
 
-class _Edades:
+class Edades:
     """Horas desde cada marca; un mercado entero comparte la suya, así que se recuerdan."""
 
     def __init__(self, ahora: datetime) -> None:
@@ -171,11 +171,11 @@ class _Edades:
 
     def horas(self, observado: str) -> float | None:
         if observado not in self._vistas:
-            momento = _momento(observado)
+            instante = _momento(observado)
             self._vistas[observado] = (
                 None
-                if momento is None
-                else max((self._ahora - momento).total_seconds() / 3600, 0.0)
+                if instante is None
+                else max((self._ahora - instante).total_seconds() / 3600, 0.0)
             )
         return self._vistas[observado]
 
@@ -198,21 +198,21 @@ def cargar(
     # Con stock mínimo 0 seguiría sin valer una oferta vacía.
     stock_minimo = max(perfil.stock_minimo, 1)
     parametros = [
-        *_parametros_de_estacion(perfil, centro),
+        *parametros_de_estacion(perfil, centro),
         limite,
         *perfil.origenes,
         stock_minimo,
         perfil.raras if raras is None else raras,
     ]
-    edades = _Edades(ahora)
-    for n, fila in enumerate(conexion.execute(_consulta(_PRECIOS, perfil), parametros)):
+    edades = Edades(ahora)
+    for n, fila in enumerate(conexion.execute(consulta(_PRECIOS, perfil), parametros)):
         if parar is not None and n % FILAS_ENTRE_COMPROBACIONES == 0 and parar.is_set():
             raise BusquedaCancelada
         _anadir(candidatos, fila, stock_minimo, edades)
     return candidatos
 
 
-def _anadir(candidatos: Candidatos, fila: tuple, stock_minimo: int, edades: _Edades) -> None:
+def _anadir(candidatos: Candidatos, fila: tuple, stock_minimo: int, edades: Edades) -> None:
     market_id, mercancia, compra, venta, stock, demanda, origen, observado = fila
     estacion = candidatos.estaciones.get(market_id)
     if estacion is None:  # dentro de la caja pero fuera de la esfera
@@ -228,6 +228,50 @@ def _anadir(candidatos: Candidatos, fila: tuple, stock_minimo: int, edades: _Eda
         candidatos.anadir_demanda(
             Precio(estacion, mercancia, venta, demanda, origen, observado, horas)
         )
+
+
+_ESTACIONES_DE_RUTA = (
+    "SELECT s.market_id, s.nombre, y.nombre, y.x, y.y, y.z, s.distancia_ls, s.planetaria, "
+    "s.plataforma FROM stations s JOIN systems y ON y.system_address = s.system_address "
+    "WHERE y.x IS NOT NULL AND y.y IS NOT NULL AND y.z IS NOT NULL AND s.market_id IN ({ids})"
+)
+
+_PRECIOS_DE_RUTA = (
+    "SELECT market_id, commodity, buy_price, sell_price, stock, demand, origen, observado "
+    "FROM market_prices WHERE market_id IN ({ids}) "
+    "AND ((stock >= 1 AND buy_price > 0) OR (demand > 0 AND sell_price > 0))"
+)
+
+
+def de_estaciones(
+    conexion: sqlite3.Connection,
+    market_ids: set[int],
+    ahora: datetime,
+    desde: Posicion | None,
+) -> tuple[Candidatos, dict[int, str | None]]:
+    """Solo estas estaciones y sus precios, sin filtros: la ruta ya está elegida.
+
+    Ni la antigüedad, ni el tipo, ni la plataforma, ni los ls, ni las raras las excluyen; la
+    antigüedad cuenta en la confianza y se enseña. Devuelve también la plataforma de cada
+    estación para avisar de las que la nave no admite.
+    """
+    candidatos, plataformas = Candidatos(), {}
+    if not market_ids:
+        return candidatos, plataformas
+    marcas = ", ".join("?" * len(market_ids))
+    ids = sorted(market_ids)
+    for market_id, nombre, sistema, x, y, z, ls, planetaria, plataforma in conexion.execute(
+        _ESTACIONES_DE_RUTA.format(ids=marcas), ids
+    ):
+        distancia = math.dist(desde, (x, y, z)) if desde is not None else 0.0
+        candidatos.estaciones[market_id] = Estacion(
+            market_id, nombre, sistema, (x, y, z), ls or 0.0, bool(planetaria), distancia
+        )
+        plataformas[market_id] = plataforma
+    edades = Edades(ahora)
+    for fila in conexion.execute(_PRECIOS_DE_RUTA.format(ids=marcas), ids):
+        _anadir(candidatos, fila, 1, edades)
+    return candidatos, plataformas
 
 
 _ESTACION_ACTUAL = (
@@ -264,7 +308,7 @@ def ofertas_de_la_estacion(
         return []
     sql = _OFERTAS_ACTUALES.format(origenes=", ".join("?" * len(perfil.origenes)))
     parametros = [market_id, max(perfil.stock_minimo, 1), *perfil.origenes, perfil.raras]
-    edades = _Edades(ahora)
+    edades = Edades(ahora)
     return [
         Precio(estacion, mercancia, compra, stock, origen, observado, horas)
         for mercancia, compra, stock, origen, observado in conexion.execute(sql, parametros)

@@ -1,0 +1,224 @@
+[
+  {
+    "mercancia": {
+      "simbolo": "gold",
+      "nombre": "Oro"
+    },
+    "compra": {
+      "market_id": 101,
+      "estacion": "Estación A",
+      "sistema": "Sistema A",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 0.0,
+      "precio": 9000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "venta": {
+      "market_id": 202,
+      "estacion": "Estación B",
+      "sistema": "Sistema B",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 10.0,
+      "precio": 10000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "ganancia_tonelada": 1000,
+    "toneladas": 100,
+    "ganancia_viaje": 100000,
+    "saltos": 1,
+    "distancia_ly": 10.0,
+    "segundos": 382.18070977791825,
+    "tiempo": [
+      {
+        "parte": "salida",
+        "segundos": 100.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "saltos",
+        "segundos": 0.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "supercrucero",
+        "segundos": 132.18070977791825,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "atraque",
+        "segundos": 90.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "comercio",
+        "segundos": 60.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      }
+    ],
+    "ganancia_hora": 941962.7699398872,
+    "ganancia_sesion": 941962.7699398872,
+    "confianza": 1.0,
+    "puntuacion": 941962.7699398872
+  },
+  {
+    "mercancia": {
+      "simbolo": "silver",
+      "nombre": "Plata"
+    },
+    "compra": {
+      "market_id": 202,
+      "estacion": "Estación B",
+      "sistema": "Sistema B",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 0.0,
+      "precio": 9000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "venta": {
+      "market_id": 303,
+      "estacion": "Estación C",
+      "sistema": "Sistema C",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 10.0,
+      "precio": 10000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "ganancia_tonelada": 1000,
+    "toneladas": 100,
+    "ganancia_viaje": 100000,
+    "saltos": 1,
+    "distancia_ly": 10.0,
+    "segundos": 382.18070977791825,
+    "tiempo": [
+      {
+        "parte": "salida",
+        "segundos": 100.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "saltos",
+        "segundos": 0.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "supercrucero",
+        "segundos": 132.18070977791825,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "atraque",
+        "segundos": 90.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "comercio",
+        "segundos": 60.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      }
+    ],
+    "ganancia_hora": 941962.7699398872,
+    "ganancia_sesion": 941962.7699398872,
+    "confianza": 1.0,
+    "puntuacion": 941962.7699398872
+  },
+  {
+    "mercancia": {
+      "simbolo": "gold",
+      "nombre": "Oro"
+    },
+    "compra": {
+      "market_id": 303,
+      "estacion": "Estación C",
+      "sistema": "Sistema C",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 0.0,
+      "precio": 9000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "venta": {
+      "market_id": 404,
+      "estacion": "Estación D",
+      "sistema": "Sistema D",
+      "distancia_ls": 100.0,
+      "planetaria": false,
+      "distancia_origen": 10.0,
+      "precio": 10000,
+      "cantidad": 10000,
+      "origen": "eddn",
+      "observado": "2026-11-13T11:30:00Z",
+      "horas": 0.5
+    },
+    "ganancia_tonelada": 1000,
+    "toneladas": 100,
+    "ganancia_viaje": 100000,
+    "saltos": 1,
+    "distancia_ly": 10.0,
+    "segundos": 382.18070977791825,
+    "tiempo": [
+      {
+        "parte": "salida",
+        "segundos": 100.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "saltos",
+        "segundos": 0.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "supercrucero",
+        "segundos": 132.18070977791825,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "atraque",
+        "segundos": 90.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      },
+      {
+        "parte": "comercio",
+        "segundos": 60.0,
+        "fuente": "por_defecto",
+        "muestras": 0
+      }
+    ],
+    "ganancia_hora": 941962.7699398872,
+    "ganancia_sesion": 941962.7699398872,
+    "confianza": 1.0,
+    "puntuacion": 941962.7699398872
+  }
+]

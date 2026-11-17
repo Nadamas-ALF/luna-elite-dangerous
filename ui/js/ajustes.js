@@ -1,5 +1,5 @@
 // Paneles «Retención de precios», «Búsqueda de rutas», «Sesiones de Rendimiento»,
-// «Sonido de las alertas» y «EDDN» de Configuración.
+// «Sonido de las alertas», «Ventana» y «EDDN» de Configuración.
 import * as api from './api.js';
 import { texto } from './i18n.js';
 
@@ -202,6 +202,44 @@ export function crearPanelSonido(raiz) {
     async cargar() {
       limpiar();
       mostrarRespuesta(await api.ajustesDeSonido(), pintar);
+    },
+  };
+}
+
+/** Mantener LUNA encima de las demás ventanas; se aplica al marcar, sin pulsar «Guardar». */
+export function crearPanelVentana(raiz) {
+  const c = campos(raiz);
+
+  c.ventana_encima.addEventListener('change', async () => {
+    mostrarTexto(c.ventana_error, null);
+    mostrarTexto(c.ventana_resultado, null);
+    const pedido = c.ventana_encima.checked;
+    c.ventana_encima.disabled = true;
+    let respuesta;
+    try {
+      respuesta = await api.guardarSiempreEncima(pedido);
+    } catch (error) {
+      console.error(error);
+      respuesta = { error: 'no_disponible' };
+    } finally {
+      c.ventana_encima.disabled = false;
+    }
+    if (respuesta.error) {
+      mostrarTexto(c.ventana_error, mensajeDeError(respuesta.error));
+      c.ventana_encima.checked = !pedido;
+      return;
+    }
+    const clave = respuesta.aplicado ? 'aplicado' : 'reinicio';
+    mostrarTexto(c.ventana_resultado, texto(`configuracion.ventana.${clave}`));
+  });
+
+  return {
+    async cargar() {
+      mostrarTexto(c.ventana_error, null);
+      mostrarTexto(c.ventana_resultado, null);
+      const datos = await api.ajustesDeVentana();
+      if (datos.error) mostrarTexto(c.ventana_error, mensajeDeError(datos.error));
+      else c.ventana_encima.checked = datos.siempre_encima;
     },
   };
 }

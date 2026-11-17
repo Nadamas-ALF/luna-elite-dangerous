@@ -175,11 +175,19 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "estado",
         "configuracion",
         "elegir_carpeta_journal",
+        "ajustes_de_aspecto",
+        "guardar_tamano_de_letra",
+        "guardar_densidad",
+        "guardar_filas_por_pagina",
+        "guardar_columnas",
         "usar_carpeta_automatica",
         "spansh",
         "proponer_esfera",
         "aplicar_esfera",
         "guardar_retencion",
+        "guardar_secciones_abiertas",
+        "borrar_datos_de_mercado",
+        "espacio_en_disco",
         "establecer_eddn",
         "reanudar_descarga",
         "pausar_descarga",
@@ -187,6 +195,8 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "perfil_inicial",
         "buscar_rutas",
         "ahora",
+        "buscar_estaciones",
+        "explicar_busqueda",
         "perfiles_guardados",
         "guardar_perfil",
         "borrar_perfil",
@@ -195,12 +205,25 @@ def test_la_interfaz_solo_ve_los_metodos_previstos(api):
         "rendimiento",
         "ajustes_de_sesiones",
         "guardar_ajustes_de_sesiones",
+        "guardar_omitir_sesiones_vacias",
+        "importar_historial",
+        "estado_de_la_importacion",
+        "cancelar_importacion",
         "reglas_de_alertas",
         "guardar_reglas_de_alertas",
+        "ajustes_de_ventana",
+        "guardar_siempre_encima",
+        "guardar_lateral_plegado",
         "avisos",
         "ajustes_de_sonido",
         "guardar_ajustes_de_sonido",
         "probar_sonido",
+        "rutas_fijadas",
+        "estimar_ruta",
+        "fijar_ruta",
+        "desfijar_ruta",
+        "ajustes_de_ruta_en_curso",
+        "guardar_ajustes_de_ruta_en_curso",
     }
 
 
@@ -352,6 +375,8 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.proponer_esfera("Sol", 100) == esperado
     assert interfaz.aplicar_esfera("Sol", 100, False) == esperado
     assert interfaz.guardar_retencion(3, 30) == esperado
+    assert interfaz.borrar_datos_de_mercado() == esperado
+    assert interfaz.espacio_en_disco() == esperado
     assert interfaz.establecer_eddn(True) == esperado
     assert interfaz.reanudar_descarga() == esperado
     assert interfaz.pausar_descarga() == esperado
@@ -359,6 +384,8 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.perfil_inicial() == esperado
     assert interfaz.buscar_rutas("un_salto", {}) == esperado
     assert interfaz.ahora({}) == esperado
+    assert interfaz.buscar_estaciones("Sol") == esperado
+    assert interfaz.explicar_busqueda({}) == esperado
     assert interfaz.perfiles_guardados() == esperado
     assert interfaz.guardar_perfil("x", {}) == esperado
     assert interfaz.borrar_perfil("x") == esperado
@@ -373,6 +400,12 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.ajustes_de_sonido() == esperado
     assert interfaz.guardar_ajustes_de_sonido(True, 50) == esperado
     assert interfaz.probar_sonido(50) == esperado
+    assert interfaz.rutas_fijadas() == esperado
+    assert interfaz.estimar_ruta({}) == esperado
+    assert interfaz.fijar_ruta({}) == esperado
+    assert interfaz.desfijar_ruta(1) == esperado
+    assert interfaz.ajustes_de_ruta_en_curso() == esperado
+    assert interfaz.guardar_ajustes_de_ruta_en_curso(True, 20, False) == esperado
 
 
 def test_el_estado_de_la_api_lleva_spansh_y_el_centro_vigente(tmp_path):

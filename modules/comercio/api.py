@@ -29,12 +29,23 @@ from core.config import ajustes
 from core.db import mercado
 from core.db.escritor import Escritor, Trabajo, abrir_lectura
 from core.state.estado import Estado, precio_de_compra, vendibles
-from modules.comercio import alerts, perfiles, rendimiento, salida, timing
+from modules.comercio import (
+    alerts,
+    en_curso,
+    estaciones,
+    estimar,
+    fijadas,
+    paradas,
+    perfiles,
+    rendimiento,
+    salida,
+    timing,
+)
 from modules.comercio.engine import ahora as modo_ahora
-from modules.comercio.engine import candidatos, rutas
+from modules.comercio.engine import candidatos, descartes, rutas
 from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import BusquedaCancelada, Posicion
-from modules.comercio.engine.perfil import Perfil, PerfilInvalido, desde_dict
+from modules.comercio.engine.perfil import CAMPOS, Perfil, PerfilInvalido, desde_dict
 from modules.comercio.engine.perfil import nombre as validar_nombre
 
 registro = logging.getLogger("luna.comercio")
@@ -50,6 +61,9 @@ ERROR_NO_GUARDADO = "no_guardado"
 ERROR_SIN_COMANDANTE = "sin_comandante"
 ERROR_SESION = "sesion_desconocida"
 ERROR_REGLA = "regla"
+ERROR_SIN_NAVE = "sin_nave"
+ERROR_ESTACION = "estacion_desconocida"
+ERROR_LIMITE = "limite"
 
 # Un inicio de sesión es una marca ISO del journal; más largo no es una sesión.
 LARGO_MAXIMO_DE_SESION = 40
@@ -125,9 +139,10 @@ class Comercio:
         }
         perfil["antiguedad_max_h"] = min(perfil["antiguedad_max_h"], tope * 24.0)
         return {
-            "perfil": {campo: _a_json(perfil.get(campo)) for campo in Perfil.__dataclass_fields__},
+            "perfil": {campo: _a_json(perfil.get(campo)) for campo in CAMPOS},
             "automaticos": [campo for campo, valor in de_la_nave.items() if valor is not None],
             "limites": {"antiguedad_max_h": tope * 24.0},
+            "saldo": estado.creditos,
         }
 
     def buscar_rutas(self, modo: object, datos: object) -> dict:
@@ -149,8 +164,45 @@ class Comercio:
             return {"cancelada": True}
         return {
             "modo": modo,
-            "resultados": [convertir(r, nombres, perfil.horas_sesion, tiempos) for r in resultados],
+            "resultados": [
+                _con_detalle(modo, convertir(r, nombres, perfil.horas_sesion, tiempos))
+                for r in resultados
+            ],
+            "corta": len(resultados) < descartes.RESULTADOS_CORTOS,
         }
+
+    def explicar_busqueda(self, datos: object) -> dict:
+        """Cuánto quitó cada filtro a una búsqueda que salió corta (DESIGN.md §4.3).
+
+        Va aparte de `buscar_rutas` y la interfaz la pide después: los recuentos releen los
+        precios del radio, y dentro de la búsqueda llevaban la respuesta de 2 s a casi 5 s con
+        100 ly. Comparte el turno de Rutas, así que una búsqueda nueva la cancela.
+        """
+        try:
+            perfil, estado = self._entrada(datos)
+            with self._turno_rutas.empezar() as parar, self._lectura() as conexion:
+                centro = _centro(conexion, perfil, estado)
+                momento = self._reloj()
+                cargados = candidatos.cargar(conexion, perfil, centro, momento, parar=parar)
+                explicacion = descartes.contar(conexion, perfil, centro, momento, cargados, parar)
+                _comprobar(parar)
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        except BusquedaCancelada:
+            return {"cancelada": True}
+        return {"descartes": explicacion}
+
+    def buscar_estaciones(self, texto: object) -> dict:
+        """Dónde está una estación y qué antigüedad tiene su mercado (solo lo guardado)."""
+        try:
+            limpio = estaciones.validar(texto)
+        except PerfilInvalido as error:
+            return {"error": ERROR_PARAMETRO, "campo": error.campo}
+        try:
+            with self._lectura() as conexion:
+                return estaciones.buscar(conexion, limpio, self._estado().posicion, self._reloj())
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
 
     def ahora(self, datos: object) -> dict:
         """Vender la carga y comprar desde aquí, alrededor de donde estás (7.3).
@@ -197,7 +249,10 @@ class Comercio:
         if market_id is not None:
             ofertas = candidatos.ofertas_de_la_estacion(conexion, market_id, perfil, momento)
             tramos = modo_ahora.desde_aqui(cargados, ofertas, perfil, curva, tiempos)
-            desde_aqui = [salida.tramo(t, nombres, perfil.horas_sesion, tiempos) for t in tramos]
+            desde_aqui = [
+                _con_detalle("un_salto", salida.tramo(t, nombres, perfil.horas_sesion, tiempos))
+                for t in tramos
+            ]
         return {
             "vender": [_vender(articulo, ventas, nombres, tiempos) for articulo in carga],
             "desde_aqui": desde_aqui,
@@ -262,7 +317,15 @@ class Comercio:
         ajuste = ajustes.sesiones(self._config)
         try:
             with self._lectura() as conexion:
-                return rendimiento.informe(conexion, estado.fid, sesion, ajuste, self._reloj())
+                return rendimiento.informe(
+                    conexion,
+                    estado.fid,
+                    sesion,
+                    ajuste,
+                    self._reloj(),
+                    ajustes.omitir_sesiones_vacias(self._config),
+                    estado.creditos,
+                )
         except _Rechazo as rechazo:
             return rechazo.respuesta
         except rendimiento.SesionDesconocida:
@@ -285,6 +348,13 @@ class Comercio:
         if not ajustes.guardar_sesiones(self._config, horas, por_partida):
             return {"error": ERROR_NO_GUARDADO}
         return {"ok": True, **self.ajustes_de_sesiones()}
+
+    def guardar_omitir_sesiones_vacias(self, omitir: object) -> dict:
+        if not isinstance(omitir, bool):
+            return {"error": ERROR_PARAMETRO, "campo": "omitir_vacias"}
+        if not ajustes.guardar_omitir_sesiones_vacias(self._config, omitir):
+            return {"error": ERROR_NO_GUARDADO}
+        return {"ok": True, "omitir_vacias": omitir}
 
     def reglas_de_alertas(self) -> dict:
         try:
@@ -316,6 +386,101 @@ class Comercio:
             return rechazo.respuesta
         return {"avisos": lista, "ultimo": ultimo}
 
+    def rutas_fijadas(self) -> dict:
+        """Las rutas fijadas y la ruta en curso, recalculadas con lo de hoy (bloque 5)."""
+        estado = self._estado()
+        try:
+            perfil = self._perfil_de_la_nave(estado)
+            with self._lectura() as conexion:
+                guardadas = fijadas.listar(conexion)
+                pausa = ajustes.sesiones(self._config)[0]
+                actual = (
+                    en_curso.deducir(en_curso.leer(conexion, estado.fid), self._reloj(), pausa)
+                    if estado.fid
+                    else None
+                )
+                paradas_de = [p for r in guardadas for p in r["paradas"]]
+                paradas_de += list(actual.paradas) if actual else []
+                contexto = self._contexto_de_ruta(
+                    conexion, {p["market_id"] for p in paradas_de}, perfil, estado
+                )
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        claves = {r["clave"]: r["id"] for r in guardadas}
+        return {
+            "fijadas": [
+                {
+                    "id": r["id"],
+                    "creada": r["creada"],
+                    "cerrada": r["cerrada"],
+                    **estimar.estimar(contexto, r),
+                }
+                for r in guardadas
+            ],
+            "en_curso": _en_curso_con_estimacion(actual, contexto, claves) if actual else None,
+        }
+
+    def estimar_ruta(self, datos: object) -> dict:
+        """Recalcula una ruta de estaciones elegida a mano, sin guardarla (7.3)."""
+        try:
+            pedida = fijadas.validar(datos)
+        except fijadas.RutaInvalida as error:
+            return {"error": ERROR_PARAMETRO, "campo": error.campo}
+        estado = self._estado()
+        try:
+            perfil = self._perfil_de_la_nave(estado)
+            with self._lectura() as conexion:
+                ruta = self._completar(conexion, pedida)
+                contexto = self._contexto_de_ruta(
+                    conexion, {p["market_id"] for p in ruta["paradas"]}, perfil, estado
+                )
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        return {"cerrada": ruta["cerrada"], **estimar.estimar(contexto, ruta)}
+
+    def fijar_ruta(self, datos: object) -> dict:
+        try:
+            pedida = fijadas.validar(datos)
+        except fijadas.RutaInvalida as error:
+            return {"error": ERROR_PARAMETRO, "campo": error.campo}
+        try:
+            with self._lectura() as conexion:
+                ruta = self._completar(conexion, pedida)
+        except _Rechazo as rechazo:
+            return rechazo.respuesta
+        creada = self._reloj().strftime("%Y-%m-%dT%H:%M:%SZ")
+        return self._escribir(
+            lambda conexion: fijadas.guardar(conexion, ruta, creada), _respuesta_de_fijar
+        )
+
+    def desfijar_ruta(self, id_: object) -> dict:
+        if isinstance(id_, bool) or not isinstance(id_, int) or id_ <= 0:
+            return {"error": ERROR_PARAMETRO, "campo": "id"}
+        return self._escribir(lambda conexion: fijadas.borrar(conexion, id_))
+
+    def ajustes_de_ruta_en_curso(self) -> dict:
+        aviso, margen, portapapeles = ajustes.ruta_en_curso(self._config)
+        return {
+            "aviso_mejor": aviso,
+            "margen_pct": margen,
+            "portapapeles": portapapeles,
+            "margen_minimo": ajustes.MARGEN_MEJOR_MINIMO,
+            "margen_maximo": ajustes.MARGEN_MEJOR_MAXIMO,
+        }
+
+    def guardar_ajustes_de_ruta_en_curso(
+        self, aviso: object, margen: object, portapapeles: object
+    ) -> dict:
+        if not isinstance(aviso, bool):
+            return {"error": ERROR_PARAMETRO, "campo": "aviso_mejor"}
+        if not ajustes.es_margen_de_ruta(margen):
+            return {"error": ERROR_PARAMETRO, "campo": "margen_pct"}
+        if not isinstance(portapapeles, bool):
+            return {"error": ERROR_PARAMETRO, "campo": "portapapeles"}
+        if not ajustes.guardar_ruta_en_curso(self._config, aviso, margen, portapapeles):
+            return {"error": ERROR_NO_GUARDADO}
+        return {"ok": True, **self.ajustes_de_ruta_en_curso()}
+
     def ajustes_de_sonido(self) -> dict:
         activado, volumen = ajustes.sonido(self._config)
         return {"activado": activado, "volumen": volumen}
@@ -337,12 +502,52 @@ class Comercio:
         self._probar_sonido(volumen)
         return {"ok": True}
 
-    def _entrada(self, datos: object) -> tuple[Perfil, Estado]:
+    def _perfil_de_la_nave(self, estado: Estado) -> Perfil:
+        """El de tu nave sin filtros (bloque 5); sin nave detectada, no hay con qué estimar."""
+        if estado.legacy:
+            raise _Rechazo({"error": ERROR_LEGACY})
+        tope = ajustes.tope_de_antiguedad_dias(self._config)
         try:
-            perfil = desde_dict(datos, ajustes.tope_de_antiguedad_dias(self._config))
+            return estimar.perfil_de_la_nave(
+                self.perfil_inicial()["perfil"], tope, estado.sistema, estado.creditos
+            )
+        except PerfilInvalido:
+            raise _Rechazo({"error": ERROR_SIN_NAVE}) from None
+
+    def _contexto_de_ruta(
+        self,
+        conexion: sqlite3.Connection,
+        market_ids: set[int],
+        perfil: Perfil,
+        estado: Estado,
+    ) -> estimar.Contexto:
+        return estimar.leer_contexto(
+            conexion,
+            market_ids,
+            self._reloj(),
+            estado.posicion,
+            perfil,
+            self._curva(),
+            _tiempos(conexion, estado),
+        )
+
+    @staticmethod
+    def _completar(conexion: sqlite3.Connection, pedida: fijadas.RutaPedida) -> dict:
+        try:
+            return fijadas.completar(conexion, pedida)
+        except fijadas.EstacionDesconocida as error:
+            raise _Rechazo(
+                {"error": ERROR_ESTACION, "campo": f"paradas.{error.posicion}"}
+            ) from None
+
+    def _entrada(self, datos: object) -> tuple[Perfil, Estado]:
+        estado = self._estado()
+        try:
+            perfil = desde_dict(
+                datos, ajustes.tope_de_antiguedad_dias(self._config), saldo=estado.creditos
+            )
         except PerfilInvalido as error:
             raise _Rechazo({"error": ERROR_PERFIL, "campo": error.campo}) from None
-        estado = self._estado()
         # 6.1: con un journal de Legacy no se enseñan rutas con datos de Live.
         if estado.legacy:
             raise _Rechazo({"error": ERROR_LEGACY})
@@ -363,24 +568,52 @@ class Comercio:
     def _curva(self) -> Curva:
         return Curva(*ajustes.curva_de_confianza(self._config))
 
-    def _escribir(self, trabajo: Trabajo) -> dict:
-        """Espera al escritor un rato; si sigue ocupado, el trabajo queda en su cola."""
+    def _escribir(
+        self, trabajo: Trabajo, interpretar: Callable[[object], dict] | None = None
+    ) -> dict:
+        """Espera al escritor un rato; si sigue ocupado, el trabajo queda en su cola.
+
+        `interpretar` convierte lo que devolvió el trabajo en la respuesta a la interfaz.
+        """
         if self._escritor is None:
             return {"error": ERROR_SIN_BASE}
         hecho = threading.Event()
-        respuesta: dict = {"pendiente": True}
+        # Se sustituye el diccionario entero: lo que se lee tras la espera nunca está a medias.
+        respuesta = {"valor": {"pendiente": True}}
 
-        def al_terminar(_: object) -> None:
-            respuesta.update(pendiente=False, ok=True)
+        def al_terminar(resultado: object) -> None:
+            contestacion = interpretar(resultado) if interpretar else {"ok": True}
+            respuesta["valor"] = {"pendiente": False, **contestacion}
             hecho.set()
 
         def al_fallar(_: Exception) -> None:
-            respuesta.update(pendiente=False, error=ERROR_NO_GUARDADO)
+            respuesta["valor"] = {"pendiente": False, "error": ERROR_NO_GUARDADO}
             hecho.set()
 
         self._escritor.encolar(trabajo, al_terminar, al_fallar)
         hecho.wait(ESPERA_DE_ESCRITURA)
-        return dict(respuesta)
+        return dict(respuesta["valor"])
+
+
+def _respuesta_de_fijar(resultado: object) -> dict:
+    estado, id_ = resultado
+    if estado == fijadas.ESTADO_NUEVA:
+        return {"ok": True, "id": id_}
+    if estado == fijadas.ESTADO_YA_FIJADA:
+        return {"ya_fijada": True, "id": id_}
+    return {"error": ERROR_LIMITE}
+
+
+def _en_curso_con_estimacion(
+    actual: en_curso.RutaEnCurso, contexto: estimar.Contexto, claves: dict[str, int]
+) -> dict:
+    """La ruta en curso con lo que se estima hoy y, si ya está fijada, su id."""
+    ruta = {"cerrada": actual.cerrada, "paradas": list(actual.paradas)}
+    return {
+        **actual.a_dict(),
+        "estimacion": estimar.estimar(contexto, ruta),
+        "id": claves.get(actual.clave),
+    }
 
 
 def _es_tope(dias: object) -> bool:
@@ -423,7 +656,7 @@ def _valores_de_la_nave(estado: Estado) -> dict:
             else None
         ),
         "plataforma": ficha.plataforma if ficha else None,
-        "creditos": estado.creditos,
+        "stock_minimo": (nave.capacidad_carga or None) if nave else None,
         "origen": estado.sistema,
     }
 
@@ -464,15 +697,23 @@ def _tiempos(conexion: sqlite3.Connection, estado: Estado) -> timing.Tiempos:
     return timing.cargar(conexion, estado.fid, ship_id)
 
 
+def _con_detalle(modo: str, resultado: dict) -> dict:
+    return {**resultado, "detalle": paradas.detalle(modo, resultado)}
+
+
 def _vender(
     articulo: modo_ahora.Carga,
     ventas: dict[str, list[modo_ahora.Venta]],
     nombres: dict,
     tiempos: timing.Tiempos,
 ) -> dict:
+    mercancia = salida.mercancia(articulo.mercancia, nombres)
     return {
-        "mercancia": salida.mercancia(articulo.mercancia, nombres),
+        "mercancia": mercancia,
         "cantidad": articulo.cantidad,
         "precio_compra": articulo.precio_compra,
-        "destinos": [salida.venta(v, tiempos) for v in ventas.get(articulo.mercancia, ())],
+        "destinos": [
+            _con_detalle("venta", {**salida.venta(v, tiempos), "mercancia": mercancia})
+            for v in ventas.get(articulo.mercancia, ())
+        ],
     }

@@ -24,7 +24,7 @@
 
 .entrada {
   width: 100%;
-  min-height: 2.25rem;
+  min-height: var(--alto-control);
   padding: calc(var(--espacio) * 1.5) calc(var(--espacio) * 3);
   border: 1px solid var(--glass-border);
   border-radius: var(--radio-campo);
@@ -117,4 +117,97 @@
 
 .deslizador__control:disabled + output {
   color: var(--text-subtle);
+}
+
+/* Lectura: un título por grupo de ajustes y las columnas en una rejilla que se reparte el ancho. */
+.campo__titulo,
+.campo__subtitulo {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+}
+
+.campo__subtitulo {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.campo .modos {
+  align-self: flex-start;
+  min-width: 0;
+}
+
+fieldset.campo,
+.rejilla-casillas {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.rejilla-casillas__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: calc(var(--espacio) * 2) calc(var(--espacio) * 4);
+  margin-top: calc(var(--espacio) * 2);
+}
+
+/* Secciones plegables de Configuración: cerrada enseña el título y una línea; abierta, todo. */
+.plegable__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--espacio) * 1) calc(var(--espacio) * 4);
+  list-style: none;
+}
+
+.plegable__cabecera::-webkit-details-marker {
+  display: none;
+}
+
+.plegable__cabecera::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: translateY(-0.125rem) rotate(-45deg);
+  transition: transform var(--duracion);
+}
+
+.plegable[open] > .plegable__cabecera::before {
+  transform: translateY(-0.2rem) rotate(45deg);
+}
+
+.plegable__cabecera .panel__titulo {
+  margin: 0;
+}
+
+.plegable__linea {
+  min-width: 0;
+  color: var(--text-subtle);
+  font-size: 0.875rem;
+}
+
+.plegable[open] > .plegable__cabecera .plegable__linea {
+  display: none;
+}
+
+.plegable__cuerpo {
+  margin-top: calc(var(--espacio) * 3);
+}
+
+/* Orientación del coste de cada radio, dentro de la sección Esfera. */
+.guia {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--espacio) * 2);
+  margin: 0 0 calc(var(--espacio) * 3);
+}
+
+.guia__lista {
+  margin: 0;
+  padding-left: calc(var(--espacio) * 5);
+  color: var(--text-muted);
 }

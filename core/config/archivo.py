@@ -17,11 +17,15 @@ import json
 import logging
 import os
 import threading
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
 
 SUFIJO_ROTO = ".roto"
+# Una lectura de config.json dura microsegundos: medio segundo en total sobra.
+REINTENTOS_DE_REEMPLAZO = 10
+ESPERA_ENTRE_REINTENTOS = 0.05
 
 _candado = threading.Lock()
 registro = logging.getLogger("luna.config")
@@ -81,10 +85,21 @@ def _escribir_sin_candado(archivo: Path, datos: dict) -> None:
             destino.flush()
             # Sin fsync, un corte de luz puede dejar el archivo a cero bytes.
             os.fsync(destino.fileno())
-        temporal.replace(archivo)
+        _reemplazar(temporal, archivo)
     except OSError:
         temporal.unlink(missing_ok=True)
         raise
+
+
+def _reemplazar(temporal: Path, archivo: Path) -> None:
+    """En Windows, reemplazar falla mientras otro hilo o programa lee el archivo (E-42)."""
+    for _ in range(REINTENTOS_DE_REEMPLAZO - 1):
+        try:
+            temporal.replace(archivo)
+            return
+        except PermissionError:
+            time.sleep(ESPERA_ENTRE_REINTENTOS)
+    temporal.replace(archivo)
 
 
 def fusionar(archivo: Path, clave: str, valor: object) -> bool:
@@ -92,6 +107,34 @@ def fusionar(archivo: Path, clave: str, valor: object) -> bool:
 
     Devuelve False cuando no escribió nada, para que quien lo pidió pueda avisar.
     """
+    return _cambiar(archivo, lambda datos: datos.__setitem__(clave, valor))
+
+
+def quitar(archivo: Path, clave: str) -> bool:
+    """Borra una clave y deja el resto. True también si ya no estaba."""
+    return _cambiar(archivo, lambda datos: datos.pop(clave, None))
+
+
+def fusionar_campo(archivo: Path, seccion: str, campo: str, valor: object) -> bool:
+    """Cambia un campo de una sección conservando los demás campos de esa sección.
+
+    Leer la sección fuera del candado y escribirla entera perdería el cambio de otro hilo
+    que guarde a la vez otro campo de la misma sección.
+    """
+    return fusionar_campos(archivo, seccion, {campo: valor})
+
+
+def fusionar_campos(archivo: Path, seccion: str, campos: dict) -> bool:
+    """Como `fusionar_campo` para varios campos, en una sola escritura: o todos o ninguno."""
+
+    def cambio(datos: dict) -> None:
+        actual = datos.get(seccion)
+        datos[seccion] = {**(actual if isinstance(actual, dict) else {}), **campos}
+
+    return _cambiar(archivo, cambio)
+
+
+def _cambiar(archivo: Path, cambio) -> bool:
     with _candado:
         try:
             datos = leer(archivo)
@@ -104,7 +147,7 @@ def fusionar(archivo: Path, clave: str, valor: object) -> bool:
             registro.exception("%s no se pudo leer; no se escribe nada", archivo)
             return False
 
-        datos[clave] = valor
+        cambio(datos)
         _escribir_sin_candado(archivo, datos)
         return True
 

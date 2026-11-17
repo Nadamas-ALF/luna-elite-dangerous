@@ -187,6 +187,18 @@ MIGRACIONES: tuple[str, ...] = (
     );
     CREATE INDEX avisos_por_momento ON alert_log (momento);
     """,
+    # Rutas fijadas (prefase 8, bloque 5). Zona del comandante: sin claves foráneas a
+    # `stations` ni a `systems`, así que borrar los mercados no las toca. `paradas` es un
+    # JSON con el id, el nombre y la mercancía de cada una; nunca guarda cifras.
+    """
+    CREATE TABLE pinned_routes (
+        id      INTEGER PRIMARY KEY,
+        clave   TEXT    NOT NULL UNIQUE,
+        cerrada INTEGER NOT NULL,
+        paradas TEXT    NOT NULL,
+        creada  TEXT    NOT NULL
+    );
+    """,
 )
 
 

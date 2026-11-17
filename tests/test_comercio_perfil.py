@@ -17,12 +17,13 @@ def valido(**cambios) -> dict:
         "capacidad": 1120,
         "rango": 32.03,
         "plataforma": "L",
-        "creditos": 1_000_000,
+        "limitar_saldo": True,
         "origen": "Sol",
         "distancia_max_ly": 50,
         "distancia_max_ls": 5000,
         "antiguedad_max_h": 24,
-        "stock_minimo_pct": 100,
+        "stock_minimo": 1120,
+        "ganancia_min": 0,
         "tipos": ["orbital", "asentamiento"],
         "origenes": ["eddn", "propio"],
         "raras": False,
@@ -46,19 +47,30 @@ def test_los_valores_por_defecto_son_los_de_la_seccion_7_1():
         5000,
         24,
     )
-    assert perfil.stock_minimo_pct == 100
+    assert (perfil.stock_minimo, perfil.ganancia_min, perfil.limitar_saldo) == (1, 0, True)
     assert perfil.raras is False
     assert perfil.horas_sesion == 1
     assert perfil.orden == "ganancia_hora"
     assert set(perfil.origenes) == {"propio", "eddn", "spansh"}
 
 
-def test_creditos_puede_faltar_como_sin_limite():
-    assert desde_dict(valido(creditos=None)).creditos is None
+def test_el_saldo_solo_limita_las_compras_si_la_casilla_esta_marcada():
+    assert modulo.desde_dict(valido(), TOPE_DIAS, saldo=5_000).creditos == 5_000
+    assert modulo.desde_dict(valido(limitar_saldo=False), TOPE_DIAS, saldo=5_000).creditos is None
+    assert modulo.desde_dict(valido(), TOPE_DIAS, saldo=None).creditos is None
 
 
-def test_el_stock_minimo_es_un_porcentaje_de_la_bodega_redondeado_hacia_arriba():
-    assert desde_dict(valido(capacidad=150, stock_minimo_pct=33)).stock_minimo == 50
+def test_el_saldo_no_viaja_en_el_perfil_ni_se_acepta_de_la_interfaz():
+    perfil = modulo.desde_dict(valido(), TOPE_DIAS, saldo=5_000)
+    assert "creditos" not in perfil.a_dict()
+    with pytest.raises(PerfilInvalido) as error:
+        desde_dict(valido(creditos=5_000))
+    assert error.value.campo == "creditos"
+
+
+def test_el_stock_minimo_se_pide_en_toneladas_enteras_y_puede_superar_la_bodega():
+    assert desde_dict(valido(capacidad=100, stock_minimo=5_000)).stock_minimo == 5_000
+    assert desde_dict(valido(stock_minimo=0)).stock_minimo == 0
 
 
 @pytest.mark.parametrize(
@@ -72,8 +84,10 @@ def test_el_stock_minimo_es_un_porcentaje_de_la_bodega_redondeado_hacia_arriba()
         ("rango", float("nan")),
         ("rango", float("inf")),
         ("plataforma", "XL"),
-        ("creditos", -1),
-        ("creditos", 10**400),
+        ("limitar_saldo", 1),
+        ("ganancia_min", -1),
+        ("ganancia_min", 1.5),
+        ("stock_minimo", 10.5),
         ("capacidad", -(10**400)),
         ("rango", 10**400),
         ("origen", ""),
@@ -85,7 +99,7 @@ def test_el_stock_minimo_es_un_porcentaje_de_la_bodega_redondeado_hacia_arriba()
         ("distancia_max_ly", 5000),
         ("antiguedad_max_h", -1),
         ("antiguedad_max_h", 7 * 24 + 1),
-        ("stock_minimo_pct", -1),
+        ("stock_minimo", -1),
         ("tipos", []),
         ("tipos", ["fleet_carrier"]),
         ("tipos", "orbital"),

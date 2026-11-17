@@ -286,8 +286,12 @@ def test_el_perfil_inicial_sale_de_la_nave_y_es_un_perfil_valido(ruta, tmp_path)
     inicial = comercio(ruta, tmp_path, sesion()).perfil_inicial()
 
     p = inicial["perfil"]
-    assert set(inicial["automaticos"]) == {"capacidad", "rango", "plataforma", "creditos", "origen"}
+    automaticos = {"capacidad", "rango", "plataforma", "stock_minimo", "origen"}
+    assert set(inicial["automaticos"]) == automaticos
     assert (p["capacidad"], p["plataforma"]) == (1120, "L")
+    assert (p["stock_minimo"], p["limitar_saldo"], p["ganancia_min"]) == (1120, True, 0)
+    assert "creditos" not in p
+    assert inicial["saldo"] == sesion().creditos
     assert p["origen"] == "Col 285 Sector HB-C b14-2"
     assert 0 < p["rango"] < 49.3
     assert p["rango"] == round(p["rango"], 2)
@@ -528,6 +532,42 @@ def test_un_ajuste_de_sesiones_invalido_no_se_guarda(ruta, tmp_path, horas, por_
     assert ajustes.sesiones(tmp_path / "config.json") == (1, False)
 
 
+def test_omitir_sesiones_vacias_viene_activado_y_se_recuerda(ruta, tmp_path):
+    api = comercio(base_con_el_bucle(tmp_path), tmp_path, COMANDANTE)
+    assert api.rendimiento(None)["ajuste"]["omitir_vacias"] is True
+
+    assert api.guardar_omitir_sesiones_vacias(False) == {"ok": True, "omitir_vacias": False}
+
+    assert api.rendimiento(None)["ajuste"]["omitir_vacias"] is False
+
+
+def test_guardar_el_umbral_de_sesiones_no_borra_omitir_vacias(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+    api.guardar_omitir_sesiones_vacias(False)
+
+    api.guardar_ajustes_de_sesiones(3, True)
+
+    assert ajustes.omitir_sesiones_vacias(tmp_path / "config.json") is False
+
+
+@pytest.mark.parametrize("valor", ["si", 1, None])
+def test_omitir_sesiones_vacias_rechaza_lo_que_no_es_un_booleano(ruta, tmp_path, valor):
+    api = comercio(ruta, tmp_path)
+
+    assert api.guardar_omitir_sesiones_vacias(valor) == {
+        "error": "parametro",
+        "campo": "omitir_vacias",
+    }
+
+
+def test_rendimiento_lleva_el_saldo_actual_del_estado(tmp_path):
+    estado = replace(COMANDANTE, creditos=1_234_567)
+
+    respuesta = comercio(base_con_el_bucle(tmp_path), tmp_path, estado).rendimiento(None)
+
+    assert respuesta["saldo_actual"] == 1_234_567
+
+
 def test_reglas_de_alertas_por_defecto_y_guardadas(ruta, tmp_path):
     escritor = Escritor(ruta)
     escritor.iniciar()
@@ -575,3 +615,105 @@ def test_ajustes_de_sonido(ruta, tmp_path):
     assert api.probar_sonido(40) == {"ok": True}
     assert api.probar_sonido(True) == {"error": "parametro", "campo": "volumen"}
     assert probados == [40]
+
+
+def test_una_busqueda_corta_lo_dice_y_su_explicacion_se_pide_aparte(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+    respuesta = api.buscar_rutas("un_salto", datos(ganancia_min=5_000))
+    assert (respuesta["resultados"], respuesta["corta"]) == ([], True)
+    assert "descartes" not in respuesta
+
+    explicacion = api.explicar_busqueda(datos(ganancia_min=5_000))["descartes"]
+    assert explicacion["estaciones_validas"] == 2
+    assert explicacion["descartes"]["ganancia_min"] == 2
+
+
+def test_una_busqueda_con_bastantes_resultados_no_es_corta(ruta, tmp_path, monkeypatch):
+    monkeypatch.setattr(modulo.descartes, "RESULTADOS_CORTOS", 1)
+    assert comercio(ruta, tmp_path).buscar_rutas("un_salto", datos())["corta"] is False
+
+
+def test_la_explicacion_valida_el_perfil_como_la_busqueda(ruta, tmp_path):
+    respuesta = comercio(ruta, tmp_path).explicar_busqueda(datos(capacidad=0))
+    assert respuesta == {"error": "perfil", "campo": "capacidad"}
+
+
+def test_una_busqueda_nueva_cancela_la_explicacion_en_curso(ruta, tmp_path, monkeypatch):
+    api = comercio(ruta, tmp_path)
+    dentro = threading.Event()
+    seguir = threading.Event()
+    contar = modulo.descartes.contar
+
+    def lento(*argumentos, **nombrados):
+        dentro.set()
+        seguir.wait(ESPERA)
+        return contar(*argumentos, **nombrados)
+
+    monkeypatch.setattr(modulo.descartes, "contar", lento)
+    respuestas = []
+    hilo = threading.Thread(target=lambda: respuestas.append(api.explicar_busqueda(datos())))
+    hilo.start()
+    assert dentro.wait(ESPERA)
+    api.buscar_rutas("un_salto", datos())
+    seguir.set()
+    hilo.join(ESPERA)
+    assert respuestas == [{"cancelada": True}]
+
+
+def test_el_saldo_del_comandante_limita_las_toneladas_solo_con_la_casilla(ruta, tmp_path):
+    pobre = Estado(legacy=False, sistema="S1", posicion=(0.0, 0.0, 0.0), creditos=18_000)
+    limitada = comercio(ruta, tmp_path, pobre).buscar_rutas("un_salto", datos(limitar_saldo=True))
+    libre = comercio(ruta, tmp_path, pobre).buscar_rutas("un_salto", datos(limitar_saldo=False))
+    oro = next(r for r in limitada["resultados"] if r["mercancia"]["simbolo"] == "gold")
+    oro_libre = next(r for r in libre["resultados"] if r["mercancia"]["simbolo"] == "gold")
+    assert oro["toneladas"] == 2
+    assert oro_libre["toneladas"] > 2
+
+
+def test_el_buscador_de_estaciones_encuentra_por_parte_del_nombre_sin_mayusculas(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+    [encontrada] = api.buscar_estaciones("e20")["estaciones"]
+    assert (encontrada["market_id"], encontrada["sistema"]) == (202, "S2")
+    assert encontrada["tipo"] == "orbital"
+    assert encontrada["distancia_ly"] == pytest.approx(10.0)
+    assert encontrada["horas"] == pytest.approx(0.5)
+    assert [e["market_id"] for e in api.buscar_estaciones("S1")["estaciones"]] == [101]
+
+
+def test_el_buscador_trata_los_comodines_como_letras_y_rechaza_textos_malos(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+    assert api.buscar_estaciones("%%")["estaciones"] == []
+    assert api.buscar_estaciones("E_0")["estaciones"] == []
+    for malo in ("", " ", "a", "x" * 101, "E\x00", 5, None):
+        assert api.buscar_estaciones(malo) == {"error": "parametro", "campo": "texto"}
+
+
+def test_el_buscador_sin_base_responde_sin_base(tmp_path):
+    sin_base = modulo.Comercio(lambda: AQUI, tmp_path / "config.json", None, None)
+    assert sin_base.buscar_estaciones("Sol") == {"error": "sin_base"}
+
+
+def test_cada_resultado_de_rutas_lleva_su_detalle_por_paradas(ruta, tmp_path):
+    api = comercio(ruta, tmp_path)
+
+    [salto, *_] = api.buscar_rutas("un_salto", datos())["resultados"]
+    [bucle] = api.buscar_rutas("bucle", datos())["resultados"]
+
+    assert [p["estacion"]["market_id"] for p in salto["detalle"]["paradas"]] == [101, 202]
+    assert bucle["detalle"]["cerrada"] is True
+    assert sorted(p["estacion"]["market_id"] for p in bucle["detalle"]["paradas"]) == [101, 202]
+
+
+def test_ahora_lleva_el_detalle_de_vender_y_de_comprar_desde_aqui(ruta, tmp_path):
+    estado = atracado_en(
+        101, carga=[Mercancia("Oro", 50, "gold")], compras=[Compra("gold", 50, 50 * 8_000)]
+    )
+    respuesta = comercio(ruta, tmp_path, estado).ahora(datos())
+
+    [destino, *_] = respuesta["vender"][0]["destinos"]
+    [parada] = destino["detalle"]["paradas"]
+    assert destino["detalle"]["desde_posicion"] is True
+    assert parada["vender"][0]["mercancia"] == {"simbolo": "gold", "nombre": "Oro"}
+    assert parada["vender"][0]["ganancia"] == 50 * 2_000
+    assert respuesta["desde_aqui"][0]["detalle"]["cerrada"] is False
+    json.dumps(respuesta)

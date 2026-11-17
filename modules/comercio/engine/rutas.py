@@ -53,6 +53,13 @@ def _pares(
                     yield tramo
 
 
+def pares(
+    candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos
+) -> Iterator[Tramo]:
+    """Los tramos que Un salto compara, sin quedarse con los mejores (recuentos de descarte)."""
+    return _pares(candidatos, perfil, curva, tiempos)
+
+
 def un_salto(candidatos: Candidatos, perfil: Perfil, curva: Curva, tiempos: Tiempos) -> list[Tramo]:
     return mejores(_pares(candidatos, perfil, curva, tiempos), perfil.orden)
 

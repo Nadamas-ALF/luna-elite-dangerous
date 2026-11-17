@@ -93,13 +93,15 @@ def test_la_antiguedad_y_el_origen_del_dato_filtran(base):
     assert oferta.horas == pytest.approx(23)
 
 
-def test_el_stock_minimo_es_un_porcentaje_de_la_bodega(base):
+def test_el_stock_minimo_son_toneladas_y_puede_superar_la_bodega(base):
     direccion = sistema(base, 10, 5)
     for market_id, stock in ((1, 100), (2, 99), (3, 0)):
         estacion(base, market_id, direccion)
         vende(base, market_id, "gold", 9000, stock=stock)
     assert vendedores(cargar(base, capacidad=100)) == {1}
-    assert vendedores(cargar(base, capacidad=100, stock_minimo_pct=0)) == {1, 2}
+    assert vendedores(cargar(base, capacidad=100, stock_minimo=0)) == {1, 2}
+    assert vendedores(cargar(base, capacidad=10, stock_minimo=99)) == {1, 2}
+    assert vendedores(cargar(base, capacidad=10, stock_minimo=5_000)) == set()
 
 
 def test_los_niveles_desconocidos_de_spansh_no_excluyen_nada(base):

@@ -47,8 +47,10 @@ class Tramo:
 def evaluar(
     compra: Precio, venta: Precio, perfil: Perfil, curva: Curva, tiempos: Tiempos
 ) -> Tramo | None:
-    """None si no deja ganancia o no cabe ni una tonelada."""
+    """None si no deja la ganancia mínima del perfil o no cabe ni una tonelada."""
     if venta.precio <= compra.precio or venta.estacion.market_id == compra.estacion.market_id:
+        return None
+    if venta.precio - compra.precio < perfil.ganancia_min:
         return None
     toneladas = calculo.toneladas(
         perfil.capacidad, compra.cantidad, venta.cantidad, perfil.creditos, compra.precio

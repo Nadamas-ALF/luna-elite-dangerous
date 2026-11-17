@@ -29,6 +29,8 @@
   --surface-raised: #1a2b40;
   --glass: rgba(155, 201, 229, 0.11);
   --glass-border: rgba(210, 238, 255, 0.21);
+  --linea-tenue: rgba(210, 238, 255, 0.08);
+  --glass-fuerte: rgba(155, 201, 229, 0.2);
   --accent: #8fd6f3;
   --accent-soft: #78b8e8;
   --text: #eaf4ff;
@@ -38,19 +40,57 @@
   --warning: #f3c97a;
   --danger: #e88fa1;
   --on-accent: #07202e;
+  --desplazador: rgba(175, 196, 216, 0.4);
+  --desplazador-activo: rgba(175, 196, 216, 0.65);
+  --fundido: var(--bg);
+  /* Fondo de los paneles que se abren sobre la tabla: sólido, para que ninguna fila se lea a través. */
+  --panel-flotante: var(--surface);
 
   --espacio: 4px;
   --radio-panel: 16px;
   --radio-campo: 10px;
   --duracion: 150ms;
 
-  --ancho-lateral: 4rem;
+  /* Densidad «cómoda» (la de fábrica). `[data-densidad="compacta"]` solo cambia estos valores. */
+  --celda-y: calc(var(--espacio) * 1.5);
+  --celda-x: calc(var(--espacio) * 2);
+  --panel-y: calc(var(--espacio) * 4);
+  --panel-x: calc(var(--espacio) * 5);
+  --hueco: calc(var(--espacio) * 4);
+  --alto-control: 2.25rem;
 
   --fuente: "Space Grotesk", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --fuente-cifras: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
 
   font-family: var(--fuente);
   color-scheme: dark;
+
+  /* Barras de desplazamiento finas y con los colores del tema (WebView2 las admite). */
+  scrollbar-width: thin;
+  scrollbar-color: var(--desplazador) transparent;
+}
+
+/* Casi todo va en rem: cambiar el tamaño raíz escala la letra y los controles a la vez.
+   `aspecto.js` pone estos atributos en <html> al arrancar y al cambiar el ajuste. */
+html[data-letra="pequeno"] {
+  font-size: 87.5%;
+}
+
+html[data-letra="grande"] {
+  font-size: 112.5%;
+}
+
+html[data-letra="muy_grande"] {
+  font-size: 125%;
+}
+
+html[data-densidad="compacta"] {
+  --celda-y: calc(var(--espacio) * 0.5);
+  --celda-x: calc(var(--espacio) * 1.5);
+  --panel-y: calc(var(--espacio) * 2.5);
+  --panel-x: calc(var(--espacio) * 3.5);
+  --hueco: calc(var(--espacio) * 2.5);
+  --alto-control: 1.875rem;
 }
 
 * {
@@ -73,14 +113,23 @@ body {
     radial-gradient(120% 80% at 85% -10%, rgba(120, 184, 232, 0.12), transparent 60%),
     var(--bg);
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.45;
 }
 
 .app {
+  --ancho-lateral: 4rem;
+
   display: grid;
   grid-template-columns: var(--ancho-lateral) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   height: 100vh;
+}
+
+@media (min-width: 1200px) {
+  .app:not([data-lateral="plegado"]) {
+    --ancho-lateral: 14rem;
+  }
 }
 
 /* --- Barra lateral --- */
@@ -169,26 +218,65 @@ body {
   color: var(--accent);
 }
 
+.lateral__plegar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: auto;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.lateral__plegar:hover {
+  background: var(--glass);
+  color: var(--text);
+}
+
+.lateral__plegar svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--duracion);
+}
+
 @media (min-width: 1200px) {
-  :root {
-    --ancho-lateral: 14rem;
+  .lateral__plegar {
+    display: inline-flex;
   }
 
-  .lateral {
+  .app[data-lateral="plegado"] .lateral__plegar {
+    align-self: center;
+  }
+
+  .app[data-lateral="plegado"] .lateral__plegar svg {
+    transform: rotate(180deg);
+  }
+
+  .app:not([data-lateral="plegado"]) .lateral {
     padding-inline: calc(var(--espacio) * 4);
   }
 
-  .lateral__marca {
+  .app:not([data-lateral="plegado"]) .lateral__marca {
     justify-content: flex-start;
     padding-inline: calc(var(--espacio) * 2);
   }
 
-  .lateral__nombre,
-  .lateral__enlace span {
+  .app:not([data-lateral="plegado"]) .lateral__nombre,
+  .app:not([data-lateral="plegado"]) .lateral__enlace span {
     display: inline;
   }
 
-  .lateral__enlace {
+  .app:not([data-lateral="plegado"]) .lateral__enlace {
     justify-content: flex-start;
     padding-inline: calc(var(--espacio) * 4);
   }
@@ -196,21 +284,83 @@ body {
 
 /* --- Contenido --- */
 
+/* La ventana nunca se desplaza entera: cada pantalla tiene una zona fija arriba y una
+   sola zona que se mueve (`.vista__cuerpo`). Las tablas no llevan desplazamiento propio. */
 .contenido {
-  min-width: 0;
-  overflow-y: auto;
-  padding: calc(var(--espacio) * 5);
-}
-
-.vista {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--espacio) * 4);
-  max-width: 70rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* El ancho útil de cada pantalla se centra con el margen de los lados, para que la barra de
+   desplazamiento quede en el borde de la ventana y no en el de la columna. */
+.vista {
+  --ancho-vista: 70rem;
+  --margen-vista: max(calc(var(--espacio) * 5), calc((100% - var(--ancho-vista)) / 2));
+
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.vista--ancha {
+  --ancho-vista: 96rem;
 }
 
 .vista[hidden] {
   display: none;
+}
+
+.vista__fija {
+  display: flex;
+  flex-direction: column;
+  /* Sin esto la zona fija se encoge cuando su contenido es alto y recorta la barra de Rutas. */
+  flex-shrink: 0;
+  gap: calc(var(--espacio) * 3);
+  padding: calc(var(--espacio) * 5) var(--margen-vista) calc(var(--espacio) * 3);
+}
+
+.vista__zona {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.vista__cuerpo {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--hueco);
+  min-width: 0;
+  overflow-y: auto;
+  /* Sin relleno arriba: las cabeceras fijas de las tablas se pegan al borde del relleno. */
+  padding: 0 var(--margen-vista) calc(var(--espacio) * 6);
+}
+
+.vista__cuerpo > * {
+  flex-shrink: 0;
+}
+
+/* Señal de que queda contenido debajo; `desplazamiento.js` la quita al llegar al final. */
+.vista__zona::after {
+  content: "";
+  position: absolute;
+  inset: auto 0.75rem 0 0;
+  height: 3rem;
+  background: linear-gradient(to bottom, transparent, var(--fundido));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duracion);
+}
+
+.vista__zona[data-mas="true"]::after {
+  opacity: 1;
 }
 
 .cabecera {
@@ -269,7 +419,7 @@ body {
 }
 
 .boton {
-  min-height: 2.25rem;
+  min-height: var(--alto-control);
   padding: calc(var(--espacio) * 1.5) calc(var(--espacio) * 4);
   border: 1px solid var(--glass-border);
   border-radius: 999px;
@@ -287,7 +437,7 @@ body {
 }
 
 .boton--vidrio:hover {
-  background: rgba(155, 201, 229, 0.2);
+  background: var(--glass-fuerte);
 }
 
 .boton--primario {
@@ -315,6 +465,11 @@ body {
   border: 1px solid var(--glass-border);
   border-radius: var(--radio-campo);
   background: var(--surface);
+}
+
+/* El aviso de «el núcleo no responde» va encima de la pantalla, fuera de su relleno. */
+.contenido > .franja {
+  margin: calc(var(--espacio) * 4) calc(var(--espacio) * 5) 0;
 }
 
 .franja[hidden] {

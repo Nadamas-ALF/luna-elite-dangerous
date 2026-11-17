@@ -8,10 +8,13 @@ Lee lo que el núcleo guarda del journal: `sessions` (bloques de actividad),
 - El tiempo estimado de un tramo se recalcula con el modelo de tiempos de la nave
   del tramo (`docs/decisiones.md`, «Fase 7»). La comparación usa solo los tramos
   que tienen estimación, en los dos lados.
+- Un tramo que cruza una pausa (empieza un bloque entre su salida y su llegada)
+  cuenta en viajes y ganancia, pero no en la Cr/h real ni en la comparación (E-18).
 """
 
 from __future__ import annotations
 
+import bisect
 import sqlite3
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -76,7 +79,10 @@ class Ruta:
     destino: tuple[str, str]
     viajes: int = 0
     ganancia: int = 0
+    # Solo de los tramos sin pausa: la Cr/h real sale de estos dos.
+    ganancia_medida: int = 0
     segundos: float = 0.0
+    con_pausa: int = 0
     mercancias: tuple[str, ...] = ()
     comparacion: Comparacion = field(default_factory=Comparacion)
 
@@ -169,12 +175,16 @@ def rutas(
     fid: str,
     periodo: tuple[str, str] | None,
     tiempos_de: Callable[[int | None], timing.Tiempos],
+    pausas: list[str] | None = None,
 ) -> list[Ruta]:
-    """Los tramos del periodo por estación de origen y de destino, de más a menos ganancia."""
+    """Los tramos del periodo por estación de origen y de destino, de más a menos ganancia.
+
+    `pausas` son los inicios de bloque que siguen a una pausa, ordenados (`pausas_de`).
+    """
     sql = (
-        "SELECT ship_id, segundos, origen_estacion, origen_sistema, destino_estacion, "
-        "destino_sistema, distancia_ly, rango, distancia_ls, planetaria, ganancia, mercancia "
-        "FROM trade_legs WHERE fid = ?"
+        "SELECT ship_id, salida, llegada, segundos, origen_estacion, origen_sistema, "
+        "destino_estacion, destino_sistema, distancia_ly, rango, distancia_ls, planetaria, "
+        "ganancia, mercancia FROM trade_legs WHERE fid = ?"
     )
     parametros: tuple = (fid,)
     if periodo is not None:
@@ -182,20 +192,45 @@ def rutas(
         parametros += periodo
     agrupadas: dict[tuple, Ruta] = {}
     for fila in conexion.execute(sql + " ORDER BY salida", parametros):
-        ship_id, segundos, *lugares, distancia_ly, rango, ls, planetaria, ganancia, mercancia = fila
+        ship_id, desde, hasta, segundos, *lugares, distancia_ly, rango, ls, planetaria = fila[:12]
+        ganancia, mercancia = fila[12:]
         origen, destino = tuple(lugares[:2]), tuple(lugares[2:])
         ruta = agrupadas.get((origen, destino)) or Ruta(origen, destino)
+        if cruza_una_pausa(pausas or [], desde, hasta):
+            agrupadas[(origen, destino)] = _sumar_con_pausa(ruta, ganancia, mercancia)
+            continue
         estimado = estimar(distancia_ly, rango, ls, bool(planetaria), tiempos_de(ship_id))
         agrupadas[(origen, destino)] = _sumar(ruta, segundos, ganancia, mercancia, estimado)
     return sorted(agrupadas.values(), key=lambda r: r.ganancia, reverse=True)
 
 
+def pausas_de(bloques: list[Bloque]) -> list[str]:
+    """Los inicios de bloque tras una pausa de la misma partida, ordenados."""
+    return sorted(b.inicio for b in bloques if b.pausa_previa is not None)
+
+
+def cruza_una_pausa(pausas: list[str], salida: str, llegada: str) -> bool:
+    i = bisect.bisect_right(pausas, salida)
+    return i < len(pausas) and pausas[i] <= llegada
+
+
+def _con_mercancia(mercancias: tuple[str, ...], mercancia: str | None) -> tuple[str, ...]:
+    return (*mercancias, mercancia) if mercancia and mercancia not in mercancias else mercancias
+
+
+def _sumar_con_pausa(ruta: Ruta, ganancia: int, mercancia: str | None) -> Ruta:
+    return replace(
+        ruta,
+        viajes=ruta.viajes + 1,
+        ganancia=ruta.ganancia + ganancia,
+        con_pausa=ruta.con_pausa + 1,
+        mercancias=_con_mercancia(ruta.mercancias, mercancia),
+    )
+
+
 def _sumar(
     ruta: Ruta, segundos: float, ganancia: int, mercancia: str | None, estimado: float | None
 ) -> Ruta:
-    mercancias = ruta.mercancias
-    if mercancia and mercancia not in mercancias:
-        mercancias = (*mercancias, mercancia)
     comparacion = ruta.comparacion
     if estimado is not None:
         comparacion = comparacion.sumar(ganancia, segundos, estimado)
@@ -203,8 +238,9 @@ def _sumar(
         ruta,
         viajes=ruta.viajes + 1,
         ganancia=ruta.ganancia + ganancia,
+        ganancia_medida=ruta.ganancia_medida + ganancia,
         segundos=ruta.segundos + segundos,
-        mercancias=mercancias,
+        mercancias=_con_mercancia(ruta.mercancias, mercancia),
         comparacion=comparacion,
     )
 
@@ -248,12 +284,17 @@ def informe(
     sesion: str | None,
     ajuste: tuple[int, bool],
     ahora: datetime,
+    omitir_vacias: bool = True,
+    saldo_actual: int | None = None,
 ) -> dict:
     """Lo que enseña la pantalla: las sesiones y, de la elegida, rutas y mercancías.
 
     `sesion` es el inicio de una sesión, `TODO` para todo el historial o None para la última.
+    `omitir_vacias` solo esconde sesiones de la lista: el resumen de `TODO` las cuenta.
     """
-    sesiones = unir(leer_bloques(conexion, fid), *ajuste)
+    bloques = leer_bloques(conexion, fid)
+    todas = unir(bloques, *ajuste)
+    sesiones = [s for s in todas if not omitir_vacias or _con_ganancia_o_en_curso(s, ahora)]
     elegida = _elegir(sesiones, sesion)
     periodo = None if elegida is None else (elegida.inicio, elegida.fin)
     tiempos: dict[int | None, timing.Tiempos] = {}
@@ -264,17 +305,59 @@ def informe(
         return tiempos[ship_id]
 
     nombres = salida.nombres_de_mercancias(conexion)
-    agrupadas = rutas(conexion, fid, periodo, tiempos_de) if sesiones else []
+    pausas = pausas_de(bloques)
+    agrupadas = rutas(conexion, fid, periodo, tiempos_de, pausas) if sesiones else []
     vendidas = mercancias(conexion, fid, periodo) if sesiones else []
-    incluidas = sesiones if elegida is None else [elegida]
+    incluidas = todas if elegida is None else [elegida]
+    resumen = _resumen(incluidas, agrupadas) if sesiones else None
+    if resumen is not None:
+        resumen["contra_anterior"] = _contra_anterior(todas, elegida)
     return {
-        "ajuste": {"pausa_horas": ajuste[0], "por_partida": ajuste[1]},
+        "ajuste": {
+            "pausa_horas": ajuste[0],
+            "por_partida": ajuste[1],
+            "omitir_vacias": omitir_vacias,
+        },
+        "saldo_actual": saldo_actual,
+        "ocultas": len(todas) - len(sesiones),
         "sesiones": [_sesion_a_dict(s, ahora) for s in reversed(sesiones[-LIMITE_DE_SESIONES:])],
         "seleccion": None if not sesiones else (elegida.inicio if elegida else TODO),
-        "resumen": _resumen(incluidas, agrupadas) if sesiones else None,
+        "resumen": resumen,
         "rutas": [_ruta_a_dict(r, nombres) for r in agrupadas],
         "mercancias": [_mercancia_a_dict(m, nombres) for m in vendidas],
     }
+
+
+def _con_ganancia_o_en_curso(sesion: Sesion, ahora: datetime) -> bool:
+    """La sesión que se está jugando no desaparece aunque aún no haya vendido nada."""
+    return sesion.ganancia != 0 or _en_curso(sesion, ahora)
+
+
+def _en_curso(sesion: Sesion, ahora: datetime) -> bool:
+    parada = ahora.timestamp() - datetime.fromisoformat(sesion.fin).timestamp()
+    return sesion.abierta and parada < EN_CURSO_SEGUNDOS
+
+
+def _contra_anterior(todas: list[Sesion], elegida: Sesion | None) -> dict | None:
+    """Cr/h de la sesión frente a la última anterior que ganó algo; None si no hay con qué.
+
+    Se busca entre todas, también las que la lista omite: la comparación no depende de
+    una casilla de la pantalla.
+    """
+    if elegida is None:
+        return None
+    actual = por_hora(elegida.ganancia, elegida.segundos)
+    if actual is None:
+        return None
+    for previa in reversed(todas[: todas.index(elegida)]):
+        anterior = por_hora(previa.ganancia, previa.segundos) if previa.ganancia > 0 else None
+        if anterior:
+            return {
+                "inicio": previa.inicio,
+                "por_hora": anterior,
+                "variacion": (actual - anterior) / anterior,
+            }
+    return None
 
 
 def _elegir(sesiones: list[Sesion], sesion: str | None) -> Sesion | None:
@@ -289,7 +372,6 @@ def _elegir(sesiones: list[Sesion], sesion: str | None) -> Sesion | None:
 
 
 def _sesion_a_dict(sesion: Sesion, ahora: datetime) -> dict:
-    parada = ahora.timestamp() - datetime.fromisoformat(sesion.fin).timestamp()
     return {
         "inicio": sesion.inicio,
         "fin": sesion.fin,
@@ -301,7 +383,7 @@ def _sesion_a_dict(sesion: Sesion, ahora: datetime) -> dict:
         "saldo_inicio": sesion.saldo_inicio,
         "saldo_fin": sesion.saldo_fin,
         "bloques": sesion.bloques,
-        "en_curso": sesion.abierta and parada < EN_CURSO_SEGUNDOS,
+        "en_curso": _en_curso(sesion, ahora),
     }
 
 
@@ -350,7 +432,8 @@ def _ruta_a_dict(ruta: Ruta, nombres: dict[str, str]) -> dict:
         "viajes": ruta.viajes,
         "ganancia": ruta.ganancia,
         "segundos": ruta.segundos,
-        "por_hora": por_hora(ruta.ganancia, ruta.segundos),
+        "por_hora": por_hora(ruta.ganancia_medida, ruta.segundos),
+        "con_pausa": ruta.con_pausa,
         "comparacion": _comparacion_a_dict(ruta.comparacion),
     }
 

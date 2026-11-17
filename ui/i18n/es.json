@@ -29,9 +29,12 @@
     "comercio": "Comercio",
     "ahora": "Ahora",
     "rutas": "Rutas",
+    "fijadas": "Fijadas",
     "alertas": "Alertas",
     "rendimiento": "Rendimiento",
-    "configuracion": "Configuración"
+    "configuracion": "Configuración",
+    "plegar": "Plegar la barra lateral",
+    "desplegar": "Desplegar la barra lateral"
   },
   "formato": {
     "toneladas": "{valor} t",
@@ -196,7 +199,7 @@
       "inicial": "Ajusta el perfil y pulsa Buscar.",
       "resumen": "{n} rutas, ordenadas por {orden}.",
       "resumen_una": "1 ruta.",
-      "sin_resultados": "Ninguna ruta cumple el perfil. Prueba a ampliar la distancia o la antigüedad máxima, o a bajar el stock mínimo.",
+      "sin_resultados": "Ninguna ruta cumple el perfil.",
       "tabla": "Resultados de la búsqueda",
       "errores": {
         "legacy": "Tu journal es de Legacy: LUNA no muestra rutas con datos de Live.",
@@ -232,24 +235,27 @@
       },
       "detalle": {
         "titulo": "Detalle de la ruta",
-        "ida": "Ida: {mercancia}",
-        "vuelta": "Vuelta: {mercancia}",
-        "total": "Bucle completo",
-        "comprar_en": "Comprar en",
-        "vender_en": "Vender en",
-        "desde_origen": "A {distancia} del origen de la búsqueda.",
-        "llegada": "Llegada a {ls} de la estrella.",
-        "llegada_planetaria": "Llegada a {ls} de la estrella, en un planeta.",
-        "precio_compra": "Precio de compra",
-        "precio_venta": "Precio de venta",
+        "totales": "Totales de la ruta",
+        "parada": "Parada {n}: {estacion}",
+        "vender_al_llegar": "Vender al llegar: {mercancia}",
+        "comprar_al_salir": "Comprar al salir: {mercancia}",
+        "vuelta": "Vuelta a la parada 1",
+        "desde_posicion": "Desde tu posición",
+        "primera_vuelta": "En la primera vuelta no hay nada que vender en la parada 1.",
+        "sin_detalle": "El detalle de este aviso no está disponible.",
+        "desde_origen": "a {distancia} del origen de la búsqueda",
+        "planetaria": "en un planeta",
+        "trayecto": "{ly} · saltos: {saltos} · {tiempo}",
+        "recta": "La distancia es en línea recta: con pocas estrellas pueden ser más saltos.",
+        "de_donde_sale": "De dónde sale el tiempo",
+        "precio": "Precio",
         "stock": "Stock",
         "demanda": "Demanda",
         "dato": "Dato",
         "toneladas": "Toneladas",
+        "ingreso": "Ingreso",
         "ganancia_tonelada": "Ganancia por tonelada",
-        "ganancia_viaje": "Ganancia por viaje",
-        "distancia": "Distancia",
-        "distancia_valor": "{ly} en {saltos} saltos, en línea recta: con pocas estrellas pueden ser más.",
+        "ganancia": "Ganancia",
         "tiempo": "Tiempo estimado",
         "parte": "{parte}: {duracion}, {fuente}.",
         "partes": {
@@ -265,21 +271,65 @@
           "nave": "esta nave ({muestras} muestras)"
         },
         "ganancia_hora": "Ganancia por hora",
+        "ingreso_hora": "Ingreso por hora",
+        "ganancia_viaje": "Ganancia por viaje",
+        "ingreso_viaje": "Ingreso por viaje",
+        "distancia_total": "Distancia",
         "ganancia_sesion": "En {horas} h de sesión",
         "confianza": "Confianza",
         "confianza_ayuda": "Baja con la antigüedad del dato más viejo y ordena los resultados.",
-        "copiar_aria": "Copiar el nombre de {sistema}"
+        "copiar_aria": "Copiar el nombre de {sistema}",
+        "antes": "Antes: {mercancia}",
+        "fijar": "Fijar esta ruta",
+        "fijada": "Ruta fijada. La tienes en Fijadas.",
+        "ya_fijada": "Esa ruta ya estaba fijada.",
+        "fijar_pendiente": "LUNA está ocupada guardando otros datos; la ruta se fijará en cuanto termine.",
+        "fijar_errores": {
+          "parametro": "Esta ruta no se puede fijar: le falta algo que LUNA necesita.",
+          "estacion_desconocida": "LUNA ya no conoce alguna de las estaciones de esta ruta, así que no puede fijarla.",
+          "limite": "Ya tienes 50 rutas fijadas. Quita alguna en Fijadas para poder fijar otra.",
+          "no_guardado": "No se pudo guardar la ruta. Los detalles están en luna.log.",
+          "sin_base": "Sin base de datos, LUNA no puede fijar rutas.",
+          "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+          "legacy": "El journal es de Legacy: LUNA no fija rutas con él.",
+          "no_disponible": "Esta parte de LUNA no está disponible.",
+          "sin_respuesta": "LUNA no respondió. Prueba otra vez."
+        }
+      },
+      "copiar_sistema": "Pulsa para copiar {sistema} y pegarlo en el mapa de la galaxia",
+      "descartes": {
+        "intro": "Esto es lo que quitó cada filtro; afloja el que más quite:",
+        "sin_estaciones": "No hay ninguna estación guardada a esa distancia del origen. Amplía la distancia o cambia el origen.",
+        "estaciones": "{n} estaciones",
+        "precios": "{n} precios",
+        "tratos": "{n} tratos",
+        "filtro": {
+          "plataforma": "{cuanto} por la plataforma de tu nave",
+          "distancia_ls": "{cuanto} por la distancia a la estrella",
+          "tipo": "{cuanto} por el tipo de estación",
+          "antiguedad": "{cuanto} por su antigüedad",
+          "origen": "{cuanto} por el origen del dato",
+          "raras": "{cuanto} por ser mercancías raras",
+          "stock_minimo": "{cuanto} por no tener el stock mínimo",
+          "saldo": "{cuanto} por tu saldo",
+          "ganancia_min": "{cuanto} por la ganancia mínima"
+        },
+        "nada_descartado": "Ningún filtro descartó nada: en esa zona no hay una mercancía que se compre barato en una estación y se pague más en otra.",
+        "calculando": "Contando qué descartó cada filtro…",
+        "error": "No se pudo contar qué descartó cada filtro. Los detalles están en luna.log."
       }
     },
     "perfil": {
       "titulo": "Perfil de búsqueda",
-      "plegar": "Perfil de búsqueda",
+      "plegar": "Filtros de búsqueda",
       "de_la_nave": "De tu nave",
       "manual": "Manual",
       "restaurar": "Restaurar desde nave",
       "restaurado": "Valores de tu nave restaurados.",
       "sin_nave": "LUNA no detecta tu nave: rellena a mano capacidad, rango y plataforma.",
       "campo_invalido": "Revisa «{campo}».",
+      "campo_citado": "«{campo}»",
+      "ajustado": "El perfil cargado tenía en {campos} un valor que no se puede elegir aquí: se usa el más cercano. Si lo guardas, se queda así.",
       "nave": "Nave",
       "busqueda": "Búsqueda",
       "datos": "Datos",
@@ -291,14 +341,10 @@
         "M": "Mediana",
         "L": "Grande"
       },
-      "creditos": "Créditos disponibles",
-      "creditos_ayuda": "Vacío: sin límite.",
       "origen": "Sistema de origen",
-      "distancia_max_ly": "Distancia máxima desde el origen (ly)",
-      "distancia_max_ls": "Distancia máxima a la estrella (ls)",
-      "antiguedad_max_h": "Antigüedad máxima de los datos (h)",
-      "antiguedad_ayuda": "Como mucho {horas} h; el tope se cambia en Configuración.",
-      "stock_minimo_pct": "Stock mínimo (% de la bodega)",
+      "distancia_max_ly": "Radio (ly)",
+      "distancia_max_ls": "Máx. a la estrella (ls)",
+      "antiguedad_max_h": "Antigüedad máxima",
       "tipos": "Tipos de estación",
       "tipo": {
         "orbital": "Orbitales",
@@ -315,7 +361,7 @@
         "spansh": "Spansh"
       },
       "raras": "Incluir mercancías raras",
-      "horas_sesion": "Horas de sesión previstas",
+      "horas_sesion": "Horas de sesión",
       "orden": "Ordenar por",
       "ordenes": {
         "ganancia_hora": "Ganancia por hora",
@@ -342,7 +388,17 @@
         "sin_base": "Sin base de datos, LUNA no puede guardar perfiles.",
         "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
         "no_disponible": "Esta parte de LUNA no está disponible."
-      }
+      },
+      "stock_minimo": "Stock mínimo (t)",
+      "stock_equivale": "≈ {n} viajes de tu bodega",
+      "stock_equivale_una": "≈ 1 viaje de tu bodega",
+      "ganancia_min": "Ganancia mín. (Cr/t)",
+      "limitar_saldo": "Limitar las compras a mi saldo",
+      "saldo": "Saldo actual: {valor}.",
+      "saldo_desconocido": "LUNA aún no conoce tu saldo: no limita las compras.",
+      "antiguedad_valor_horas": "{n} h",
+      "antiguedad_valor_dias": "{n} días",
+      "horas_valor": "{n} h"
     },
     "rendimiento": {
       "titulo": "Rendimiento",
@@ -354,28 +410,17 @@
       "cargando": "Calculando…",
       "actualizado": "Calculado a las {hora} con lo que LUNA leyó del journal. Pulsa Actualizar para incluir lo último.",
       "sin_sesiones": "LUNA aún no tiene sesiones. Las saca del journal: juega con LUNA abierta, o ábrela después y leerá los últimos días.",
-      "resumen": {
-        "titulo": "Resumen",
-        "ganancia": "Ganancia real",
-        "tiempo": "Tiempo de juego",
-        "por_hora": "Ganancia por hora",
-        "toneladas": "Toneladas vendidas",
-        "saltos": "Saltos",
-        "saldo": "Saldo",
-        "saldo_valor": "{inicio} → {fin}",
-        "en_curso": "La sesión sigue en curso: las cifras cambiarán mientras juegas."
-      },
       "comparacion": {
-        "titulo": "Real contra estimado",
         "resultado": "En {n} tramos de comercio ganaste {real}; LUNA estimaba {estimada} ({desviacion}).",
         "pocos": "Con menos de {minimo} tramos la comparación es solo orientativa.",
         "sin_tramos": "No hay tramos que comparar: hace falta despegar de una estación donde compraste y vender con ganancia en otra, sin cerrar el juego por medio."
       },
       "rutas": {
         "titulo": "Por ruta",
-        "ayuda": "Cada tramo va de despegar de una estación donde comerciaste a despegar de la siguiente. La estimación usa tus tiempos calibrados y la ganancia real.",
+        "ayuda": "Cada tramo va de despegar de una estación donde comerciaste a despegar de la siguiente. La estimación usa tus tiempos calibrados y la ganancia real. Un tramo con una pausa de una hora o más suma su ganancia, pero no cuenta en la ganancia por hora ni en la comparación.",
         "vacio": "En este periodo no hay tramos de comercio completos.",
         "hacia": "→",
+        "viajes_con_pausa": "{n} ({pausa} con una pausa, fuera de la ganancia por hora)",
         "columnas": {
           "ruta": "Ruta",
           "por_hora": "Cr/h real",
@@ -413,7 +458,8 @@
           "saltos": "Saltos",
           "saldo": "Saldo al final",
           "estado_sesion": "Estado"
-        }
+        },
+        "ayuda_importar": "¿Faltan sesiones antiguas? «Importar historial» lee todos los journals de la carpeta del juego."
       },
       "errores": {
         "sin_comandante": "LUNA aún no sabe quién es el comandante. Lo sabrá en cuanto lea el journal.",
@@ -424,7 +470,36 @@
         "sesion_desconocida": "Esa sesión ya no existe.",
         "no_disponible": "Rendimiento no está disponible en esta ventana.",
         "sin_respuesta": "LUNA no respondió. Prueba con Actualizar."
-      }
+      },
+      "omitir_vacias": "Omitir sesiones sin ganancia",
+      "importar": {
+        "boton": "Importar historial",
+        "cancelar": "Cancelar importación",
+        "ayuda": "Lee una vez todos los journals de la carpeta del juego, no solo los de los últimos días, y guarda sus sesiones, ventas y tiempos. Repetirlo no duplica nada.",
+        "en_marcha": "Importando el historial: {leidos} de {total} journals…",
+        "terminada": "Historial importado: {leidos} journals leídos ({saltados} de Legacy saltados, {ilegibles} ilegibles), con {operaciones} compras y ventas y {tramos} tramos de comercio.",
+        "cancelada": "Importación cancelada tras {leidos} de {total} journals. Lo ya leído quedó guardado.",
+        "error": "La importación falló. El registro de LUNA tiene el detalle.",
+        "errores": {
+          "sin_carpeta": "LUNA no encuentra la carpeta del journal. Elígela en Configuración.",
+          "sin_base": "No hay base de datos: sin ella LUNA no puede guardar el historial.",
+          "en_marcha": "Ya hay una importación en marcha.",
+          "sin_respuesta": "LUNA no respondió al importar. Prueba otra vez."
+        }
+      },
+      "dinero": {
+        "saldo": "Saldo actual",
+        "ganancia": "Ganancia",
+        "por_hora": "Ganancia por hora",
+        "sin_saldo": "Sin dato",
+        "variacion": "{cambio} frente a la sesión del {fecha}",
+        "detalle": "{tiempo} de juego · {toneladas} vendidas · {saltos} saltos",
+        "detalle_en_curso": "{tiempo} de juego · {toneladas} vendidas · {saltos} saltos · La sesión sigue en curso: las cifras cambian mientras juegas."
+      },
+      "pestanas": {
+        "etiqueta": "Vistas del rendimiento"
+      },
+      "todas_ocultas": "Todas las sesiones que LUNA conoce tienen ganancia cero y están ocultas. Desmarca «Omitir sesiones sin ganancia» para verlas."
     },
     "alertas": {
       "titulo": "Alertas",
@@ -441,7 +516,41 @@
         "guardar": "Guardar reglas",
         "guardado": "Guardado. Se aplica al próximo mercado que entre.",
         "pendiente": "La base de datos está ocupada: las reglas se guardarán en cuanto quede libre.",
-        "cargando": "Cargando las reglas…"
+        "cargando": "Cargando las reglas…",
+        "rotulo": {
+          "ganancia_tonelada_min": "Ganancia por tonelada",
+          "ganancia_hora_min": "Ganancia por hora",
+          "distancia_max_ly": "Distancia",
+          "antiguedad_max_h": "Antigüedad de los precios",
+          "repetir_min": "No repetir antes de",
+          "mejora_pct": "Salvo si mejora"
+        },
+        "ayuda_de": {
+          "ganancia_tonelada_min": "Mínimo, en Cr/t.",
+          "ganancia_hora_min": "Mínimo, en Cr/h.",
+          "distancia_max_ly": "Máxima desde donde estás, en ly.",
+          "antiguedad_max_h": "Máxima, en horas.",
+          "repetir_min": "Minutos que pasan antes de volver a avisar de la misma ruta.",
+          "mejora_pct": "Si su Cr/h mejora en más de este porcentaje, avisa aunque no haya pasado ese plazo."
+        }
+      },
+      "en_curso": {
+        "titulo": "Ruta en curso",
+        "ayuda": "LUNA deduce la ruta que haces de tus últimos tramos de comercio. Al atracar, compara su ganancia por hora estimada con hoy contra las rutas que salen de esa estación.",
+        "aviso_mejor": "Avisar si hay una ruta mejor que la que haces",
+        "margen": "Margen para avisar (%)",
+        "margen_ayuda": "Solo avisa si la otra ruta gana más que la tuya por más de este porcentaje (de 1 a 1.000).",
+        "portapapeles": "Copiar el sistema de la siguiente parada al despegar",
+        "portapapeles_ayuda": "Con una ruta cerrada, al despegar LUNA copia el nombre del sistema al que vas. Pégalo con Ctrl+V en el campo de búsqueda del mapa de la galaxia. LUNA solo escribe en el portapapeles, nunca lo lee.",
+        "guardar": "Guardar",
+        "guardado": "Guardado. Se aplica desde el próximo atraque.",
+        "errores": {
+          "margen": "El margen tiene que ser un número de {margen_minimo} a {margen_maximo}.",
+          "parametro": "La interfaz envió algo que LUNA no entiende.",
+          "no_guardado": "LUNA no pudo guardar el cambio. El registro tiene el detalle.",
+          "no_disponible": "Las alertas no están disponibles en esta ventana.",
+          "sin_respuesta": "LUNA no respondió. Vuelve a abrir Alertas para intentarlo."
+        }
       },
       "avisos": {
         "titulo": "Avisos recientes",
@@ -458,11 +567,14 @@
           "modo": "Tipo",
           "ganancia_tonelada": "Cr/t"
         },
-        "cargando": "Cargando los avisos…"
+        "cargando": "Cargando los avisos…",
+        "mejor_que_marca": "Mejor que tu ruta",
+        "mejor_que_frase": "Mejor que tu ruta: {cr_h} frente a {cr_h_tuya} estimados hoy en tu ruta ({real} reales)."
       },
       "aviso": {
         "titulo": "Nueva ruta",
         "ruta": "{mercancia}: de {desde} a {hasta}, {cr_h}.",
+        "ruta_mejor": "Mejor que tu ruta, {mercancia}: de {desde} a {hasta}, {cr_h} frente a {cr_h_tuya} estimados hoy en tu ruta ({real} reales).",
         "mas": "Y {n} más en Alertas.",
         "abrir": "Ver la ruta",
         "cerrar": "Cerrar"
@@ -477,13 +589,170 @@
         "no_disponible": "Las alertas no están disponibles en esta ventana.",
         "sin_respuesta": "LUNA no respondió. Vuelve a abrir Alertas para intentarlo."
       }
+    },
+    "fijadas": {
+      "titulo": "Rutas fijadas",
+      "actualizar": "Actualizar",
+      "quitar": "Quitar de fijadas",
+      "calculando": "Calculando con los precios de hoy…",
+      "actualizado": "Calculado a las {hora}.",
+      "flecha": "→",
+      "flecha_cerrada": "↔",
+      "vuelve": "↻",
+      "en_curso": {
+        "titulo": "Ruta en curso",
+        "ninguna": "Todavía no hay tramos de comercio en esta sesión.",
+        "linea": "{ruta} · {viajes} viajes",
+        "cifras": "Real {real} · Hoy se estima {hoy}",
+        "sin_estimacion": "Real {real}. Hoy no se puede estimar: faltan precios en alguna parada.",
+        "fijar": "Fijar",
+        "fijada": "Fijada"
+      },
+      "tabla": {
+        "titulo": "Rutas fijadas",
+        "vacio": "No hay rutas fijadas. Fija una desde el detalle de Rutas, de Ahora o de Alertas, o con «Estimar una ruta».",
+        "en_curso": "En curso",
+        "columnas": {
+          "ruta": "Ruta",
+          "ganancia_hora": "Cr/h hoy",
+          "antiguedad": "Antigüedad",
+          "mercancias": "Mercancías hoy",
+          "ganancia_viaje": "Por viaje",
+          "tiempo": "Tiempo",
+          "estado_ruta": "Estado"
+        }
+      },
+      "estado": {
+        "sin_precios": "Sin precios hoy",
+        "sin_trato": "Sin trato hoy",
+        "no_cabe": "Tu nave no cabe"
+      },
+      "detalle": {
+        "sin_calculo": "Esta ruta no se puede calcular hoy. Se enseñan sus estaciones y qué falla en cada tramo.",
+        "no_cabe": "Tu nave no cabe (plataforma {plataforma}).",
+        "tramo": {
+          "ok": "Hay trato hacia la parada siguiente.",
+          "sin_precios": "Sin precios hoy en esta parada o en la siguiente.",
+          "sin_trato": "Hay precios, pero ninguna mercancía deja ganancia hacia la parada siguiente."
+        }
+      },
+      "estimar": {
+        "abrir": "Estimar una ruta",
+        "titulo": "Estimar una ruta",
+        "ayuda": "Busca las estaciones, añádelas en el orden en que las recorres (de 2 a 10) y LUNA calcula la ruta con la mejor mercancía de cada tramo y los precios de hoy.",
+        "elegidas": "Paradas elegidas",
+        "sin_paradas": "Todavía no has añadido ninguna parada.",
+        "anadir": "Añadir",
+        "quitar": "Quitar",
+        "quitar_aria": "Quitar {estacion} de la ruta",
+        "parada": "{estacion} ({sistema})",
+        "cerrada": "Vuelve a la primera parada",
+        "calcular": "Estimar",
+        "fijar": "Fijar",
+        "cerrar": "Cerrar",
+        "fijada": "Ruta fijada.",
+        "ya_fijada": "Esa ruta ya estaba fijada.",
+        "pendiente": "LUNA está ocupada guardando otros datos; la ruta se fijará en cuanto termine.",
+        "errores": {
+          "demasiadas": "Una ruta puede tener como mucho {n} paradas.",
+          "parametro": "Elige de 2 a {n} paradas y no repitas la misma estación dos veces seguidas.",
+          "estacion_desconocida": "LUNA ya no conoce alguna de esas estaciones.",
+          "sin_nave": "LUNA no detecta tu nave: no puede calcular sin saber su bodega y su rango.",
+          "legacy": "El journal es de Legacy: LUNA no calcula rutas con él.",
+          "limite": "Ya tienes 50 rutas fijadas. Quita alguna para poder fijar otra.",
+          "no_guardado": "No se pudo guardar la ruta. Los detalles están en luna.log.",
+          "sin_base": "Sin base de datos, LUNA no puede calcular ni guardar rutas.",
+          "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+          "no_disponible": "Esta parte de LUNA no está disponible.",
+          "sin_respuesta": "LUNA no respondió. Prueba otra vez."
+        }
+      },
+      "errores": {
+        "sin_nave": "LUNA no detecta tu nave, así que no puede recalcular las rutas. Se detecta al cargar el juego.",
+        "legacy": "El journal es de Legacy: LUNA no calcula rutas con él.",
+        "sin_base": "Sin base de datos, LUNA no guarda rutas fijadas.",
+        "base": "LUNA no pudo leer su base de datos. Los detalles están en luna.log.",
+        "no_guardado": "No se pudo guardar el cambio. Los detalles están en luna.log.",
+        "parametro": "La interfaz pidió algo que LUNA no entiende.",
+        "no_disponible": "Las rutas fijadas no están disponibles en esta ventana.",
+        "sin_respuesta": "LUNA no respondió. Prueba con Actualizar."
+      }
+    },
+    "paginacion": {
+      "filas": "Filas por página",
+      "anterior": "Anterior",
+      "siguiente": "Siguiente",
+      "resumen": "Filas {desde} a {hasta} de {total}"
+    },
+    "columnas_ayuda": {
+      "mercancia": "Mercancía que se compra y se vende",
+      "comprar": "Estación donde se compra y su sistema",
+      "precio_compra": "Precio por tonelada al comprar",
+      "vender": "Estación donde se vende y su sistema",
+      "precio_venta": "Precio por tonelada al vender",
+      "ganancia_tonelada": "Cr/t: créditos de ganancia por tonelada",
+      "toneladas": "Toneladas que se mueven o se pueden cargar",
+      "ganancia_viaje": "Por viaje: ganancia de un viaje completo",
+      "saltos": "Saltos de hiperespacio",
+      "distancia_ly": "Distancia en años luz",
+      "distancia_ls": "Distancia de la estación a la estrella de llegada, en segundos luz",
+      "tiempo": "Tiempo del viaje",
+      "ganancia_hora": "Cr/h: créditos de ganancia por hora",
+      "ganancia_sesion": "Ganancia estimada en las horas de sesión del perfil",
+      "antiguedad": "Cuánto hace que se vio el precio más viejo de la ruta",
+      "origen": "De dónde vienen los precios: tu journal, EDDN o Spansh",
+      "ida": "Mercancía que se lleva en la ida",
+      "vuelta": "Mercancía que se lleva en la vuelta",
+      "estacion_a": "Primera estación del bucle",
+      "estacion_b": "Segunda estación del bucle",
+      "ingreso_hora": "Cr/h: créditos de ingreso por hora",
+      "ingreso": "Créditos que cobras por la venta",
+      "ganancia": "Ganancia total",
+      "ruta": "Estación de origen y de destino",
+      "por_hora": "Cr/h: créditos por hora medidos de verdad",
+      "desviacion": "Diferencia entre lo que estimaba LUNA y lo que ganaste",
+      "mercancias": "Mercancías de la ruta",
+      "viajes": "Veces que hiciste la ruta",
+      "estimada": "Cr/h que calculaba LUNA antes de hacerla",
+      "ventas": "Número de ventas",
+      "sesion": "Cuándo empezó la sesión",
+      "duracion": "Duración de la sesión",
+      "saldo": "Saldo de créditos al terminar la sesión",
+      "estado_sesion": "Si la sesión sigue abierta o ya terminó",
+      "cuando": "Cuándo ocurrió",
+      "modo": "Un salto o bucle",
+      "estado_ruta": "Si la ruta se puede calcular hoy y si tu nave cabe en sus estaciones"
+    },
+    "estaciones": {
+      "titulo": "Buscar una estación",
+      "texto": "Nombre de la estación o del sistema",
+      "buscar": "Buscar estación",
+      "buscando": "Buscando…",
+      "ninguna": "LUNA no tiene ninguna estación guardada con ese nombre.",
+      "hay_mas": "Hay más coincidencias: escribe más letras para afinar.",
+      "demasiado_corto": "Escribe al menos 2 letras.",
+      "error": "No se pudo buscar. Los detalles están en luna.log.",
+      "distancia": "{ly} desde ti",
+      "sin_mercado": "Sin precios guardados",
+      "usar_origen": "Usar como origen",
+      "copiar": "Copiar sistema",
+      "plataforma": "Plataforma {valor}",
+      "tipo": {
+        "orbital": "Orbital",
+        "puesto_avanzado": "Puesto avanzado",
+        "puerto_planetario": "Puerto planetario",
+        "asentamiento": "Asentamiento",
+        "colonizacion": "Colonización",
+        "desconocida": "Tipo desconocido",
+        "fleet_carrier": "Fleet Carrier"
+      }
     }
   },
   "configuracion": {
     "titulo": "Configuración",
     "journal": {
       "titulo": "Journal del juego",
-      "ayuda": "LUNA lee el journal de Elite Dangerous en modo solo lectura. Si moviste tu carpeta de Partidas guardadas, elige aquí la del journal.",
+      "ayuda": "LUNA sigue tu partida leyendo el journal, un registro que Elite Dangerous escribe mientras juegas. Solo lo lee: nunca lo cambia. Normalmente lo encuentra sola y no hace falta tocar nada. Elige otra carpeta solo si moviste tus Partidas guardadas o LUNA no ve tu partida.",
       "carpeta": "Carpeta",
       "origen": "Origen",
       "origen_automatico": "Detectada automáticamente",
@@ -492,11 +761,18 @@
       "no_existe": "La carpeta que elegiste ya no existe; se usa la detección automática.",
       "no_guardado": "LUNA no pudo guardar el cambio, probablemente porque otro programa tiene abierto su archivo de configuración. Cierra ese programa e inténtalo de nuevo.",
       "elegir": "Elegir carpeta…",
-      "automatica": "Usar la detección automática"
+      "automatica": "Usar la detección automática",
+      "linea": "De dónde lee LUNA tu partida."
     },
     "datos": {
       "titulo": "Datos de LUNA",
-      "carpeta": "Carpeta"
+      "carpeta": "Carpeta",
+      "linea": "Dónde guarda LUNA tus datos, cuánto ocupan y cómo borrar los mercados.",
+      "ayuda": "LUNA lo guarda todo en una carpeta propia. La base de datos tiene dos partes: los mercados (sistemas, estaciones y precios, que se pueden volver a descargar) y lo tuyo (compras y ventas, sesiones, rutas fijadas, perfiles y alertas), que LUNA nunca borra por su cuenta.",
+      "base": "Base de datos",
+      "descargas": "Descargas pendientes",
+      "libre": "Libre en el disco",
+      "sin_dato": "Sin dato"
     },
     "errores": {
       "desconocido": "LUNA no conoce ese sistema todavía. Prueba con el Sol o con un sistema que hayas visitado, que haya llegado por EDDN o que ya esté en una descarga de Spansh.",
@@ -512,20 +788,21 @@
     },
     "esfera": {
       "titulo": "Esfera de datos",
-      "ayuda": "LUNA guarda los mercados dentro de una esfera: un centro y un radio en años luz. EDDN y la descarga de Spansh solo guardan lo que cae dentro. Cambiarla pide confirmación.",
+      "ayuda": "LUNA solo guarda los mercados que están dentro de una esfera: un centro (un sistema) y un radio en años luz. Lo que llega de EDDN o de Spansh fuera de ella se descarta. Un radio mayor te da más rutas posibles, pero la base crece. Lo recomendado es centrarla en el sistema donde sueles comerciar. Cambiarla pide confirmación.",
       "actual": "Esfera actual",
       "actual_valor": "{centro}, radio {radio} ly",
       "centro": "Centro (nombre del sistema)",
-      "centro_ayuda": "El Sol, o un sistema que LUNA ya conozca por tus visitas, por EDDN o por una descarga de Spansh.",
+      "centro_ayuda": "El Sol, o cualquier sistema que LUNA ya conozca por tus visitas, por EDDN o por una descarga de Spansh.",
       "radio": "Radio (ly)",
       "revisar": "Revisar el cambio",
       "comprobando": "Comprobando…",
+      "dejar_de_comprobar": "Dejar de esperar",
       "aplicada": "Esfera guardada.",
       "aplicada_descargando": "Esfera guardada. La descarga ha empezado: puedes seguirla en Datos de Spansh.",
       "propuesta": {
         "titulo": "Confirmar el cambio",
         "resumen": "Esfera nueva: {centro}, radio {radio} ly.",
-        "descarga_si": "Hay que descargar el volcado de Spansh ({tamano}). Tienes {libre} libres en el disco. Tarda un buen rato y se puede pausar y reanudar.",
+        "descarga_si": "Hay que descargar el archivo de Spansh ({tamano}). Tienes {libre} libres en el disco. Tarda un buen rato y se puede pausar y reanudar. Si más adelante amplías el radio, habrá que descargarlo otra vez.",
         "descarga_si_sin_tamano": "Hay que descargar el volcado de Spansh, pero LUNA no pudo consultar ahora su tamaño. Tienes {libre} libres en el disco.",
         "descarga_no": "Lo que ya descargaste cubre esta esfera, así que no hace falta descargar. Se borrará lo que quede fuera de ella.",
         "descarga_no_repetir": "Si quieres datos más recientes, puedes descargar el volcado otra vez ({tamano}).",
@@ -536,11 +813,21 @@
         "descargar_de_nuevo": "Aplicar y descargar de nuevo",
         "cancelar": "Cancelar",
         "borra_fuera": "Ojo: lo que ya tienes guardado y quede fuera de la esfera nueva se borra. Con «Aplicar y descargar» se borra al terminar la descarga; con «Aplicar sin descargar», ahora mismo."
+      },
+      "linea": "La zona del espacio de la que LUNA guarda mercados.",
+      "guia": {
+        "titulo": "Cuánto cuesta cada radio",
+        "radio_100": "100 ly (el valor de fábrica): unos 6 min de importación y 212 MB en tu disco. Solo cubre los alrededores del centro.",
+        "radio_250": "250 ly: unos 12 min de importación y unos 900 MB en tu disco. Cubre unos 65.000 sistemas.",
+        "radio_500": "500 ly: unos 17 min de importación y 1,2 GB en tu disco. Cubre unos 109.000 sistemas: casi lo mismo que 1.000 ly ocupando poco menos.",
+        "radio_1000": "1.000 ly: unos 19 min de importación y 1,3 GB en tu disco. Cubre unos 124.000 de los 146.000 sistemas del archivo de Spansh, casi toda la zona habitada. Medido desde el Sol.",
+        "ampliar": "La descarga es siempre el archivo entero de Spansh (unos 4,3 GiB), sea cual sea el radio, y LUNA lo borra al terminar de importarlo. Por eso ampliar el radio más tarde obliga a descargarlo otra vez; reducirlo no, porque solo se borra lo que queda fuera. Si dudas, elige ahora un radio algo mayor.",
+        "antes_de_descargar": "Antes de descargar, comprueba el centro y el radio: lo que se guarde depende de ellos. Cuando estén bien, pulsa «Revisar el cambio»."
       }
     },
     "spansh": {
       "titulo": "Datos de Spansh",
-      "ayuda": "Descarga opcional con los mercados de toda la galaxia. LUNA baja un archivo grande, guarda solo lo que cae dentro de tu esfera y lo borra. Sin ella, LUNA funciona con EDDN y con lo que visites. Antes de empezar te enseña el tamaño y pide confirmación.",
+      "ayuda": "Spansh es una web de la comunidad con una copia de la galaxia: sistemas, estaciones y también precios de mercado. LUNA baja ese archivo grande (unos 4,3 GiB), guarda solo lo que cae dentro de tu esfera y lo borra al terminar. Lo descargado se mezcla con lo que ya tienes: de cada estación gana siempre el dato más reciente. Es opcional: sin él LUNA funciona con EDDN y con lo que visites, pero conoce menos sistemas y estaciones. Los precios de Spansh pueden ser viejos; en las rutas ves la antigüedad de cada uno. Al pulsar «Descargar» eliges antes el radio.",
       "fase_etiqueta": "Trabajo",
       "ultima_etiqueta": "Última descarga",
       "fase": {
@@ -575,19 +862,21 @@
       },
       "descargar": "Descargar datos de Spansh…",
       "progreso_lectura": "Leyendo el archivo ({porcentaje}) · Sistemas dentro de la esfera: {encontrados}",
-      "progreso_guardado": "Guardando en la base de datos · {guardados} de {encontrados} sistemas"
+      "progreso_guardado": "Guardando en la base de datos · {guardados} de {encontrados} sistemas",
+      "linea": "Descarga opcional con los sistemas, estaciones y precios de toda la galaxia."
     },
     "retencion": {
       "titulo": "Retención de precios",
-      "ayuda": "Dentro de la esfera LUNA guarda siempre el dato más reciente de cada estación. Fuera de ella solo conserva los mercados que visitaste tú.",
+      "ayuda": "Un precio viejo es poco fiable, así que LUNA no los guarda para siempre. Dentro de la esfera conserva el dato más reciente de cada estación; fuera de ella, solo los mercados que visitaste tú. Estos dos plazos dicen hasta cuándo. Los de fábrica (3 y 30 días) sirven para casi todos; súbelos solo si te faltan rutas porque se borran precios que aún te valen.",
       "visitados": "Mercados que visitaste fuera de la esfera (días)",
       "antiguedad": "Antigüedad máxima de cualquier precio (días)",
       "guardar": "Guardar",
-      "guardado": "Guardado."
+      "guardado": "Guardado.",
+      "linea": "Cuánto tiempo conserva LUNA los precios."
     },
     "comercio": {
       "titulo": "Búsqueda de rutas",
-      "ayuda": "Límites y valores por defecto de las búsquedas de Rutas y Ahora.",
+      "ayuda": "Los límites de las búsquedas de Rutas y Ahora. Una búsqueda no puede pedir precios más antiguos que el tope de abajo: con más días entran precios más viejos y las búsquedas tardan más. Lo recomendado son 7 días, el valor de fábrica. Más abajo eliges qué tipos de estación trae marcados una búsqueda nueva.",
       "tope": "Antigüedad máxima que puede pedir una búsqueda (días)",
       "tope_ayuda": "De 1 a {maximo} días. Con más días entran precios más viejos de Spansh y las búsquedas tardan más.",
       "tipos": "Tipos de estación que trae marcados un perfil nuevo",
@@ -597,37 +886,97 @@
       "errores": {
         "tope_antiguedad_dias": "Escribe un número entero de días, de 1 a {maximo}.",
         "tipos": "Marca al menos un tipo de estación."
-      }
+      },
+      "linea": "Límites de las búsquedas de Rutas y Ahora."
     },
     "eddn": {
       "titulo": "EDDN",
-      "ayuda": "Precios que envían otros jugadores en tiempo real. LUNA solo recibe: no envía nada.",
+      "ayuda": "EDDN es una red en la que los jugadores comparten, en tiempo real, los precios de los mercados que visitan. Con esta opción, LUNA recibe esos precios y guarda los de dentro de tu esfera, así tus rutas usan datos frescos sin que visites cada estación. LUNA solo recibe: no envía nada. Lo recomendado es dejarla activada.",
       "activar": "Recibir precios de EDDN",
       "estado": "Estado",
-      "sin_base": "Sin base de datos, LUNA no puede guardar lo que recibiría."
+      "sin_base": "Sin base de datos, LUNA no puede guardar lo que recibiría.",
+      "linea": "Precios en directo que envían otros jugadores."
     },
     "sesiones": {
       "titulo": "Sesiones de Rendimiento",
-      "ayuda": "Una sesión es una partida del juego. Una pausa larga sin actividad la puede partir en dos; el cambio se aplica también a las sesiones pasadas.",
+      "ayuda": "Rendimiento reparte lo que ganas en sesiones: ratos de juego seguidos. Una pausa larga sin actividad parte una sesión en dos, y aquí eliges cuánto tiene que durar esa pausa (lo normal es 1 hora). Con la casilla, una sesión es una partida entera, desde que abres el juego hasta que lo cierras. El cambio se aplica también a las sesiones pasadas.",
       "pausa": "Pausa que parte una sesión",
       "pausa_valor": "{horas} h",
-      "por_partida": "Solo la parte cerrar el juego",
+      "por_partida": "Una sesión por partida (solo se parte al cerrar el juego)",
       "guardar": "Guardar",
       "guardado": "Guardado. Rendimiento ya agrupa las sesiones así.",
       "errores": {
         "pausa_horas": "Elige de {minimo} a {maximo} horas.",
         "por_partida": "La casilla no tiene un valor válido."
-      }
+      },
+      "linea": "Cómo agrupa Rendimiento tus partidas."
     },
     "sonido": {
       "titulo": "Sonido de las alertas",
-      "ayuda": "LUNA suena una vez por cada tanda de avisos, aunque la ventana esté detrás del juego.",
+      "ayuda": "Cuando salta una alerta de ruta, LUNA puede avisarte con un sonido aunque su ventana esté detrás del juego. Suena una sola vez por cada tanda de avisos, no una por ruta. Si lo quieres más bajo que el juego, ajusta aquí el volumen o el Mezclador de volumen de Windows.",
       "activado": "Sonar al avisar",
       "volumen": "Volumen",
       "volumen_valor": "{volumen} %",
       "guardar": "Guardar",
       "probar": "Probar el sonido",
-      "guardado": "Guardado."
+      "guardado": "Guardado.",
+      "linea": "Aviso sonoro cuando salta una alerta."
+    },
+    "lectura": {
+      "titulo": "Lectura",
+      "ayuda": "Cómo se ve LUNA: el tamaño de la letra, el espacio entre filas y qué columnas enseñan las tablas de Rutas. Cada cambio se aplica al momento y se guarda solo, sin botón.",
+      "tamano_letra_titulo": "Tamaño de la letra",
+      "tamano_letra": {
+        "pequeno": "Pequeño",
+        "normal": "Normal",
+        "grande": "Grande",
+        "muy_grande": "Muy grande"
+      },
+      "tamano_letra_ayuda": "Lo recomendado es Normal. Si te cansa leer, prueba Grande; con Muy grande algunas tablas tendrán que desplazarse de lado.",
+      "densidad_titulo": "Espacio entre filas",
+      "densidad": {
+        "comoda": "Cómoda",
+        "compacta": "Compacta"
+      },
+      "densidad_ayuda": "Cómoda deja más aire alrededor de cada fila. Compacta enseña más datos a la vez en la misma ventana.",
+      "columnas_titulo": "Columnas de las tablas de Rutas",
+      "columnas_ayuda": "Marca las columnas que quieres ver. Las que dejes sin marcar no se pierden: siguen en el detalle de la ruta, al pulsar una fila. La elección de «Un salto» vale también para «Comprar desde aquí» en Ahora.",
+      "guardado": "Guardado.",
+      "errores": {
+        "columnas": "Deja al menos una columna marcada."
+      },
+      "linea": "Tamaño de la letra, espacio entre filas y columnas de las tablas."
+    },
+    "ventana": {
+      "titulo": "Ventana",
+      "ayuda": "Cómo se comporta la ventana de LUNA junto al juego.",
+      "encima": "Mantener LUNA encima de las demás ventanas",
+      "encima_ayuda": "Pensado para un solo monitor o para el juego en modo ventana: LUNA no se queda tapada. Por defecto está desactivado.",
+      "aplicado": "Guardado y aplicado.",
+      "reinicio": "Guardado, pero LUNA no pudo aplicarlo ahora. Cierra y vuelve a abrir la aplicación.",
+      "linea": "Cómo se comporta LUNA junto al juego."
+    },
+    "borrar": {
+      "titulo": "Borrar los datos de mercado",
+      "ayuda": "Vacía la lista de sistemas, estaciones y precios para recuperar espacio o empezar de cero. Tus compras, sesiones, rutas fijadas, perfiles y alertas no se tocan.",
+      "pedir": "Borrar los datos de mercado…",
+      "ocupado": "No se puede borrar mientras haya una descarga de Spansh en marcha. Páusala o cancélala antes.",
+      "confirmar_titulo": "¿Borrar los datos de mercado?",
+      "se_pierde": "Se borra: todos los sistemas (salvo el del centro de tu esfera), estaciones y precios guardados, también los que descargaste de Spansh o viste en tus visitas. LUNA dejará de dar rutas hasta que se vuelvan a llenar, y olvidará que descargaste Spansh.",
+      "se_conserva": "No se borra: tu historial de compras y ventas, tus sesiones, las rutas fijadas, los perfiles de búsqueda, las alertas y los ajustes.",
+      "despues": "Después: con EDDN activado la base se irá llenando sola, y lo que visites con LUNA abierta vuelve a guardarse. Para recuperarlo todo de golpe, descarga Spansh otra vez. No se puede deshacer.",
+      "confirmar": "Borrar los datos de mercado",
+      "cancelar": "Cancelar",
+      "borrando": "Borrando los datos de mercado y devolviendo el espacio al disco…",
+      "terminado": "Listo. La base pasó de {antes} a {ahora}.",
+      "errores": {
+        "ocupado": "Hay una descarga de Spansh o un borrado en marcha. Espera a que termine.",
+        "no_guardado": "LUNA no pudo guardar el cambio en su archivo de configuración, probablemente porque otro programa lo tiene abierto. No se borró nada.",
+        "sin_base": "LUNA no pudo abrir su base de datos, así que no hay nada que borrar.",
+        "fallo": "El borrado falló a medias. Puedes repetirlo; los detalles están en luna.log.",
+        "parametro": "La interfaz envió un valor que LUNA no entiende. Cierra y vuelve a abrir la aplicación.",
+        "no_disponible": "Esta función no está disponible ahora mismo."
+      }
     }
   }
 }

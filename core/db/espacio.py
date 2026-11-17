@@ -46,6 +46,11 @@ def modo(conexion: sqlite3.Connection) -> int:
     return conexion.execute("PRAGMA auto_vacuum").fetchone()[0]
 
 
+def truncar_wal(conexion: sqlite3.Connection) -> None:
+    """Pasa el WAL a la base y lo vacía: tras borrar mucho, el archivo del WAL no encoge solo."""
+    conexion.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchall()
+
+
 def paginas_libres(conexion: sqlite3.Connection) -> int:
     return conexion.execute("PRAGMA freelist_count").fetchone()[0]
 

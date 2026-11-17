@@ -123,6 +123,16 @@ class Gestor:
         if not ajustes.guardar_cobertura(self._config, cobertura):
             registro.warning("no se pudo anotar lo que queda de la descarga de Spansh")
 
+    def olvidar_ultima(self) -> bool:
+        """Los mercados se borraron: ya no hay una descarga que cubra nada."""
+        with self._candado:
+            if self._fase in (DESCARGANDO, IMPORTANDO):
+                return False
+            if not ajustes.olvidar_ultima_descarga(self._config):
+                return False
+            self._ultima = None
+        return True
+
     def ocupado(self) -> bool:
         with self._candado:
             return self._fase in (DESCARGANDO, IMPORTANDO)

@@ -1,9 +1,13 @@
 import { crearVistaAhora } from './ahora.js';
 import { crearVistaAlertas } from './alertas.js';
 import * as api from './api.js';
+import { cargarAspecto } from './aspecto.js';
 import { crearVistaConfiguracion } from './configuracion.js';
 import { crearVistaEstado } from './estado.js';
+import { crearVistaFijadas } from './fijadas.js';
+import { vigilarDesplazamiento } from './desplazamiento.js';
 import { aplicarTextos, texto, textosFaltantes } from './i18n.js';
+import { crearBarraLateral } from './lateral.js';
 import { crearPanelPerfil } from './perfil.js';
 import { crearVistaRendimiento } from './rendimiento.js';
 import { crearVistaRutas } from './rutas.js';
@@ -67,12 +71,14 @@ function consultarEstado(alRecibir) {
 
 async function arrancar() {
   aplicarTextos(document);
+  vigilarDesplazamiento(document);
   const estado = crearVistaEstado(document.getElementById('vista-estado'));
   const configuracion = crearVistaConfiguracion(document.getElementById('vista-configuracion'));
   const vistaRutas = document.getElementById('vista-rutas');
   const perfil = crearPanelPerfil(vistaRutas);
   crearVistaRutas(vistaRutas, perfil);
   const ahora = crearVistaAhora(document.getElementById('vista-ahora'), perfil);
+  const fijadas = crearVistaFijadas(document.getElementById('vista-fijadas'));
   const rendimiento = crearVistaRendimiento(document.getElementById('vista-rendimiento'));
   const alertas = crearVistaAlertas(
     document.getElementById('vista-alertas'),
@@ -86,6 +92,8 @@ async function arrancar() {
     if (nombre === 'rutas') perfil.cargar();
     if (nombre === 'ahora') ahora.mostrar();
     else ahora.salir();
+    if (nombre === 'fijadas') fijadas.mostrar();
+    else fijadas.salir();
     if (nombre === 'alertas') alertas.mostrar();
     else alertas.salir();
     if (nombre === 'rendimiento') rendimiento.mostrar();
@@ -96,10 +104,13 @@ async function arrancar() {
   window.__luna = { textosFaltantes: textosFaltantes(), modulosEs: true };
 
   await api.esperarPuente();
+  cargarAspecto();
+  crearBarraLateral(document.querySelector('.app'), document.querySelector('[data-campo="lateral_plegar"]'));
   alertas.vigilar();
   consultarEstado((datos) => {
     estado.mostrar(datos);
     ahora.alEstado(datos);
+    fijadas.alEstado(datos);
   });
 }
 

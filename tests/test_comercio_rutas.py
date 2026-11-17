@@ -210,3 +210,12 @@ def test_bucles_con_una_estacion(base):
 
     puntas = [(b.ida.venta.estacion.market_id, b.vuelta.compra.estacion.market_id) for b in bucles]
     assert puntas == [(2, 2)]
+
+
+def test_la_ganancia_minima_por_tonelada_descarta_los_tratos_que_no_la_alcanzan(base):
+    estacion(base, 1, sistema(base, 10, 0))
+    estacion(base, 2, sistema(base, 20, 10))
+    vende(base, 1, "gold", 9000, stock=500)
+    compra(base, 2, "gold", 10_000, demanda=500)
+    assert [t.ganancia_tonelada for t in un_salto(base, ganancia_min=1000)] == [1000]
+    assert un_salto(base, ganancia_min=1001) == []

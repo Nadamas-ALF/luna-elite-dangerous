@@ -2,12 +2,28 @@
 import { texto } from './i18n.js';
 
 const TIEMPO_COPIADO = 1500;
+// WebView2 puede dejar `writeText` pendiente sin resolver ni fallar, por ejemplo sin el foco
+// de la ventana (E-36): pasado este plazo se cae a la selección, como sin permiso.
+const PLAZO_DEL_PORTAPAPELES = 1000;
 const temporizadores = new WeakMap();
 
-/** `fuente` es el elemento con el nombre: sin permiso del portapapeles se deja seleccionado. */
-export async function copiar(boton, nombre, fuente) {
+function escribirConPlazo(nombre) {
+  let plazo;
+  const vencido = new Promise((_, rechazar) => {
+    plazo = setTimeout(() => rechazar(new Error('plazo')), PLAZO_DEL_PORTAPAPELES);
+  });
+  return Promise.race([navigator.clipboard.writeText(nombre), vencido]).finally(() =>
+    clearTimeout(plazo),
+  );
+}
+
+/**
+ * `fuente` es el elemento con el nombre: sin permiso del portapapeles se deja seleccionado.
+ * `volverA` es el texto que recupera el botón tras «Copiado» (un enlace vuelve a su nombre).
+ */
+export async function copiar(boton, nombre, fuente, volverA = texto('estado.ubicacion.copiar')) {
   try {
-    await navigator.clipboard.writeText(nombre);
+    await escribirConPlazo(nombre);
   } catch {
     window.getSelection().selectAllChildren(fuente);
     return;
@@ -17,7 +33,7 @@ export async function copiar(boton, nombre, fuente) {
   temporizadores.set(
     boton,
     setTimeout(() => {
-      boton.textContent = texto('estado.ubicacion.copiar');
+      boton.textContent = volverA;
     }, TIEMPO_COPIADO),
   );
 }

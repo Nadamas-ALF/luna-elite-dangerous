@@ -1,7 +1,8 @@
 """La única clase que la interfaz puede llamar (sección 10.2).
 
-pywebview expone todos los métodos públicos y también recorre los atributos
-públicos que sean objetos: por eso todo lo interno lleva guion bajo. Ningún
+pywebview recibe solo los métodos de `metodos_expuestos`, no el objeto: con
+`js_api` despacha cada llamada con `getattr` sin filtrar el guion bajo, y un
+script de la página podría llegar a `_nucleo.detener` (E-01). Ningún
 método recibe rutas ni datos de la interfaz; la carpeta del journal se elige
 con el diálogo nativo de Windows. Los datos de Spansh, la esfera y la retención
 llegan como texto y números simples y `Datos` los valida antes de usarlos; los
@@ -15,7 +16,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from core.config import ajustes
+from core.config import ajustes, aspecto
 from core.config.rutas import Ubicacion
 from core.datos import Datos
 from core.journal import carpeta
@@ -30,6 +31,7 @@ registro = logging.getLogger("luna.api")
 Selector = Callable[[], str | None]
 
 _NO_DISPONIBLE = {"error": "no_disponible"}
+_PARAMETRO = {"error": "parametro"}
 
 
 class Api:
@@ -44,6 +46,7 @@ class Api:
         datos: Datos | None = None,
         avisos_de_base: Callable[[], tuple[str, ...]] = tuple,
         comercio: Comercio | None = None,
+        aplicar_siempre_encima: Callable[[bool], None] | None = None,
     ) -> None:
         self._nucleo = nucleo
         self._ubicacion = ubicacion
@@ -54,6 +57,7 @@ class Api:
         self._datos = datos
         self._avisos_de_base = avisos_de_base
         self._comercio = comercio
+        self._aplicar_siempre_encima = aplicar_siempre_encima
 
     def estado(self) -> dict:
         contexto = vista.Contexto(
@@ -98,6 +102,15 @@ class Api:
     def usar_carpeta_automatica(self) -> dict:
         return self._con_resultado(self._guardar_carpeta(None))
 
+    def importar_historial(self) -> dict:
+        return self._nucleo.importar_historial()
+
+    def estado_de_la_importacion(self) -> dict:
+        return self._nucleo.estado_de_la_importacion()
+
+    def cancelar_importacion(self) -> dict:
+        return self._nucleo.cancelar_importacion()
+
     def spansh(self) -> dict:
         return self._datos.spansh() if self._datos else _NO_DISPONIBLE
 
@@ -109,6 +122,12 @@ class Api:
         if self._datos is None:
             return _NO_DISPONIBLE
         return self._datos.aplicar_esfera(nombre, radio, descargar)
+
+    def borrar_datos_de_mercado(self) -> dict:
+        return self._datos.borrar_mercados() if self._datos else _NO_DISPONIBLE
+
+    def espacio_en_disco(self) -> dict:
+        return self._datos.espacio() if self._datos else _NO_DISPONIBLE
 
     def guardar_retencion(self, visitados_dias: float, antiguedad_maxima_dias: float) -> dict:
         if self._datos is None:
@@ -135,6 +154,12 @@ class Api:
 
     def ahora(self, perfil: dict) -> dict:
         return self._comercio.ahora(perfil) if self._comercio else _NO_DISPONIBLE
+
+    def explicar_busqueda(self, perfil: dict) -> dict:
+        return self._comercio.explicar_busqueda(perfil) if self._comercio else _NO_DISPONIBLE
+
+    def buscar_estaciones(self, texto: str) -> dict:
+        return self._comercio.buscar_estaciones(texto) if self._comercio else _NO_DISPONIBLE
 
     def perfiles_guardados(self) -> dict:
         return self._comercio.perfiles_guardados() if self._comercio else _NO_DISPONIBLE
@@ -164,6 +189,11 @@ class Api:
             return _NO_DISPONIBLE
         return self._comercio.guardar_ajustes_de_sesiones(horas, por_partida)
 
+    def guardar_omitir_sesiones_vacias(self, omitir: bool) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_omitir_sesiones_vacias(omitir)
+
     def reglas_de_alertas(self) -> dict:
         return self._comercio.reglas_de_alertas() if self._comercio else _NO_DISPONIBLE
 
@@ -186,6 +216,118 @@ class Api:
     def probar_sonido(self, volumen: int) -> dict:
         return self._comercio.probar_sonido(volumen) if self._comercio else _NO_DISPONIBLE
 
+    def rutas_fijadas(self) -> dict:
+        return self._comercio.rutas_fijadas() if self._comercio else _NO_DISPONIBLE
+
+    def estimar_ruta(self, ruta: dict) -> dict:
+        return self._comercio.estimar_ruta(ruta) if self._comercio else _NO_DISPONIBLE
+
+    def fijar_ruta(self, ruta: dict) -> dict:
+        return self._comercio.fijar_ruta(ruta) if self._comercio else _NO_DISPONIBLE
+
+    def desfijar_ruta(self, id_: int) -> dict:
+        return self._comercio.desfijar_ruta(id_) if self._comercio else _NO_DISPONIBLE
+
+    def ajustes_de_ruta_en_curso(self) -> dict:
+        return self._comercio.ajustes_de_ruta_en_curso() if self._comercio else _NO_DISPONIBLE
+
+    def guardar_ajustes_de_ruta_en_curso(
+        self, aviso: bool, margen: float, portapapeles: bool
+    ) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.guardar_ajustes_de_ruta_en_curso(aviso, margen, portapapeles)
+
+    def ajustes_de_ventana(self) -> dict:
+        encima, plegado = ajustes.interfaz(self._config)
+        return {
+            "siempre_encima": encima,
+            "lateral_plegado": plegado,
+            "secciones_abiertas": list(ajustes.secciones_abiertas(self._config)),
+        }
+
+    def guardar_secciones_abiertas(self, secciones: list) -> dict:
+        if not ajustes.son_secciones_validas(secciones):
+            return _PARAMETRO
+        if not ajustes.guardar_secciones_abiertas(self._config, secciones):
+            return {"error": "no_guardado"}
+        return {"secciones_abiertas": secciones}
+
+    def guardar_siempre_encima(self, activado: bool) -> dict:
+        """Guarda el ajuste y lo aplica ya; `aplicado` dice si no hizo falta reiniciar."""
+        if not isinstance(activado, bool):
+            return _PARAMETRO
+        if not ajustes.guardar_siempre_encima(self._config, activado):
+            return {"error": "no_guardado"}
+        return {"siempre_encima": activado, "aplicado": self._aplicar_encima(activado)}
+
+    def guardar_lateral_plegado(self, plegado: bool) -> dict:
+        if not isinstance(plegado, bool):
+            return _PARAMETRO
+        if not ajustes.guardar_lateral_plegado(self._config, plegado):
+            return {"error": "no_guardado"}
+        return {"lateral_plegado": plegado}
+
+    def ajustes_de_aspecto(self) -> dict:
+        """Lo que la interfaz aplica al arrancar y lo que Configuración deja elegir."""
+        actual = aspecto.leer(self._config)
+        return {
+            "tamano_letra": actual.tamano_letra,
+            "densidad": actual.densidad,
+            "filas_por_pagina": actual.filas_por_pagina,
+            "opciones": {
+                "tamanos": list(aspecto.TAMANOS_DE_LETRA),
+                "densidades": list(aspecto.DENSIDADES),
+                "filas": list(aspecto.FILAS_POR_PAGINA),
+            },
+            "columnas": {
+                modo: {
+                    "disponibles": list(disponibles),
+                    "elegidas": list(actual.columnas[modo]),
+                }
+                for modo, disponibles in aspecto.COLUMNAS_DISPONIBLES.items()
+            },
+        }
+
+    def guardar_tamano_de_letra(self, tamano: str) -> dict:
+        if not aspecto.es_tamano_de_letra(tamano):
+            return _PARAMETRO
+        if not aspecto.guardar_tamano_de_letra(self._config, tamano):
+            return {"error": "no_guardado"}
+        return {"tamano_letra": tamano}
+
+    def guardar_densidad(self, densidad: str) -> dict:
+        if not aspecto.es_densidad(densidad):
+            return _PARAMETRO
+        if not aspecto.guardar_densidad(self._config, densidad):
+            return {"error": "no_guardado"}
+        return {"densidad": densidad}
+
+    def guardar_filas_por_pagina(self, filas: int) -> dict:
+        if not aspecto.es_filas_por_pagina(filas):
+            return _PARAMETRO
+        if not aspecto.guardar_filas_por_pagina(self._config, filas):
+            return {"error": "no_guardado"}
+        return {"filas_por_pagina": filas}
+
+    def guardar_columnas(self, modo: str, columnas: list) -> dict:
+        elegidas = aspecto.columnas_validas(modo, columnas)
+        if elegidas is None:
+            return _PARAMETRO
+        if not aspecto.guardar_columnas(self._config, modo, elegidas):
+            return {"error": "no_guardado"}
+        return {"modo": modo, "elegidas": list(elegidas)}
+
+    def _aplicar_encima(self, activado: bool) -> bool:
+        if self._aplicar_siempre_encima is None:
+            return False
+        try:
+            self._aplicar_siempre_encima(activado)
+        except Exception:  # noqa: BLE001 - sin aplicar en vivo, el ajuste rige al reiniciar
+            registro.exception("no se pudo aplicar «siempre encima» sin reiniciar")
+            return False
+        return True
+
     def _con_resultado(self, guardado: bool) -> dict:
         return {**self.configuracion(), "no_guardado": not guardado}
 
@@ -195,3 +337,12 @@ class Api:
         if guardado:
             self._nucleo.reiniciar_journal()
         return guardado
+
+
+def metodos_expuestos(api: Api) -> list[Callable]:
+    """Los métodos públicos de `api`, para `Window.expose`."""
+    return [
+        getattr(api, nombre)
+        for nombre, valor in vars(Api).items()
+        if not nombre.startswith("_") and callable(valor)
+    ]

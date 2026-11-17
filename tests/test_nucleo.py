@@ -91,13 +91,15 @@ def test_un_evento_nuevo_llega_al_estado_y_al_bus_en_menos_de_dos_segundos(juego
     recibidos = []
     bus.suscribir(events.DESATRACADO, recibidos.append)
     assert esperar(lambda: nucleo.estado().estacion is not None)
+    atracado_en = nucleo.estado().estacion
 
     inicio = time.monotonic()
     anadir(journal, {"timestamp": "2026-11-12T10:00:00Z", "event": "Undocked"})
 
     assert esperar(lambda: nucleo.estado().estacion is None, segundos=2.0)
     assert time.monotonic() - inicio < 2.0
-    assert esperar(lambda: recibidos == [None])
+    # Arrancó ya atracado, sin ningún ATRACADO: el despegue dice de dónde sale (E-30).
+    assert esperar(lambda: recibidos == [atracado_en])
 
 
 def test_cambiar_de_nave_publica_el_evento(juego, config, arrancar):
@@ -244,9 +246,9 @@ def test_sin_eventos_nuevos_no_escribe_en_la_base(tmp_path, juego, config, arran
     trabajos = []
     original = escritor.encolar
 
-    def contando(trabajo):
+    def contando(trabajo, despues=None, fallo=None):
         trabajos.append(trabajo)
-        original(trabajo)
+        original(trabajo, despues, fallo)
 
     escritor.encolar = contando
     nucleo, _ = arrancar(config, escritor)
@@ -370,6 +372,9 @@ def test_la_distancia_de_un_sistema_propio_se_mide_desde_el_centro_configurado(
         '{"esfera": {"centro": {"nombre": "C", "x": 1, "y": 2, "z": 2}, "radio": 50}}',
         encoding="utf-8",
     )
+    # Escribir la esfera borra la carpeta del journal: sin volver a guardarla, el núcleo
+    # leería los journals reales del usuario (E-28).
+    ajustes.guardar_carpeta_journal(config, str(juego))
     shutil.copy(FIXTURES / "sesion_comercio.log", juego / NOMBRE)
     ruta = tmp_path / "luna.db"
     escritor = Escritor(ruta)

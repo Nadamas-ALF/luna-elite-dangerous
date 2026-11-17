@@ -62,7 +62,9 @@ def abrir_lectura(ruta: Path) -> sqlite3.Connection:
 class Escritor:
     def __init__(self, ruta: Path) -> None:
         self._ruta = ruta
-        self._cola: queue.Queue[tuple[Trabajo, Despues | None, Fallo | None] | None] = queue.Queue()
+        self._cola: queue.Queue[tuple[Trabajo, Despues | None, Fallo | None, bool] | None] = (
+            queue.Queue()
+        )
         self._hilo = threading.Thread(target=self._bucle, name="escritor-sqlite", daemon=True)
         self._listo = threading.Event()
         self._error: Exception | None = None
@@ -87,7 +89,13 @@ class Escritor:
 
         `fallo` recibe la excepción si el trabajo falla y se deshizo su transacción.
         """
-        self._cola.put((trabajo, despues, fallo))
+        self._cola.put((trabajo, despues, fallo, True))
+
+    def encolar_sin_transaccion(
+        self, trabajo: Trabajo, despues: Despues | None = None, fallo: Fallo | None = None
+    ) -> None:
+        """Para lo que SQLite no deja hacer dentro de una transacción (un punto de control)."""
+        self._cola.put((trabajo, despues, fallo, False))
 
     def pendientes(self) -> int:
         """Trabajos esperando turno; aproximado, porque otros hilos encolan a la vez (E-05)."""
@@ -147,11 +155,14 @@ class Escritor:
         trabajo: Trabajo,
         despues: Despues | None,
         fallo: Fallo | None,
+        en_transaccion: bool,
     ) -> None:
         try:
-            conexion.execute("BEGIN IMMEDIATE")
+            if en_transaccion:
+                conexion.execute("BEGIN IMMEDIATE")
             resultado = trabajo(conexion)
-            conexion.execute("COMMIT")
+            if en_transaccion:
+                conexion.execute("COMMIT")
         except Exception as error:  # noqa: BLE001 - un trabajo roto no debe parar al escritor
             if isinstance(error, TrabajoCancelado):
                 registro.info("un trabajo de escritura se canceló")

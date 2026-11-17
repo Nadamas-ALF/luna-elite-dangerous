@@ -1,32 +1,39 @@
 // Pantalla Ahora (SPEC.md §9.2): dónde vender lo que llevas y qué comprar aquí.
 // Se recalcula sola al atracar, al despegar o al cambiar la carga, con el perfil de Rutas.
 import * as api from './api.js';
-import { antiguedad, crear, estacion, origen } from './celdas.js';
-import { pintarDetalle } from './detalle.js';
+import * as aspecto from './aspecto.js';
+import { antiguedad, crear, estacionEnlazada, origen } from './celdas.js';
+import { abrirDetalle, pintarDetalle } from './detalle.js';
 import * as formato from './formato.js';
 import { texto } from './i18n.js';
-import { COLUMNAS as COLUMNAS_DE_RUTAS } from './rutas.js';
+import { columnasElegidas } from './rutas.js';
 import { crearTabla, ESENCIAL, pintarTabla, SECUNDARIA } from './tabla.js';
 
 const clave = (nombre) => `comercio.ahora.${nombre}`;
 
 const COLUMNAS_DE_VENTA = [
-  ['vender', ESENCIAL, (v) => estacion(v.venta)],
-  ['ingreso_hora', ESENCIAL, (v) => formato.creditosPorHora(v.ingreso_hora)],
-  ['antiguedad', ESENCIAL, (v) => antiguedad(v.venta)],
-  ['precio_venta', null, (v) => formato.creditos(v.venta.precio)],
-  ['toneladas', null, (v) => formato.toneladas(v.toneladas)],
-  ['ingreso', null, (v) => formato.creditos(v.ingreso)],
-  ['ganancia', null, (v) => (v.ganancia === null ? texto('formato.sin_dato') : formato.creditos(v.ganancia))],
-  ['saltos', null, (v) => String(v.saltos)],
-  ['distancia_ly', SECUNDARIA, (v) => formato.anosLuz(v.distancia_ly)],
-  ['distancia_ls', SECUNDARIA, (v) => formato.segundosLuz(v.venta.distancia_ls)],
-  ['tiempo', null, (v) => formato.duracion(v.segundos)],
-  ['origen', SECUNDARIA, (v) => origen(v.venta)],
+  ['vender', ESENCIAL, (v) => estacionEnlazada(v.venta), (v) => v.venta.estacion],
+  ['ingreso_hora', ESENCIAL, (v) => formato.creditosPorHora(v.ingreso_hora), (v) => v.ingreso_hora],
+  ['antiguedad', ESENCIAL, (v) => antiguedad(v.venta), (v) => v.venta.horas],
+  ['precio_venta', null, (v) => formato.creditos(v.venta.precio), (v) => v.venta.precio],
+  ['toneladas', null, (v) => formato.toneladas(v.toneladas), (v) => v.toneladas],
+  ['ingreso', null, (v) => formato.creditos(v.ingreso), (v) => v.ingreso],
+  ['ganancia', null, (v) => (v.ganancia === null ? texto('formato.sin_dato') : formato.creditos(v.ganancia)), (v) => v.ganancia],
+  ['saltos', null, (v) => String(v.saltos), (v) => v.saltos],
+  ['distancia_ly', SECUNDARIA, (v) => formato.anosLuz(v.distancia_ly), (v) => v.distancia_ly],
+  ['distancia_ls', SECUNDARIA, (v) => formato.segundosLuz(v.venta.distancia_ls), (v) => v.venta.distancia_ls],
+  ['tiempo', null, (v) => formato.duracion(v.segundos), (v) => v.segundos],
+  ['origen', SECUNDARIA, (v) => origen(v.venta), (v) => origen(v.venta)],
 ];
 
-// Desde aquí se compra siempre en la estación donde estás: esa columna sobra.
-const COLUMNAS_DESDE_AQUI = COLUMNAS_DE_RUTAS.un_salto.filter(([nombre]) => nombre !== 'comprar');
+// Desde aquí se compra siempre en la estación donde estás: esa columna sobra. Las demás son
+// las que el usuario eligió para «Un salto» en Configuración.
+function columnasDesdeAqui() {
+  const columnas = columnasElegidas('un_salto');
+  const sin = columnas.filter(([nombre]) => nombre !== 'comprar');
+  // Si «Comprar en» era la única elegida, la tabla enseña la mercancía en vez de quedarse sin columnas.
+  return sin.length > 0 ? sin : columnasElegidas('un_salto', true).filter(([nombre]) => nombre === 'mercancia');
+}
 
 function campos(raiz) {
   const c = {};
@@ -52,7 +59,7 @@ function resumenDeArticulo(articulo) {
   return texto(clave('vender.comprada'), { toneladas, precio });
 }
 
-function bloqueDeArticulo(articulo) {
+function bloqueDeArticulo(articulo, alElegir) {
   const bloque = crear('section', 'articulo');
   const { nombre } = articulo.mercancia;
   bloque.append(crear('h3', 'articulo__titulo', nombre), crear('p', 'motivo', resumenDeArticulo(articulo)));
@@ -61,7 +68,7 @@ function bloqueDeArticulo(articulo) {
     return bloque;
   }
   const { contenedor, tabla } = crearTabla(texto(clave('vender.tabla'), { mercancia: nombre }));
-  pintarTabla(tabla, COLUMNAS_DE_VENTA, articulo.destinos, clave('columnas'));
+  pintarTabla(tabla, COLUMNAS_DE_VENTA, articulo.destinos, clave('columnas'), alElegir);
   bloque.append(contenedor);
   return bloque;
 }
@@ -77,6 +84,7 @@ export function crearVistaAhora(raiz, perfil) {
   let firma = null;
   let turno = 0;
   let horasSesion = 0;
+  let desdeAqui = [];
 
   function limpiar() {
     c.vender_lista.replaceChildren();
@@ -89,12 +97,21 @@ export function crearVistaAhora(raiz, perfil) {
 
   function pintarVender(vender) {
     mostrarTexto(c.vender_motivo, vender.length === 0 ? texto(clave('vender.vacia')) : null);
-    c.vender_lista.replaceChildren(...vender.map(bloqueDeArticulo));
+    c.vender_lista.replaceChildren(...vender.map((articulo) => bloqueDeArticulo(articulo, elegirVenta)));
   }
 
   function elegir(tramo) {
-    pintarDetalle(c.detalle_tramos, 'un_salto', tramo, horasSesion);
-    c.detalle.hidden = false;
+    pintarDetalle(c.detalle_tramos, tramo.detalle, horasSesion, { fijar: true });
+    abrirDetalle(c.detalle);
+  }
+
+  function elegirVenta(venta) {
+    pintarDetalle(c.detalle_tramos, venta.detalle, horasSesion);
+    abrirDetalle(c.detalle);
+  }
+
+  function pintarTablaDesdeAqui() {
+    pintarTabla(c.desde_aqui_tabla, columnasDesdeAqui(), desdeAqui, 'comercio.rutas.columnas', elegir);
   }
 
   function pintarDesdeAqui(tramos) {
@@ -102,7 +119,8 @@ export function crearVistaAhora(raiz, perfil) {
       mostrarTexto(c.desde_aqui_motivo, texto(clave('desde_aqui.sin_atracar')));
       return;
     }
-    pintarTabla(c.desde_aqui_tabla, COLUMNAS_DESDE_AQUI, tramos, 'comercio.rutas.columnas', elegir);
+    desdeAqui = tramos;
+    pintarTablaDesdeAqui();
     c.desde_aqui_contenedor.hidden = tramos.length === 0;
     mostrarTexto(c.desde_aqui_motivo, tramos.length === 0 ? texto(clave('desde_aqui.nada')) : null);
   }
@@ -140,6 +158,9 @@ export function crearVistaAhora(raiz, perfil) {
   }
 
   c.ahora_actualizar.addEventListener('click', actualizar);
+  aspecto.alCambiarColumnas(() => {
+    if (!c.desde_aqui_contenedor.hidden) pintarTablaDesdeAqui();
+  });
 
   return {
     mostrar() {

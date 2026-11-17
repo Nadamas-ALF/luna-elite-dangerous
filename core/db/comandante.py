@@ -142,10 +142,12 @@ def guardar_bloques(conexion: sqlite3.Connection, bloques: list[Bloque]) -> None
 
     Si la relectura empieza en la continuación de un journal, el primer bloque sale
     recortado: si cae dentro de uno guardado se descarta, y si uno guardado cae
-    dentro del nuevo, el nuevo lo sustituye.
+    dentro del nuevo, el nuevo lo sustituye. Una copia más vieja del bloque abierto
+    (la importación lo leyó antes que el seguimiento en vivo) no pisa la guardada ni
+    reabre un bloque ya cerrado.
     """
     for b in bloques:
-        if _dentro_de_otro(conexion, b):
+        if _dentro_de_otro(conexion, b) or _mas_viejo_que_el_guardado(conexion, b):
             continue
         conexion.execute(
             "DELETE FROM sessions WHERE fid = ? AND inicio > ? AND inicio <= ?",
@@ -169,6 +171,15 @@ def guardar_bloques(conexion: sqlite3.Connection, bloques: list[Bloque]) -> None
                 int(b.cerrado),
             ),
         )
+
+
+def _mas_viejo_que_el_guardado(conexion: sqlite3.Connection, bloque: Bloque) -> bool:
+    fila = conexion.execute(
+        "SELECT 1 FROM sessions WHERE fid = ? AND inicio = ? "
+        "AND (fin > ? OR (fin = ? AND cerrado > ?))",
+        (bloque.fid, bloque.inicio, bloque.fin, bloque.fin, int(bloque.cerrado)),
+    ).fetchone()
+    return fila is not None
 
 
 def _dentro_de_otro(conexion: sqlite3.Connection, bloque: Bloque) -> bool:

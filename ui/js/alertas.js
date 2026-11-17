@@ -2,14 +2,18 @@
 // emergente sale en cualquier pantalla: la interfaz pregunta por avisos nuevos cada
 // pocos segundos y Python ya ha hecho sonar el suyo.
 import * as api from './api.js';
-import { crear, estacion } from './celdas.js';
-import { pintarDetalle } from './detalle.js';
+import { crear, estacionEnlazada } from './celdas.js';
+import { activarMiles, escribirMiles, leerMiles } from './campo-numerico.js';
+import { abrirDetalle, pintarDetalle } from './detalle.js';
 import * as formato from './formato.js';
 import { texto } from './i18n.js';
+import { crearPanelRutaEnCurso } from './ruta-en-curso.js';
 import { ESENCIAL, pintarTabla, SECUNDARIA } from './tabla.js';
 
 const clave = (nombre) => `comercio.alertas.${nombre}`;
 const INTERVALO_DE_AVISOS = 3000;
+// Cifras grandes: se escriben con separador de miles (campo-numerico.js).
+const EN_MILES = ['ganancia_tonelada_min', 'ganancia_hora_min'];
 const UMBRALES = [
   'ganancia_tonelada_min',
   'ganancia_hora_min',
@@ -37,8 +41,19 @@ function ruta(aviso) {
   const [a, b] = puntas(aviso);
   const bloque = crear('div', 'ruta');
   const flecha = texto(clave(esBucle(aviso) ? 'avisos.bucle_flecha' : 'avisos.flecha'));
-  bloque.append(estacion(a), crear('span', 'ruta__flecha', flecha), estacion(b));
+  bloque.append(estacionEnlazada(a), crear('span', 'ruta__flecha', flecha), estacionEnlazada(b));
+  if (aviso.ruta.mejor_que) bloque.append(crear('span', 'etiqueta', texto(clave('avisos.mejor_que_marca'))));
   return bloque;
+}
+
+/** Lo que el aviso compara: su Cr/h, la estimada hoy de tu ruta y la que sacaste de verdad. */
+function comparacion(aviso) {
+  const { por_hora_hoy: hoy, por_hora_real: real } = aviso.ruta.mejor_que;
+  return {
+    cr_h: formato.creditosPorHora(aviso.ganancia_hora),
+    cr_h_tuya: formato.creditosPorHora(hoy),
+    real: formato.creditosPorHora(real),
+  };
 }
 
 const COLUMNAS = [
@@ -74,7 +89,9 @@ function resumenDeAvisos(nuevos) {
     hasta: b.estacion,
     cr_h: formato.creditosPorHora(mejor.ganancia_hora),
   };
-  const frase = texto(clave('aviso.ruta'), datos);
+  const frase = mejor.ruta.mejor_que
+    ? texto(clave('aviso.ruta_mejor'), { ...datos, ...comparacion(mejor) })
+    : texto(clave('aviso.ruta'), datos);
   if (nuevos.length === 1) return { mejor, frase };
   return { mejor, frase: `${frase} ${texto(clave('aviso.mas'), { n: nuevos.length - 1 })}` };
 }
@@ -84,17 +101,21 @@ function crearPanelReglas(raiz) {
   const formulario = c.reglas_formulario;
   const entrada = (nombre) => formulario.elements.namedItem(nombre);
   let limites = {};
+  for (const nombre of EN_MILES) activarMiles(entrada(nombre));
 
   function pintar({ reglas, limites: nuevos }) {
     limites = nuevos ?? limites;
     entrada('activadas').checked = reglas.activadas;
-    for (const nombre of UMBRALES) entrada(nombre).value = String(reglas[nombre]);
+    for (const nombre of UMBRALES) {
+      if (EN_MILES.includes(nombre)) escribirMiles(entrada(nombre), reglas[nombre]);
+      else entrada(nombre).value = String(reglas[nombre]);
+    }
   }
 
   function leer() {
     const reglas = { activadas: entrada('activadas').checked };
     for (const nombre of UMBRALES) {
-      const valor = entrada(nombre).valueAsNumber;
+      const valor = EN_MILES.includes(nombre) ? leerMiles(entrada(nombre)) : entrada(nombre).valueAsNumber;
       reglas[nombre] = Number.isNaN(valor) ? null : valor;
     }
     return reglas;
@@ -161,6 +182,7 @@ function crearPanelReglas(raiz) {
 export function crearVistaAlertas(raiz, avisoEmergente, irA) {
   const c = campos(raiz);
   const reglas = crearPanelReglas(raiz);
+  const rutaEnCurso = crearPanelRutaEnCurso(raiz);
   const a = campos(avisoEmergente);
   let avisos = [];
   let ultimo = null;
@@ -171,8 +193,11 @@ export function crearVistaAlertas(raiz, avisoEmergente, irA) {
   function elegir(aviso) {
     const { ganancia_sesion: sesion, ganancia_hora: porHora } = aviso.ruta;
     const horas = porHora ? sesion / porHora : 0;
-    pintarDetalle(c.detalle_tramos, aviso.modo, aviso.ruta, horas);
-    c.detalle.hidden = false;
+    pintarDetalle(c.detalle_tramos, aviso.detalle, horas, { fijar: true });
+    if (aviso.ruta.mejor_que) {
+      c.detalle_tramos.prepend(crear('p', 'motivo', texto(clave('avisos.mejor_que_frase'), comparacion(aviso))));
+    }
+    abrirDetalle(c.detalle);
   }
 
   function pintarAvisos() {
@@ -204,7 +229,7 @@ export function crearVistaAlertas(raiz, avisoEmergente, irA) {
   async function mostrar() {
     visible = true;
     c.detalle.hidden = true;
-    await Promise.all([reglas.cargar(), cargarAvisos()]);
+    await Promise.all([reglas.cargar(), rutaEnCurso.cargar(), cargarAvisos()]);
   }
 
   async function abrir(aviso) {

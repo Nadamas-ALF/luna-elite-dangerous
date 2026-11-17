@@ -344,17 +344,19 @@ def test_hay_etiqueta_para_cada_campo_del_perfil_y_cada_error_de_comercio():
 def test_los_textos_de_comercio_aceptan_sus_valores():
     ejemplos = {
         "comercio.perfil.campo_invalido": {"campo"},
-        "comercio.perfil.antiguedad_ayuda": {"horas"},
+        "comercio.perfil.campo_citado": {"campo"},
+        "comercio.rendimiento.rutas.viajes_con_pausa": {"n", "pausa"},
+        "comercio.perfil.ajustado": {"campos"},
+        "comercio.perfil.stock_equivale": {"n"},
         "comercio.perfil.guardados.guardado": {"nombre"},
         "comercio.perfil.guardados.borrado": {"nombre"},
         "comercio.perfil.guardados.cargado": {"nombre"},
         "comercio.rutas.resumen": {"n", "orden"},
-        "comercio.rutas.detalle.ida": {"mercancia"},
-        "comercio.rutas.detalle.vuelta": {"mercancia"},
+        "comercio.rutas.detalle.parada": {"n", "estacion"},
+        "comercio.rutas.detalle.vender_al_llegar": {"mercancia"},
+        "comercio.rutas.detalle.comprar_al_salir": {"mercancia"},
         "comercio.rutas.detalle.desde_origen": {"distancia"},
-        "comercio.rutas.detalle.llegada": {"ls"},
-        "comercio.rutas.detalle.llegada_planetaria": {"ls"},
-        "comercio.rutas.detalle.distancia_valor": {"ly", "saltos"},
+        "comercio.rutas.detalle.trayecto": {"ly", "saltos", "tiempo"},
         "comercio.rutas.detalle.parte": {"parte", "duracion", "fuente"},
         "comercio.rutas.detalle.fuente.comandante": {"muestras"},
         "comercio.rutas.detalle.fuente.nave": {"muestras"},
@@ -440,3 +442,103 @@ def test_hay_texto_para_cada_tipo_de_los_ajustes_de_busqueda():
     panel = html[html.index('data-panel="comercio"') :]
     panel = panel[: panel.index("</section>")]
     assert set(re.findall(r'name="tipos" value="(\w+)"', panel)) == set(ajustes.TIPOS_DE_ESTACION)
+
+
+def test_el_buscador_tiene_texto_para_cada_tipo_de_estacion_que_puede_devolver():
+    """`estaciones.tipo` da la categoría guardada o «puerto_planetario» (revisión, bloque 3)."""
+    from core import estacion
+
+    categorias = {
+        valor
+        for nombre, valor in vars(estacion).items()
+        if nombre.isupper() and isinstance(valor, str)
+    }
+    tipos = categorias | {"puerto_planetario"}
+    faltan = [
+        t for t in sorted(tipos) if not isinstance(buscar(f"comercio.estaciones.tipo.{t}"), str)
+    ]
+    assert faltan == []
+
+
+def test_hay_texto_para_cada_columna_estado_y_error_de_fijadas():
+    from modules.comercio import api as comercio
+    from modules.comercio import estimar
+
+    columnas = _columnas("fijadas.js")
+    assert columnas, "fijadas.js deberia declarar sus columnas"
+    claves = [f"comercio.fijadas.tabla.columnas.{c}" for c in columnas]
+    claves += [f"comercio.columnas_ayuda.{c}" for c in columnas]
+    claves += [
+        f"comercio.fijadas.estado.{e}" for e in (estimar.TRAMO_SIN_PRECIOS, estimar.TRAMO_SIN_TRATO)
+    ]
+    claves += [
+        f"comercio.fijadas.detalle.tramo.{e}"
+        for e in (estimar.ESTADO_OK, estimar.TRAMO_SIN_PRECIOS, estimar.TRAMO_SIN_TRATO)
+    ]
+    comunes = (
+        comercio.ERROR_SIN_BASE,
+        comercio.ERROR_BASE,
+        comercio.ERROR_LEGACY,
+        comercio.ERROR_NO_GUARDADO,
+        comercio.ERROR_PARAMETRO,
+        "no_disponible",
+        "sin_respuesta",
+    )
+    claves += [f"comercio.fijadas.errores.{e}" for e in (*comunes, comercio.ERROR_SIN_NAVE)]
+    claves += [
+        f"comercio.fijadas.estimar.errores.{e}"
+        for e in (
+            *comunes,
+            comercio.ERROR_SIN_NAVE,
+            comercio.ERROR_ESTACION,
+            comercio.ERROR_LIMITE,
+            "demasiadas",
+        )
+    ]
+    claves += [
+        f"comercio.rutas.detalle.fijar_errores.{e}"
+        for e in (*comunes, comercio.ERROR_ESTACION, comercio.ERROR_LIMITE)
+    ]
+    assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
+
+
+def test_hay_texto_para_cada_error_del_panel_de_ruta_en_curso():
+    from modules.comercio import api as comercio
+
+    claves = [
+        f"comercio.alertas.en_curso.errores.{e}"
+        for e in (
+            comercio.ERROR_PARAMETRO,
+            comercio.ERROR_NO_GUARDADO,
+            "no_disponible",
+            "sin_respuesta",
+        )
+    ]
+    assert [clave for clave in claves if not isinstance(buscar(clave), str)] == []
+
+
+def test_los_textos_de_fijadas_y_de_ruta_mejor_aceptan_sus_valores():
+    ejemplos = {
+        "comercio.rutas.detalle.antes": {"mercancia"},
+        "comercio.fijadas.actualizado": {"hora"},
+        "comercio.fijadas.en_curso.linea": {"ruta", "viajes"},
+        "comercio.fijadas.en_curso.cifras": {"real", "hoy"},
+        "comercio.fijadas.en_curso.sin_estimacion": {"real"},
+        "comercio.fijadas.detalle.no_cabe": {"plataforma"},
+        "comercio.fijadas.estimar.parada": {"estacion", "sistema"},
+        "comercio.fijadas.estimar.quitar_aria": {"estacion"},
+        "comercio.fijadas.estimar.errores.demasiadas": {"n"},
+        "comercio.fijadas.estimar.errores.parametro": {"n"},
+        "comercio.alertas.en_curso.errores.margen": {"margen_minimo", "margen_maximo"},
+        "comercio.alertas.avisos.mejor_que_frase": {"cr_h", "cr_h_tuya", "real"},
+        "comercio.alertas.aviso.ruta_mejor": {
+            "mercancia",
+            "desde",
+            "hasta",
+            "cr_h",
+            "cr_h_tuya",
+            "real",
+        },
+    }
+    for clave, valores in ejemplos.items():
+        assert set(re.findall(r"\{(\w+)\}", buscar(clave))) == valores, clave

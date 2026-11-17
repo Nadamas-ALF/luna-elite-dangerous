@@ -8,13 +8,15 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
 
 import webview
 
 from core import events, plataforma, recursos, textos
-from core.api import Api
+from core.api import Api, metodos_expuestos
 from core.config import ajustes, rutas, ventana
 from core.config.rutas import Ubicacion
 from core.datos import Datos
@@ -26,6 +28,8 @@ from core.eddn.suscriptor import Suscriptor
 from core.esfera import EsferaViva
 from core.mantenimiento import Mantenimiento
 from core.nucleo import Nucleo
+from core.spansh import descarga
+from core.spansh.descarga import Abrir
 from core.spansh.gestor import Gestor
 from modules.comercio.alerts import Alertas
 from modules.comercio.api import Comercio
@@ -85,7 +89,9 @@ def restaurar_al_abrir(win: webview.Window, geometria: ventana.Geometria) -> Non
 
     def al_mostrar() -> None:
         try:
-            plataforma.aplicar_geometria(win.native, geometria)
+            plataforma.en_el_hilo_de_la_interfaz(
+                win.native, lambda: plataforma.aplicar_geometria(win.native, geometria)
+            )
             if geometria.maximizada:
                 win.maximize()
         except Exception:  # noqa: BLE001 - una ventana mal colocada no es fatal
@@ -105,11 +111,33 @@ def crear_ventana(ubicacion: Ubicacion, titulo: str, api: Api | None = None) -> 
         min_size=ventana.TAMANO_MINIMO,
         resizable=True,
         frameless=False,
-        js_api=api,
+        on_top=ajustes.interfaz(config)[0],
     )
+    if api is not None:
+        win.expose(*metodos_expuestos(api))
     restaurar_al_abrir(win, guardada)
+    win.events.shown += lambda: tenir_barra(win)
     guardar_al_cerrar(win, config)
     return win
+
+
+def tenir_barra(win: webview.Window) -> None:
+    try:
+        plataforma.en_el_hilo_de_la_interfaz(
+            win.native, lambda: plataforma.tenir_barra_de_titulo(win.native)
+        )
+    except Exception:  # noqa: BLE001 - una barra sin teñir no es fatal
+        registro.exception("no se pudo teñir la barra de titulo")
+
+
+def aplicar_siempre_encima(activado: bool) -> None:
+    """La API llama desde su propio hilo; `on_top` de pywebview no pasa al de la ventana."""
+    win = webview.windows[0]
+
+    def poner() -> None:
+        win.on_top = activado
+
+    plataforma.en_el_hilo_de_la_interfaz(win.native, poner)
 
 
 def abrir_base(ubicacion: Ubicacion) -> Escritor | None:
@@ -162,6 +190,124 @@ def preparar() -> tuple[Ubicacion, dict]:
     return ubicacion, textos.cargar()
 
 
+@dataclass
+class Partes:
+    """Todo lo que corre detrás de la ventana; `verificar_interfaz.py` monta lo mismo (E-39)."""
+
+    config: Path
+    bus: events.Bus
+    escritor: Escritor | None
+    nucleo: Nucleo
+    eddn: Servicio
+    mantenimiento: Mantenimiento | None
+    gestor: Gestor | None
+    sonido: Sonido
+    alertas: Alertas | None
+    api: Api
+
+    def iniciar(self) -> None:
+        self.sonido.iniciar()
+        if self.alertas:
+            # Antes que el núcleo y EDDN, para no perder el primer aviso del bus.
+            self.alertas.iniciar()
+        self.nucleo.iniciar()
+        self.eddn.iniciar()
+        if self.mantenimiento:
+            self.mantenimiento.iniciar()
+
+    def detener(self) -> None:
+        """Al revés que al arrancar, y el escritor el último: los demás le encolan trabajos."""
+        en_orden = (
+            self.mantenimiento,
+            self.gestor,
+            self.eddn,
+            self.nucleo,
+            self.alertas,
+            self.sonido,
+            self.escritor,
+        )
+        for parte in en_orden:
+            if parte is None:
+                continue
+            try:
+                parte.detener()
+            except Exception:  # noqa: BLE001 - una parte rota no debe dejar a las demás en marcha
+                registro.exception("no se pudo detener %s", type(parte).__name__)
+
+
+def montar(
+    ubicacion: Ubicacion,
+    escritor: Escritor | None,
+    sonido: Sonido | None = None,
+    abrir: Abrir = descarga.abrir_https,
+    elegir: Callable[[], str | None] = elegir_carpeta,
+) -> Partes:
+    """Construye las partes sin arrancar ningún hilo."""
+    bus = events.Bus()
+    config = rutas.archivo_de_config(ubicacion)
+    base = rutas.archivo_de_base(ubicacion) if escritor else None
+    esfera = EsferaViva(ajustes.esfera(config), fiable=ajustes.configuracion_legible(config))
+    nucleo = Nucleo(config, bus, escritor, esfera)
+    eddn = Servicio(lambda: preparar_eddn(ubicacion, escritor, bus, esfera))
+    mantenimiento, gestor = _mantenimiento_y_gestor(ubicacion, escritor, esfera, abrir)
+    descargas = ubicacion.carpeta / "descargas"
+    datos = Datos(config, base, descargas, esfera, gestor, mantenimiento, eddn, abrir=abrir)
+    sonido = sonido or Sonido(config)
+    comercio = Comercio(nucleo.estado, config, base, escritor, probar_sonido=sonido.probar)
+    alertas = (
+        Alertas(
+            bus,
+            nucleo.estado,
+            lambda: comercio.perfil_inicial()["perfil"],
+            config,
+            base,
+            escritor,
+            sonido.alerta,
+        )
+        if escritor and base
+        else None
+    )
+    api = Api(
+        nucleo,
+        ubicacion,
+        config,
+        base_disponible=escritor is not None,
+        elegir_carpeta=elegir,
+        estado_eddn=eddn.estado,
+        datos=datos,
+        avisos_de_base=lambda: escritor.avisos if escritor else (),
+        comercio=comercio,
+        aplicar_siempre_encima=aplicar_siempre_encima,
+    )
+    return Partes(config, bus, escritor, nucleo, eddn, mantenimiento, gestor, sonido, alertas, api)
+
+
+def _mantenimiento_y_gestor(
+    ubicacion: Ubicacion, escritor: Escritor | None, esfera: EsferaViva, abrir: Abrir
+) -> tuple[Mantenimiento | None, Gestor | None]:
+    """Se necesitan el uno al otro: el gestor pausa la limpieza y la limpieza le avisa."""
+    if escritor is None:
+        return None, None
+    config = rutas.archivo_de_config(ubicacion)
+    gestor: Gestor | None = None
+    mantenimiento = Mantenimiento(
+        escritor,
+        esfera,
+        config,
+        en_pausa=lambda: gestor is not None and gestor.ocupado(),
+        al_corregir_esfera=lambda corregida: gestor and gestor.reducir_cobertura(corregida),
+    )
+    gestor = Gestor(
+        ubicacion.carpeta / "descargas",
+        config,
+        escritor,
+        esfera,
+        al_terminar=mantenimiento.aplicar_esfera,
+        abrir=abrir,
+    )
+    return mantenimiento, gestor
+
+
 def main() -> int:
     try:
         ubicacion, diccionario = preparar()
@@ -171,80 +317,11 @@ def main() -> int:
         return 1
 
     titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
-    escritor = abrir_base(ubicacion)
-    bus = events.Bus()
-    config = rutas.archivo_de_config(ubicacion)
-    esfera = EsferaViva(ajustes.esfera(config), fiable=ajustes.configuracion_legible(config))
-    nucleo = Nucleo(config, bus, escritor, esfera)
-    eddn = Servicio(lambda: preparar_eddn(ubicacion, escritor, bus, esfera))
-    gestor: Gestor | None = None
-    mantenimiento = (
-        Mantenimiento(
-            escritor, esfera, config, en_pausa=lambda: gestor is not None and gestor.ocupado()
-        )
-        if escritor
-        else None
-    )
-    if escritor and mantenimiento:
-        gestor = Gestor(
-            ubicacion.carpeta / "descargas",
-            config,
-            escritor,
-            esfera,
-            al_terminar=mantenimiento.aplicar_esfera,
-        )
-    datos = Datos(
-        config,
-        rutas.archivo_de_base(ubicacion) if escritor else None,
-        ubicacion.carpeta / "descargas",
-        esfera,
-        gestor,
-        mantenimiento,
-        eddn,
-    )
-    sonido = Sonido(config)
-    comercio = Comercio(
-        nucleo.estado,
-        config,
-        rutas.archivo_de_base(ubicacion) if escritor else None,
-        escritor,
-        probar_sonido=sonido.probar,
-    )
-    alertas = (
-        Alertas(
-            bus,
-            nucleo.estado,
-            lambda: comercio.perfil_inicial()["perfil"],
-            config,
-            rutas.archivo_de_base(ubicacion),
-            escritor,
-            sonido.alerta,
-        )
-        if escritor
-        else None
-    )
-    api = Api(
-        nucleo,
-        ubicacion,
-        config,
-        base_disponible=escritor is not None,
-        elegir_carpeta=elegir_carpeta,
-        estado_eddn=eddn.estado,
-        datos=datos,
-        avisos_de_base=lambda: escritor.avisos if escritor else (),
-        comercio=comercio,
-    )
+    partes = montar(ubicacion, abrir_base(ubicacion))
     try:
         comprobar_motor()
-        crear_ventana(ubicacion, titulo, api)
-        sonido.iniciar()
-        if alertas:
-            # Antes que el núcleo y EDDN, para no perder el primer aviso del bus.
-            alertas.iniciar()
-        nucleo.iniciar()
-        eddn.iniciar()
-        if mantenimiento:
-            mantenimiento.iniciar()
+        crear_ventana(ubicacion, titulo, partes.api)
+        partes.iniciar()
         arrancar()
     except FaltaWebView2 as error:
         registro.error("motor de la interfaz inesperado: %s", error)
@@ -259,17 +336,7 @@ def main() -> int:
         )
         return 1
     finally:
-        if mantenimiento:
-            mantenimiento.detener()
-        if gestor:
-            gestor.detener()
-        eddn.detener()
-        nucleo.detener()
-        if alertas:
-            alertas.detener()
-        sonido.detener()
-        if escritor is not None:
-            escritor.detener()
+        partes.detener()
     return 0
 
 

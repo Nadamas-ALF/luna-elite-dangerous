@@ -32,7 +32,8 @@ RANGO_MAXIMO = 500.0
 CREDITOS_MAXIMOS = 2**53
 DISTANCIA_LY_MAXIMA = 1_000.0
 DISTANCIA_LS_MAXIMA = 1e7
-STOCK_MAXIMO_PCT = 1_000.0
+STOCK_MAXIMO_T = 100_000_000
+GANANCIA_MAXIMA_CR_T = 10_000_000
 HORAS_MAXIMAS = 24.0
 
 
@@ -49,24 +50,25 @@ class Perfil:
     capacidad: int
     rango: float
     plataforma: str
-    creditos: int | None
+    creditos: int | None  # el saldo que limita las compras; lo pone la API, no la interfaz
     origen: str
     distancia_max_ly: float = 50.0
     distancia_max_ls: float = 5_000.0
     antiguedad_max_h: float = 24.0
-    stock_minimo_pct: float = 100.0
+    stock_minimo: int = 1
+    ganancia_min: int = 0
+    limitar_saldo: bool = True
     tipos: tuple[str, ...] = TIPOS
     origenes: tuple[str, ...] = ORIGENES
     raras: bool = False
     horas_sesion: float = 1.0
     orden: str = ORDEN_GANANCIA_HORA
 
-    @property
-    def stock_minimo(self) -> int:
-        return math.ceil(self.capacidad * self.stock_minimo_pct / 100)
-
     def a_dict(self) -> dict:
-        return {**asdict(self), "tipos": list(self.tipos), "origenes": list(self.origenes)}
+        """Lo que viaja a la interfaz y a la base: sin el saldo, que cambia a cada compra."""
+        datos = {**asdict(self), "tipos": list(self.tipos), "origenes": list(self.origenes)}
+        del datos["creditos"]
+        return datos
 
 
 def _numero(datos: dict, campo: str, minimo: float, maximo: float, abierto: bool = False) -> float:
@@ -89,10 +91,10 @@ def _entero(datos: dict, campo: str, minimo: int, maximo: int) -> int:
     return int(valor)
 
 
-def _creditos(datos: dict) -> int | None:
-    return (
-        None if datos.get("creditos") is None else _entero(datos, "creditos", 0, CREDITOS_MAXIMOS)
-    )
+def _creditos(limitar: bool, saldo: int | None) -> int | None:
+    if not limitar or saldo is None:
+        return None
+    return max(0, min(saldo, CREDITOS_MAXIMOS))
 
 
 def nombre(valor: object, campo: str) -> str:
@@ -129,29 +131,35 @@ def _booleano(datos: dict, campo: str) -> bool:
     return valor
 
 
-CAMPOS = frozenset(Perfil.__dataclass_fields__)
+CAMPOS = frozenset(Perfil.__dataclass_fields__) - {"creditos"}
 
 
-def desde_dict(datos: object, tope_antiguedad_dias: int) -> Perfil:
-    """`tope_antiguedad_dias` es el de la configuración (`ajustes.tope_de_antiguedad_dias`)."""
+def desde_dict(datos: object, tope_antiguedad_dias: int, saldo: int | None = None) -> Perfil:
+    """`tope_antiguedad_dias` es el de la configuración (`ajustes.tope_de_antiguedad_dias`).
+
+    `saldo` es el del comandante: solo cuenta si el perfil pide limitar las compras.
+    """
     if not isinstance(datos, dict):
         raise PerfilInvalido("perfil")
     sobrantes = set(datos) - CAMPOS
     faltantes = CAMPOS - set(datos)
     if sobrantes or faltantes:
         raise PerfilInvalido(sorted(sobrantes or faltantes)[0])
+    limitar_saldo = _booleano(datos, "limitar_saldo")
     return Perfil(
         capacidad=_entero(datos, "capacidad", 1, CAPACIDAD_MAXIMA),
         rango=_numero(datos, "rango", 0, RANGO_MAXIMO, abierto=True),
         plataforma=_opcion(datos, "plataforma", PLATAFORMAS),
-        creditos=_creditos(datos),
+        creditos=_creditos(limitar_saldo, saldo),
+        limitar_saldo=limitar_saldo,
         origen=nombre(datos.get("origen"), "origen"),
         distancia_max_ly=_numero(datos, "distancia_max_ly", 0, DISTANCIA_LY_MAXIMA, abierto=True),
         distancia_max_ls=_numero(datos, "distancia_max_ls", 0, DISTANCIA_LS_MAXIMA, abierto=True),
         antiguedad_max_h=_numero(
             datos, "antiguedad_max_h", 0, tope_antiguedad_dias * 24.0, abierto=True
         ),
-        stock_minimo_pct=_numero(datos, "stock_minimo_pct", 0, STOCK_MAXIMO_PCT),
+        stock_minimo=_entero(datos, "stock_minimo", 0, STOCK_MAXIMO_T),
+        ganancia_min=_entero(datos, "ganancia_min", 0, GANANCIA_MAXIMA_CR_T),
         tipos=_seleccion(datos, "tipos", TIPOS),
         origenes=_seleccion(datos, "origenes", ORIGENES),
         raras=_booleano(datos, "raras"),

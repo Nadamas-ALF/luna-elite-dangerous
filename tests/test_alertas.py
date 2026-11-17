@@ -1,10 +1,12 @@
 import io
+import json
 import sqlite3
 import threading
 import time
 import wave
 from dataclasses import asdict, replace
 from datetime import timedelta
+from pathlib import Path
 
 import pytest
 
@@ -53,8 +55,10 @@ def esperar(condicion, segundos: float = ESPERA) -> bool:
 
 
 def perfil_de_la_nave() -> dict:
-    datos = asdict(Perfil(capacidad=100, rango=20.0, plataforma="L", creditos=None, origen="S1"))
-    return {campo: list(v) if isinstance(v, tuple) else v for campo, v in datos.items()}
+    nave = Perfil(
+        capacidad=100, rango=20.0, plataforma="L", creditos=None, origen="S1", stock_minimo=100
+    )
+    return nave.a_dict()
 
 
 @pytest.fixture
@@ -125,8 +129,8 @@ def test_un_mercado_que_pasa_los_umbrales_avisa_una_vez_y_suena(base, escritor, 
 
     nuevos = alertas.evaluar({202})
     assert [a.clave for a in nuevos] == ["un_salto:101:202:gold"]
-    assert timbre.veces == 1
-    assert esperar(lambda: len(guardados(base)) == 1)
+    assert esperar(lambda: timbre.veces == 1)
+    assert len(guardados(base)) == 1
     aviso = guardados(base)[0]
     assert (aviso["modo"], aviso["ruta"]["compra"]["market_id"]) == ("un_salto", 101)
 
@@ -208,6 +212,21 @@ def test_un_bucle_que_pasa_los_umbrales_avisa_como_bucle(base, escritor, tmp_pat
     claves = {a.clave for a in alertas.evaluar({202})}
 
     assert "bucle:101:202" in claves
+
+
+def test_suena_cuando_el_aviso_ya_esta_guardado(base, escritor, tmp_path):
+    """Con el escritor ocupado, el sonido espera al aviso en vez de adelantarse (E-20)."""
+    alertas, timbre = montar(base, escritor, tmp_path)
+    soltar = threading.Event()
+    escritor.encolar(lambda _c: soltar.wait(5))
+
+    alertas.evaluar({202})
+    time.sleep(0.3)
+    assert timbre.veces == 0
+    soltar.set()
+
+    assert esperar(lambda: timbre.veces == 1)
+    assert len(guardados(base)) == 1
 
 
 def test_el_hilo_agrupa_los_avisos_del_bus_y_avisa_una_sola_vez(base, escritor, tmp_path):
@@ -398,3 +417,33 @@ def test_sin_perfil_de_nave_el_registro_lo_dice_una_vez(base, escritor, tmp_path
             assert alertas.evaluar({202}) == []
 
     assert sum("perfil de la nave" in r.getMessage() for r in caplog.records) == 1
+
+
+FIXTURES_DE_RUTAS = Path(__file__).parent / "fixtures" / "rutas"
+
+
+def guardar_en_el_registro(base, modo: str, ruta: dict) -> None:
+    conexion = sqlite3.connect(base, isolation_level=None)
+    alerts.guardar_aviso(conexion, alerts.Aviso("k", modo, "2026-11-15T20:00:00Z", 1.0, ruta))
+    conexion.close()
+
+
+def test_un_aviso_guardado_antes_del_bloque_4_sale_con_su_detalle_por_paradas(base):
+    viejo = json.loads((FIXTURES_DE_RUTAS / "aviso_fase7.json").read_text(encoding="utf-8"))
+    guardar_en_el_registro(base, viejo["modo"], viejo["ruta"])
+
+    [aviso] = guardados(base)
+
+    assert aviso["detalle"]["cerrada"] is True
+    assert len(aviso["detalle"]["paradas"]) == 2
+
+
+def test_un_aviso_roto_sale_sin_detalle_y_no_rompe_la_lista(base, caplog):
+    viejo = json.loads((FIXTURES_DE_RUTAS / "aviso_fase7.json").read_text(encoding="utf-8"))
+    guardar_en_el_registro(base, "bucle", {"campo": "SECRETO"})
+    guardar_en_el_registro(base, viejo["modo"], viejo["ruta"])
+
+    avisos = guardados(base)
+
+    assert [a["detalle"] is None for a in avisos] == [False, True]
+    assert "SECRETO" not in caplog.text

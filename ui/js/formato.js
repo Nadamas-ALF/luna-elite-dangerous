@@ -62,6 +62,14 @@ export function hace(marcaIso, ahora = Date.now()) {
 }
 
 export const creditosPorTonelada = (valor) => texto('formato.cr_t', { valor: numero(valor, 0) });
+
+/** Una ganancia siempre con su signo («+216.000 Cr»): el color nunca es la única señal. */
+function conSigno(valor) {
+  return new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0, signDisplay: 'exceptZero', useGrouping: 'always' }).format(valor);
+}
+
+export const gananciaEnCreditos = (valor) => texto('formato.creditos', { valor: conSigno(valor) });
+export const gananciaPorTonelada = (valor) => texto('formato.cr_t', { valor: conSigno(valor) });
 export const creditosPorHora = (valor) => texto('formato.cr_h', { valor: numero(valor, 0) });
 export const segundosLuz = (valor) => texto('formato.ls', { valor: numero(valor, 0) });
 

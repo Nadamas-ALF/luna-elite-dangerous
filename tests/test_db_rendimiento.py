@@ -68,3 +68,19 @@ def test_los_bloques_seguidos_de_una_partida_se_guardan_todos(conexion):
         "2026-11-10T10:00:00Z",
         "2026-11-10T12:00:00Z",
     ]
+
+
+def test_una_copia_mas_vieja_del_bloque_abierto_no_pisa_la_guardada(conexion):
+    comandante.guardar_bloques(conexion, [bloque("10:00:00", "10:30:00", saltos=4)])
+
+    comandante.guardar_bloques(conexion, [bloque("10:00:00", "10:05:00", saltos=1)])
+
+    assert guardadas(conexion) == [("2026-11-10T10:00:00Z", "2026-11-10T10:30:00Z", 4)]
+
+
+def test_una_copia_abierta_con_el_mismo_fin_no_reabre_el_bloque_cerrado(conexion):
+    comandante.guardar_bloques(conexion, [bloque("10:00:00", "10:30:00", cerrado=True)])
+
+    comandante.guardar_bloques(conexion, [bloque("10:00:00", "10:30:00", cerrado=False)])
+
+    assert conexion.execute("SELECT cerrado FROM sessions").fetchall() == [(1,)]

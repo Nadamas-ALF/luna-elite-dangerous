@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -20,9 +21,24 @@ PATRON = "Journal.*.log"
 SEGUNDOS_POR_DIA = 86_400
 
 
+# Hasta la Update 11 (marzo de 2022) el juego nombraba los journals
+# `Journal.YYMMDDhhmmss.NN.log`, y el cliente Legacy aún lo hace. Por nombre irían
+# detrás de todos los `Journal.YYYY-MM-DDThhmmss.NN.log`, aunque sean más antiguos.
+_NOMBRE_ANTIGUO = re.compile(r"Journal\.(\d{2})(\d{2})(\d{2})(\d{6})\.(\d+)\.log")
+
+
+def orden(archivo: Path) -> str:
+    """Clave cronológica de un journal, con cualquiera de los dos formatos de nombre."""
+    antiguo = _NOMBRE_ANTIGUO.fullmatch(archivo.name)
+    if antiguo is None:
+        return archivo.name
+    anio, mes, dia, hora, parte = antiguo.groups()
+    return f"Journal.20{anio}-{mes}-{dia}T{hora}.{parte}.log"
+
+
 def listar(carpeta: Path) -> list[Path]:
-    """Journals por orden de nombre, que es el cronológico."""
-    return sorted(carpeta.glob(PATRON))
+    """Journals de más antiguo a más reciente."""
+    return sorted(carpeta.glob(PATRON), key=orden)
 
 
 def _eventos_de(contenido: bytes, archivo: str) -> Iterator[dict]:
@@ -105,7 +121,7 @@ class Seguidor:
 
         # El juego abre un journal nuevo al arrancar o cada cierto tamaño;
         # lo que quedara sin leer en el anterior ya se ha consumido arriba.
-        for siguiente in (j for j in journals if j.name > self._actual.name):
+        for siguiente in (j for j in journals if orden(j) > orden(self._actual)):
             self._actual, self._posicion = siguiente, 0
             eventos.extend(self._leer_actual())
         return Lectura(eventos, self._actual.name)

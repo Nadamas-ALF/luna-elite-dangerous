@@ -13,7 +13,7 @@
 
 .panel {
   min-width: 0;
-  padding: calc(var(--espacio) * 4) calc(var(--espacio) * 5);
+  padding: var(--panel-y) var(--panel-x);
   border: 1px solid var(--glass-border);
   border-radius: var(--radio-panel);
   background: var(--surface);

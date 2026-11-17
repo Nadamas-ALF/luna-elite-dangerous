@@ -34,6 +34,7 @@ export function crearPanelEsfera(raiz, alAplicar) {
 
   function cerrarPropuesta() {
     propuesta = null;
+    c.esfera_antes_de_descargar.hidden = true;
     c.esfera_propuesta.hidden = true;
   }
 
@@ -110,24 +111,40 @@ export function crearPanelEsfera(raiz, alAplicar) {
     c.esfera_propuesta.hidden = false;
   }
 
+  // Revisar consulta a Spansh el tamaño de la descarga y puede tardar hasta 30 s sin red
+  // (E-12). «Dejar de esperar» suelta el formulario; la respuesta que llegue tarde se ignora.
+  let revision = 0;
+
+  function terminarRevision() {
+    revision += 1;
+    c.esfera_revisar.disabled = false;
+    c.esfera_revisar.textContent = texto('configuracion.esfera.revisar');
+    c.esfera_dejar_de_comprobar.hidden = true;
+  }
+
   async function revisar(evento) {
     evento.preventDefault();
     mostrarTexto(c.esfera_error, null);
     mostrarTexto(c.esfera_resultado, null);
     cerrarPropuesta();
+    const mia = ++revision;
     c.esfera_revisar.disabled = true;
     c.esfera_revisar.textContent = texto('configuracion.esfera.comprobando');
+    c.esfera_dejar_de_comprobar.hidden = false;
+    let respuesta;
     try {
-      const respuesta = await api.proponerEsfera(
+      respuesta = await api.proponerEsfera(
         c.esfera_centro.value.trim(),
         c.esfera_radio.valueAsNumber,
       );
-      if (respuesta.error) mostrarTexto(c.esfera_error, mensajeDeError(respuesta.error));
-      else pintarPropuesta(respuesta);
-    } finally {
-      c.esfera_revisar.disabled = false;
-      c.esfera_revisar.textContent = texto('configuracion.esfera.revisar');
+    } catch (error) {
+      if (mia === revision) terminarRevision();
+      throw error;
     }
+    if (mia !== revision) return; // se dejó de esperar, o hay otra revisión detrás
+    terminarRevision();
+    if (respuesta.error) mostrarTexto(c.esfera_error, mensajeDeError(respuesta.error));
+    else pintarPropuesta(respuesta);
   }
 
   async function aplicar(boton) {
@@ -155,15 +172,17 @@ export function crearPanelEsfera(raiz, alAplicar) {
   }
 
   c.esfera_formulario.addEventListener('submit', revisar);
+  c.esfera_dejar_de_comprobar.addEventListener('click', terminarRevision);
   c.propuesta_confirmar.addEventListener('click', () => aplicar(c.propuesta_confirmar));
   c.propuesta_alternativa.addEventListener('click', () => aplicar(c.propuesta_alternativa));
   c.propuesta_cancelar.addEventListener('click', cerrarPropuesta);
 
   return {
-    /** Abre la confirmación con los valores del formulario (la esfera actual, si no se tocaron). */
-    revisarActual() {
-      c.esfera_formulario.requestSubmit();
-      c.esfera_formulario.scrollIntoView({ block: 'center' });
+    /** «Descargar» no descarga a ciegas: lleva al radio, que es lo que decide qué se guarda. */
+    prepararDescarga() {
+      c.esfera_antes_de_descargar.hidden = false;
+      c.esfera_radio.scrollIntoView({ block: 'center' });
+      c.esfera_radio.focus();
     },
     cargar(esfera) {
       pintarActual(esfera);

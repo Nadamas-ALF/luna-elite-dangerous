@@ -16,7 +16,7 @@ from pathlib import Path
 from core.config import ajustes
 from core.eddn.servicio import Servicio
 from core.esfera import Esfera, EsferaViva
-from core.mantenimiento import Mantenimiento
+from core.mantenimiento import BORRADO_FALLIDO, BORRANDO, SIN_BORRADO, Mantenimiento
 from core.spansh import cambio, descarga
 from core.spansh.cambio import ErrorDeCambio
 from core.spansh.descarga import Abrir, ErrorDeDescarga
@@ -42,6 +42,20 @@ def _dias(valor: object) -> float:
     if not numero or not math.isfinite(valor) or not 0 < valor <= DIAS_MAXIMOS:
         raise ErrorDeCambio(ERROR_DIAS)
     return float(valor)
+
+
+def _tamano_de(ruta: Path) -> int:
+    try:
+        return ruta.stat().st_size
+    except OSError:
+        return 0
+
+
+def _tamano_de_carpeta(carpeta: Path) -> int:
+    try:
+        return sum(_tamano_de(ruta) for ruta in carpeta.rglob("*") if ruta.is_file())
+    except OSError:
+        return 0
 
 
 class Datos:
@@ -103,9 +117,15 @@ class Datos:
             # Lo guardado que quede fuera de la esfera nueva se borra: se avisa antes de confirmar.
             "borra_lo_de_fuera": cubierta is not None and not cambio.esfera_dentro(cubierta, nueva),
             "descargable": self._gestor is not None,
-            "ocupado": self._gestor.ocupado() if self._gestor else False,
+            "ocupado": self._ocupado(),
             **self._tamano(),
         }
+
+    def _ocupado(self) -> bool:
+        """Una descarga o un borrado en marcha: con ninguno se cambia lo que hay debajo."""
+        descargando = self._gestor is not None and self._gestor.ocupado()
+        borrando = self._mantenimiento is not None and self._mantenimiento.borrado == BORRANDO
+        return descargando or borrando
 
     def _tamano(self) -> dict:
         try:
@@ -139,7 +159,7 @@ class Datos:
             return self._cambiar_esfera(nueva, descargar)
 
     def _cambiar_esfera(self, nueva: Esfera, descargar: bool) -> dict:
-        if self._gestor is not None and self._gestor.ocupado():
+        if self._ocupado():
             return {"error": ERROR_OCUPADO}
         if not ajustes.guardar_esfera(self._config, nueva):
             return {"error": ERROR_NO_GUARDADO}
@@ -182,8 +202,41 @@ class Datos:
         if self._gestor is None:
             return {"error": ERROR_SIN_BASE}
         with self._candado:
-            iniciado = self._gestor.iniciar()
+            iniciado = not self._ocupado() and self._gestor.iniciar()
         return {"ok": True} if iniciado else {"error": ERROR_OCUPADO}
+
+    def borrar_mercados(self) -> dict:
+        """Vacía `systems`, `stations` y `market_prices`; los datos del comandante no se tocan.
+
+        Va por lotes en el escritor: la respuesta es que empezó, y `espacio()` dice cuándo acaba.
+        """
+        if self._mantenimiento is None or self._base is None:
+            return {"error": ERROR_SIN_BASE}
+        with self._candado:
+            if self._ocupado():
+                return {"error": ERROR_OCUPADO}
+            # Sin esto, con lo borrado LUNA seguiría creyendo que la descarga cubre la esfera.
+            if self._gestor is not None and not self._gestor.olvidar_ultima():
+                return {"error": ERROR_NO_GUARDADO}
+            if not self._mantenimiento.borrar_mercados():
+                return {"error": ERROR_OCUPADO}
+        return {"ok": True}
+
+    def espacio(self) -> dict:
+        """Lo que ocupan la base y las descargas pendientes, y si hay un borrado en marcha."""
+        borrado = self._mantenimiento.borrado if self._mantenimiento is not None else SIN_BORRADO
+        base = None
+        if self._base is not None:
+            wal = self._base.with_name(self._base.name + "-wal")
+            base = _tamano_de(self._base) + _tamano_de(wal)
+        return {
+            "base": base,
+            "descargas": _tamano_de_carpeta(self._carpeta),
+            "libre": self._libre(),
+            "borrando": borrado == BORRANDO,
+            "descarga_en_marcha": self._gestor is not None and self._gestor.ocupado(),
+            "borrado_fallido": borrado == BORRADO_FALLIDO,
+        }
 
     def pausar(self) -> dict:
         if self._gestor is not None:

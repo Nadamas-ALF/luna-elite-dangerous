@@ -21,6 +21,10 @@ registro = logging.getLogger("luna.mantenimiento")
 
 INTERVALO = 3600.0
 
+SIN_BORRADO = "inactivo"
+BORRANDO = "borrando"
+BORRADO_FALLIDO = "error"
+
 
 class Mantenimiento:
     def __init__(
@@ -31,6 +35,7 @@ class Mantenimiento:
         intervalo: float = INTERVALO,
         reloj: Callable[[], datetime] = lambda: datetime.now(UTC),
         en_pausa: Callable[[], bool] = lambda: False,
+        al_corregir_esfera: Callable[[Esfera], None] = lambda _esfera: None,
     ) -> None:
         self._escritor = escritor
         self._esfera = esfera
@@ -40,9 +45,14 @@ class Mantenimiento:
         # Durante una descarga de Spansh no se limpia: lo de fuera de la esfera nueva
         # se borra al terminar, no antes (regla 6 de la 5.4).
         self._en_pausa = en_pausa
+        # El gestor de Spansh ajusta su cobertura a la esfera solo al arrancar: si la esfera
+        # se corrige después, hay que decírselo (E-15).
+        self._al_corregir_esfera = al_corregir_esfera
         self._parar = threading.Event()
         self._hilo = threading.Thread(target=self._bucle, name="mantenimiento", daemon=True)
         self._acumulado = retencion.Limpieza()
+        self._borrado = SIN_BORRADO
+        self._candado_de_borrado = threading.Lock()
 
     def iniciar(self) -> None:
         self._hilo.start()
@@ -64,6 +74,54 @@ class Mantenimiento:
     def aplicar_esfera(self) -> None:
         """Tras cambiar el centro o el radio: recalcula distancias y limpia lo que sobra."""
         self._lote(retencion.aplicar_esfera)
+
+    @property
+    def borrado(self) -> str:
+        return self._borrado
+
+    def borrar_mercados(self) -> bool:
+        """Vacía los mercados por lotes y devuelve el espacio. False si ya se está borrando."""
+        with self._candado_de_borrado:
+            if self._borrado == BORRANDO:
+                return False
+            self._borrado = BORRANDO
+        self._lote_de_borrado()
+        return True
+
+    def _lote_de_borrado(self) -> None:
+        centro = self._esfera.actual.nombre
+        self._escritor.encolar(
+            lambda conexion: retencion.borrar_mercados(conexion, conservar=centro),
+            self._tras_borrar,
+            self._borrado_roto,
+        )
+
+    def _tras_borrar(self, quedan: object) -> None:
+        if quedan is True and not self._parar.is_set():
+            self._lote_de_borrado()
+            return
+        self._devolver_tras_borrar()
+
+    def _devolver_tras_borrar(self) -> None:
+        """Cadena propia: la de una limpieza que coincida no puede dar el borrado por acabado."""
+        self._escritor.encolar(espacio.devolver, self._seguir_tras_borrar, self._borrado_roto)
+
+    def _seguir_tras_borrar(self, resultado: object) -> None:
+        if isinstance(resultado, tuple):
+            antes, despues = resultado
+            if despues > espacio.UMBRAL_DE_PAGINAS and despues < antes and not self._parar.is_set():
+                self._devolver_tras_borrar()
+                return
+        # Sin vaciar el WAL, el archivo no encoge y el tamaño que se enseña sería mentira.
+        self._escritor.encolar_sin_transaccion(
+            espacio.truncar_wal, self._fin_del_borrado, self._borrado_roto
+        )
+
+    def _fin_del_borrado(self, _resultado: object) -> None:
+        self._borrado = SIN_BORRADO
+
+    def _borrado_roto(self, _error: Exception) -> None:
+        self._borrado = BORRADO_FALLIDO
 
     def _lote(self, operacion: Callable[..., retencion.Limpieza]) -> None:
         """Un lote por trabajo del escritor; si quedan más, se encola el siguiente.
@@ -92,6 +150,7 @@ class Mantenimiento:
         if not self._esfera.fiable:
             # LUNA arrancó con el archivo ilegible y ahora se lee: se corrige la esfera viva.
             self._esfera.cambiar(ajustes.esfera(self._config))
+            self._al_corregir_esfera(self._esfera.actual)
         return self._esfera.actual
 
     def _tras_el_lote(self, resultado: object) -> None:

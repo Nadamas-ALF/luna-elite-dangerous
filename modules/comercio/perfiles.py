@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import sqlite3
 from dataclasses import dataclass
 
@@ -58,9 +59,32 @@ def _leer(parametros: str, tope_antiguedad_dias: int) -> Perfil | None:
     if not isinstance(datos, dict):
         return None
     try:
-        return desde_dict(_recortar(datos, tope_antiguedad_dias), tope_antiguedad_dias)
+        return desde_dict(_recortar(_actualizar(datos), tope_antiguedad_dias), tope_antiguedad_dias)
     except PerfilInvalido:
         return None
+
+
+def _es_numero(valor: object) -> bool:
+    return isinstance(valor, (int, float)) and not isinstance(valor, bool) and math.isfinite(valor)
+
+
+def _actualizar(datos: dict) -> dict:
+    """Pasa un perfil guardado antes del bloque 3 de la prefase 8 a los campos de ahora.
+
+    El stock mínimo era un porcentaje de la bodega y los créditos un número editable; ahora son
+    toneladas y una casilla. Solo se convierte al leer: lo guardado no se reescribe.
+    """
+    nuevos = dict(datos)
+    if "stock_minimo_pct" in nuevos:
+        porcentaje = nuevos.pop("stock_minimo_pct")
+        capacidad = nuevos.get("capacidad")
+        if "stock_minimo" not in nuevos and _es_numero(porcentaje) and _es_numero(capacidad):
+            nuevos["stock_minimo"] = math.ceil(capacidad * porcentaje / 100)
+    if "creditos" in nuevos:
+        nuevos.setdefault("limitar_saldo", nuevos["creditos"] is not None)
+        del nuevos["creditos"]
+    nuevos.setdefault("ganancia_min", 0)
+    return nuevos
 
 
 def _recortar(datos: dict, tope_antiguedad_dias: int) -> dict:

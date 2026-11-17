@@ -16,7 +16,7 @@ registro = logging.getLogger("luna.eventos")
 ESTADO_ACTUALIZADO = "estado_actualizado"
 NAVE_CAMBIADA = "nave_cambiada"
 ATRACADO = "atracado"
-DESATRACADO = "desatracado"
+DESATRACADO = "desatracado"  # con la estación que se deja
 CARGA_CAMBIADA = "carga_cambiada"
 MERCADO_ACTUALIZADO = "mercado_actualizado"
 

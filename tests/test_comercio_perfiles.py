@@ -57,3 +57,41 @@ def test_un_perfil_ilegible_se_salta_sin_tapar_a_los_demas(base, parametros, cap
     with caplog.at_level(logging.WARNING):
         assert nombres(base) == ["bueno"]
     assert "roto" in caplog.text
+
+
+def antiguo(**cambios) -> str:
+    """Un perfil como lo guardaba la fase 5: créditos editables y stock en % de la bodega."""
+    datos = perfil(capacidad=200).a_dict()
+    for campo in ("stock_minimo", "ganancia_min", "limitar_saldo"):
+        del datos[campo]
+    return json.dumps({**datos, "creditos": 1_000_000, "stock_minimo_pct": 100, **cambios})
+
+
+def leer_antiguo(base, parametros):
+    base.execute("INSERT INTO search_profiles VALUES ('viejo', ?)", (parametros,))
+    [guardado] = perfiles.listar(base, TOPE)
+    return guardado.perfil
+
+
+def test_un_perfil_de_antes_del_bloque_3_se_convierte_al_leerlo(base):
+    leido = leer_antiguo(base, antiguo(stock_minimo_pct=150))
+    assert leido.stock_minimo == 300  # 150 % de 200 t
+    assert leido.limitar_saldo is True
+    assert leido.ganancia_min == 0
+
+
+def test_los_creditos_vacios_de_un_perfil_antiguo_son_la_casilla_desmarcada(base):
+    assert leer_antiguo(base, antiguo(creditos=None)).limitar_saldo is False
+
+
+def test_el_stock_antiguo_se_redondea_hacia_arriba_y_no_se_reescribe(base):
+    assert leer_antiguo(base, antiguo(stock_minimo_pct=33)).stock_minimo == 66
+    [(crudo,)] = base.execute("SELECT parametros FROM search_profiles").fetchall()
+    assert "stock_minimo_pct" in crudo
+
+
+def test_un_porcentaje_ilegible_deja_el_perfil_fuera_sin_tapar_a_los_demas(base, caplog):
+    base.execute("INSERT INTO search_profiles VALUES ('roto', ?)", (antiguo(stock_minimo_pct="x"),))
+    with caplog.at_level(logging.WARNING):
+        assert nombres(base) == []
+    assert "roto" in caplog.text

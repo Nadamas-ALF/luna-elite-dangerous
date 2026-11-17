@@ -43,6 +43,10 @@ ANTIGUEDAD_MAXIMA_DIAS_POR_DEFECTO = 30.0
 DIAS_DE_RETENCION_MAXIMOS = 365.0
 
 CLAVE_COMERCIO = "comercio"
+# El aviso de «hay una ruta mejor que la tuya» (prefase 8, bloque 5): margen en %.
+MARGEN_MEJOR_POR_DEFECTO = 20.0
+MARGEN_MEJOR_MINIMO = 1.0
+MARGEN_MEJOR_MAXIMO = 1_000.0
 # Tope de la antigüedad que un perfil de búsqueda puede pedir. Sin él, una búsqueda
 # de un año carga toda la base en memoria (E-16). Más de 30 días no tiene sentido:
 # la retención por defecto ya los borra.
@@ -64,6 +68,7 @@ CLAVE_SONIDO = "sonido"
 VOLUMEN_POR_DEFECTO = 70
 
 CLAVE_RENDIMIENTO = "rendimiento"
+CLAVE_INTERFAZ = "interfaz"
 # Una pausa sin actividad de al menos estas horas parte la sesión (decisiones.md, «Fase 7»).
 PAUSA_HORAS_POR_DEFECTO = 1
 PAUSA_HORAS_MINIMA = 1
@@ -285,9 +290,56 @@ def sesiones(config: Path) -> tuple[int, bool]:
 
 def guardar_sesiones(config: Path, horas: int, por_partida: bool) -> bool:
     try:
-        return archivo.fusionar(
+        return archivo.fusionar_campos(
             config, CLAVE_RENDIMIENTO, {"pausa_horas": horas, "por_partida": por_partida}
         )
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def omitir_sesiones_vacias(config: Path) -> bool:
+    """Si el historial esconde las sesiones sin ganancia; activado por defecto."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_RENDIMIENTO)
+    omitir = seccion.get("omitir_vacias") if isinstance(seccion, dict) else None
+    return omitir if isinstance(omitir, bool) else True
+
+
+def guardar_omitir_sesiones_vacias(config: Path, omitir: bool) -> bool:
+    try:
+        return archivo.fusionar_campo(config, CLAVE_RENDIMIENTO, "omitir_vacias", omitir)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def es_margen_de_ruta(margen: object) -> bool:
+    if isinstance(margen, bool) or not isinstance(margen, (int, float)):
+        return False
+    return math.isfinite(margen) and MARGEN_MEJOR_MINIMO <= margen <= MARGEN_MEJOR_MAXIMO
+
+
+def ruta_en_curso(config: Path) -> tuple[bool, float, bool]:
+    """(avisar de una ruta mejor, margen en %, copiar el destino al despegar).
+
+    Avisar viene activado con un 20 %; copiar al portapapeles, desactivado (el usuario lo pide).
+    """
+    seccion = _seccion_comercio(config).get("ruta_en_curso")
+    seccion = seccion if isinstance(seccion, dict) else {}
+    aviso, margen, portapapeles = (
+        seccion.get(c) for c in ("aviso_mejor", "margen_pct", "portapapeles")
+    )
+    return (
+        aviso if isinstance(aviso, bool) else True,
+        float(margen) if es_margen_de_ruta(margen) else MARGEN_MEJOR_POR_DEFECTO,
+        portapapeles if isinstance(portapapeles, bool) else False,
+    )
+
+
+def guardar_ruta_en_curso(config: Path, aviso: bool, margen: float, portapapeles: bool) -> bool:
+    valor = {"aviso_mejor": aviso, "margen_pct": float(margen), "portapapeles": portapapeles}
+    try:
+        return archivo.fusionar_campo(config, CLAVE_COMERCIO, "ruta_en_curso", valor)
     except OSError:
         registro.exception("no se pudo escribir %s", config)
         return False
@@ -311,6 +363,75 @@ def sonido(config: Path) -> tuple[bool, int]:
 def guardar_sonido(config: Path, activado: bool, volumen: int) -> bool:
     try:
         return archivo.fusionar(config, CLAVE_SONIDO, {"activado": activado, "volumen": volumen})
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def interfaz(config: Path) -> tuple[bool, bool]:
+    """(ventana siempre encima, barra lateral plegada a mano); ambas apagadas por defecto."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_INTERFAZ)
+    seccion = seccion if isinstance(seccion, dict) else {}
+    encima, plegada = seccion.get("siempre_encima"), seccion.get("lateral_plegado")
+    return (
+        encima if isinstance(encima, bool) else False,
+        plegada if isinstance(plegada, bool) else False,
+    )
+
+
+SECCIONES_DE_CONFIGURACION = (
+    "journal",
+    "esfera",
+    "spansh",
+    "retencion",
+    "comercio",
+    "sesiones",
+    "sonido",
+    "lectura",
+    "ventana",
+    "eddn",
+    "datos",
+)
+# Lo imprescindible para quien abre LUNA por primera vez; el resto está plegado.
+SECCIONES_ABIERTAS_POR_DEFECTO = ("esfera", "spansh")
+
+
+def secciones_abiertas(config: Path) -> tuple[str, ...]:
+    """Las secciones de Configuración desplegadas, en el orden de la pantalla."""
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_INTERFAZ)
+    guardadas = seccion.get("secciones_abiertas") if isinstance(seccion, dict) else None
+    if not isinstance(guardadas, list):
+        return SECCIONES_ABIERTAS_POR_DEFECTO
+    return tuple(s for s in SECCIONES_DE_CONFIGURACION if s in guardadas)
+
+
+def son_secciones_validas(secciones: object) -> bool:
+    if not isinstance(secciones, list):
+        return False
+    if not all(isinstance(s, str) and s in SECCIONES_DE_CONFIGURACION for s in secciones):
+        return False
+    return len(set(secciones)) == len(secciones)
+
+
+def guardar_secciones_abiertas(config: Path, secciones: list[str]) -> bool:
+    try:
+        return archivo.fusionar_campo(config, CLAVE_INTERFAZ, "secciones_abiertas", secciones)
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def guardar_siempre_encima(config: Path, activado: bool) -> bool:
+    return _guardar_de_interfaz(config, "siempre_encima", activado)
+
+
+def guardar_lateral_plegado(config: Path, plegado: bool) -> bool:
+    return _guardar_de_interfaz(config, "lateral_plegado", plegado)
+
+
+def _guardar_de_interfaz(config: Path, campo: str, valor: bool) -> bool:
+    try:
+        return archivo.fusionar_campo(config, CLAVE_INTERFAZ, campo, valor)
     except OSError:
         registro.exception("no se pudo escribir %s", config)
         return False
@@ -368,6 +489,15 @@ def guardar_ultima_descarga(config: Path, fecha: str, esfera: Esfera) -> bool:
     """Una descarga nueva: su cobertura es entera."""
     try:
         return archivo.fusionar(config, CLAVE_SPANSH, {"fecha": fecha, **_a_dict(esfera)})
+    except OSError:
+        registro.exception("no se pudo escribir %s", config)
+        return False
+
+
+def olvidar_ultima_descarga(config: Path) -> bool:
+    """Tras borrar los mercados: lo descargado ya no está, y no hay que decir que cubre algo."""
+    try:
+        return archivo.quitar(config, CLAVE_SPANSH)
     except OSError:
         registro.exception("no se pudo escribir %s", config)
         return False
