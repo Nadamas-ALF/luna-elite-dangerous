@@ -26,8 +26,13 @@ def ids(detalle: dict) -> list[int]:
 
 def test_un_salto_son_dos_paradas_abiertas_con_la_compra_en_la_primera():
     [tramo, *_] = tramos_encadenados()
-    tramo = {**tramo, "ganancia_hora": 1.0, "ganancia_viaje": 2, "ganancia_sesion": 3.0,
-             "confianza": 1.0}
+    tramo = {
+        **tramo,
+        "ganancia_hora": 1.0,
+        "ganancia_viaje": 2,
+        "ganancia_sesion": 3.0,
+        "confianza": 1.0,
+    }
 
     detalle = paradas.detalle("un_salto", tramo)
 
@@ -106,9 +111,17 @@ def test_vender_la_carga_es_una_parada_desde_la_posicion_sin_ganancia_si_no_se_s
 def test_vender_la_carga_reparte_la_ganancia_por_tonelada():
     [tramo, *_] = tramos_encadenados()
     venta = {
-        "mercancia": tramo["mercancia"], "venta": tramo["venta"], "toneladas": 100,
-        "distancia_ly": 3.0, "saltos": 1, "segundos": 60.0, "tiempo": tramo["tiempo"],
-        "ingreso": 1, "ingreso_hora": 5.0, "ganancia": 25_050, "confianza": 0.9,
+        "mercancia": tramo["mercancia"],
+        "venta": tramo["venta"],
+        "toneladas": 100,
+        "distancia_ly": 3.0,
+        "saltos": 1,
+        "segundos": 60.0,
+        "tiempo": tramo["tiempo"],
+        "ingreso": 1,
+        "ingreso_hora": 5.0,
+        "ganancia": 25_050,
+        "confianza": 0.9,
     }
 
     [vendida] = paradas.detalle("venta", venta)["paradas"][0]["vender"]
@@ -168,3 +181,38 @@ def test_un_resultado_con_otra_forma_da_key_error():
 
 def test_el_detalle_es_json():
     json.dumps(paradas.de_tramos(tramos_encadenados(), False, TOTALES))
+
+
+def totales_de_comercio() -> dict:
+    return {
+        "ganancia_hora": 1.0,
+        "ganancia_viaje": 2,
+        "ganancia_sesion": 3.0,
+        "segundos": 4.0,
+        "distancia_ly": 5.0,
+        "confianza": 1.0,
+    }
+
+
+def test_varias_paradas_son_una_estacion_mas_que_tramos():
+    tramos = tramos_encadenados()
+    datos = {**totales_de_comercio(), "cerrada": False, "tramos": tramos}
+
+    detalle = paradas.detalle("cadena", datos)
+
+    assert detalle["cerrada"] is False
+    assert len(detalle["paradas"]) == len(tramos) + 1
+    assert detalle["totales"]["ganancia_viaje"] == 2
+
+
+def test_un_circuito_tiene_tantas_paradas_como_tramos_y_vuelve_a_la_primera():
+    *resto, ultimo = tramos_encadenados()
+    primero = resto[0]
+    cerrado = [*resto, con_destino(ultimo, primero["compra"]["market_id"])]
+    datos = {**totales_de_comercio(), "cerrada": True, "tramos": cerrado}
+
+    detalle = paradas.detalle("circuito", datos)
+
+    assert detalle["cerrada"] is True
+    assert len(detalle["paradas"]) == len(cerrado)
+    assert detalle["paradas"][0]["llegada"] is not None

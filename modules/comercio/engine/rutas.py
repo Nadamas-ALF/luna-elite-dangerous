@@ -31,7 +31,7 @@ def _mas_baratos(ofertas: list[Precio]) -> list[Precio]:
     return heapq.nsmallest(K_POR_MERCANCIA, ofertas, key=lambda p: p.precio)
 
 
-def _mejores_compradores(demandas: list[Precio], capacidad: int) -> list[Precio]:
+def mejores_compradores(demandas: list[Precio], capacidad: int) -> list[Precio]:
     """Por lo que pagan por una bodega: un precio alto con demanda de 3 t no sirve."""
     return heapq.nlargest(
         K_POR_MERCANCIA, demandas, key=lambda p: p.precio * min(p.cantidad, capacidad)
@@ -45,7 +45,7 @@ def _pares(
         demandas = candidatos.demandas.get(mercancia)
         if not demandas:
             continue
-        compradores = _mejores_compradores(demandas, perfil.capacidad)
+        compradores = mejores_compradores(demandas, perfil.capacidad)
         for compra in _mas_baratos(ofertas):
             for venta in compradores:
                 tramo = evaluar(compra, venta, perfil, curva, tiempos)

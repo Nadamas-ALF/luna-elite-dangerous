@@ -149,8 +149,10 @@ class Api:
     def perfil_inicial(self) -> dict:
         return self._comercio.perfil_inicial() if self._comercio else _NO_DISPONIBLE
 
-    def buscar_rutas(self, modo: str, perfil: dict) -> dict:
-        return self._comercio.buscar_rutas(modo, perfil) if self._comercio else _NO_DISPONIBLE
+    def buscar_rutas(self, modo: str, perfil: dict, paradas: int | None = None) -> dict:
+        if self._comercio is None:
+            return _NO_DISPONIBLE
+        return self._comercio.buscar_rutas(modo, perfil, paradas)
 
     def ahora(self, perfil: dict) -> dict:
         return self._comercio.ahora(perfil) if self._comercio else _NO_DISPONIBLE
@@ -173,10 +175,10 @@ class Api:
     def ajustes_de_busqueda(self) -> dict:
         return self._comercio.ajustes_de_busqueda() if self._comercio else _NO_DISPONIBLE
 
-    def guardar_ajustes_de_busqueda(self, tope_dias: int, tipos: list) -> dict:
+    def guardar_ajustes_de_busqueda(self, tope_dias: int, tipos: list, limite_s: int) -> dict:
         if self._comercio is None:
             return _NO_DISPONIBLE
-        return self._comercio.guardar_ajustes_de_busqueda(tope_dias, tipos)
+        return self._comercio.guardar_ajustes_de_busqueda(tope_dias, tipos, limite_s)
 
     def rendimiento(self, sesion: str | None) -> dict:
         return self._comercio.rendimiento(sesion) if self._comercio else _NO_DISPONIBLE

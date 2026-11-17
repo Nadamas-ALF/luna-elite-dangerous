@@ -52,6 +52,11 @@ MARGEN_MEJOR_MAXIMO = 1_000.0
 # la retención por defecto ya los borra.
 TOPE_ANTIGUEDAD_DIAS_POR_DEFECTO = 7
 TOPE_ANTIGUEDAD_DIAS_MAXIMO = 30
+# Cuánto puede tardar una búsqueda de Varias paradas o Circuito antes de devolver lo
+# mejor que encontró (SPEC 7.3). Un solo valor: Un salto y Bucle no lo usan.
+LIMITE_BUSQUEDA_S_POR_DEFECTO = 8
+LIMITE_BUSQUEDA_S_MINIMO = 3
+LIMITE_BUSQUEDA_S_MAXIMO = 30
 # Los del filtro de búsqueda, en su orden canónico (decisiones.md, «Fase 5»). Los
 # Fleet Carriers no están: quedan fuera hasta después de la v1.
 TIPOS_DE_ESTACION = (
@@ -228,6 +233,18 @@ def tope_de_antiguedad_dias(config: Path) -> int:
     return dias
 
 
+def es_limite_de_busqueda(segundos: object) -> bool:
+    if isinstance(segundos, bool) or not isinstance(segundos, int):
+        return False
+    return LIMITE_BUSQUEDA_S_MINIMO <= segundos <= LIMITE_BUSQUEDA_S_MAXIMO
+
+
+def limite_de_busqueda(config: Path) -> int:
+    """Segundos máximos de una búsqueda de varias paradas; el valor ilegible vuelve a 8."""
+    segundos = _seccion_comercio(config).get("limite_busqueda_s")
+    return segundos if es_limite_de_busqueda(segundos) else LIMITE_BUSQUEDA_S_POR_DEFECTO
+
+
 def tipos_de_estacion(config: Path) -> tuple[str, ...]:
     """Los tipos que un perfil nuevo trae marcados (6.3); todos si el valor no sirve."""
     tipos = _seccion_comercio(config).get("tipos_estacion")
@@ -256,12 +273,13 @@ def curva_de_confianza(config: Path) -> tuple[float, float, float]:
     return plena, minima, minimo
 
 
-def guardar_busqueda(config: Path, tope_dias: int, tipos: tuple[str, ...]) -> bool:
-    """El tope de antigüedad y los tipos de estación, en una sola escritura."""
+def guardar_busqueda(config: Path, tope_dias: int, tipos: tuple[str, ...], limite_s: int) -> bool:
+    """El tope de antigüedad, los tipos de estación y el límite de tiempo, en una sola escritura."""
     seccion = {
         **_seccion_comercio(config),
         "tope_antiguedad_dias": tope_dias,
         "tipos_estacion": list(tipos),
+        "limite_busqueda_s": limite_s,
     }
     try:
         return archivo.fusionar(config, CLAVE_COMERCIO, seccion)

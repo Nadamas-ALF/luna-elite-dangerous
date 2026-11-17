@@ -372,12 +372,15 @@ def test_los_ajustes_de_busqueda_salen_de_la_configuracion(ruta, tmp_path):
         "tope_antiguedad_dias": 7,
         "tope_maximo_dias": 30,
         "tipos": list(ajustes.TIPOS_DE_ESTACION),
+        "limite_busqueda_s": 8,
+        "limite_minimo_s": 3,
+        "limite_maximo_s": 30,
     }
 
 
 def test_guardar_los_ajustes_de_busqueda_cambia_el_perfil_inicial(ruta, tmp_path):
     api = comercio(ruta, tmp_path)
-    respuesta = api.guardar_ajustes_de_busqueda(2, ["asentamiento", "orbital"])
+    respuesta = api.guardar_ajustes_de_busqueda(2, ["asentamiento", "orbital"], 8)
 
     assert respuesta["ok"] is True
     assert respuesta["tipos"] == ["orbital", "asentamiento"]
@@ -390,7 +393,7 @@ def test_guardar_los_ajustes_de_busqueda_cambia_el_perfil_inicial(ruta, tmp_path
 @pytest.mark.parametrize("tope", [0, 31, 7.0, "7", True, None, -1])
 def test_un_tope_fuera_de_rango_no_se_guarda(ruta, tmp_path, tope):
     api = comercio(ruta, tmp_path)
-    respuesta = api.guardar_ajustes_de_busqueda(tope, ["orbital"])
+    respuesta = api.guardar_ajustes_de_busqueda(tope, ["orbital"], 8)
     assert respuesta == {"error": "parametro", "campo": "tope_antiguedad_dias"}
     assert api.ajustes_de_busqueda()["tope_antiguedad_dias"] == 7
 
@@ -401,14 +404,14 @@ def test_un_tope_fuera_de_rango_no_se_guarda(ruta, tmp_path, tope):
 )
 def test_unos_tipos_invalidos_no_se_guardan(ruta, tmp_path, tipos):
     api = comercio(ruta, tmp_path)
-    respuesta = api.guardar_ajustes_de_busqueda(7, tipos)
+    respuesta = api.guardar_ajustes_de_busqueda(7, tipos, 8)
     assert respuesta == {"error": "parametro", "campo": "tipos"}
     assert not (tmp_path / "config.json").exists()
 
 
 def test_si_la_configuracion_no_se_puede_escribir_se_avisa(ruta, tmp_path, monkeypatch):
     monkeypatch.setattr(ajustes, "guardar_busqueda", lambda *_: False)
-    respuesta = comercio(ruta, tmp_path).guardar_ajustes_de_busqueda(7, ["orbital"])
+    respuesta = comercio(ruta, tmp_path).guardar_ajustes_de_busqueda(7, ["orbital"], 8)
     assert respuesta == {"error": "no_guardado"}
 
 

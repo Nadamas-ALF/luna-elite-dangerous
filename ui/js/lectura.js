@@ -5,7 +5,7 @@ import * as aspecto from './aspecto.js';
 import { crear } from './celdas.js';
 import { texto } from './i18n.js';
 
-const MODOS_DE_COLUMNAS = ['un_salto', 'bucle'];
+const MODOS_DE_COLUMNAS = ['un_salto', 'bucle', 'cadena', 'circuito'];
 
 function campos(raiz) {
   const c = {};

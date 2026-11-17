@@ -192,10 +192,18 @@
       "modo": "Modo",
       "modos": {
         "un_salto": "Un salto",
-        "bucle": "Bucle A↔B"
+        "bucle": "Bucle A↔B",
+        "cadena": "Varias paradas",
+        "circuito": "Circuito"
       },
       "buscar": "Buscar",
       "buscando": "Buscando rutas…",
+      "buscando_largo": "Buscando rutas… puede tardar hasta {s} s.",
+      "paradas": "Paradas",
+      "paradas_ayuda_cadena": "Una ruta de exactamente tantas estaciones distintas como elijas, que no vuelve al principio.",
+      "paradas_ayuda_circuito": "Un circuito de 3 estaciones hasta tantas como elijas, que vuelve a la primera.",
+      "vuelve": "↻ vuelve a la 1",
+      "cortada": "La búsqueda llegó al límite de {s} s: son las mejores que encontró. Para buscar más a fondo, sube el tiempo máximo en Configuración o reduce el radio.",
       "inicial": "Ajusta el perfil y pulsa Buscar.",
       "resumen": "{n} rutas, ordenadas por {orden}.",
       "resumen_una": "1 ruta.",
@@ -228,6 +236,9 @@
         "ganancia_sesion": "En la sesión",
         "antiguedad": "Antigüedad",
         "origen": "Origen",
+        "ruta": "Ruta",
+        "mercancias": "Mercancías",
+        "paradas": "Paradas",
         "ida": "Ida",
         "vuelta": "Vuelta",
         "estacion_a": "Estación A",
@@ -686,6 +697,9 @@
     },
     "columnas_ayuda": {
       "mercancia": "Mercancía que se compra y se vende",
+      "ruta": "Las estaciones en el orden del recorrido, con su sistema",
+      "mercancias": "Mercancía que se lleva en cada tramo, en el orden del recorrido",
+      "paradas": "Estaciones distintas de la ruta",
       "comprar": "Estación donde se compra y su sistema",
       "precio_compra": "Precio por tonelada al comprar",
       "vender": "Estación donde se vende y su sistema",
@@ -879,12 +893,15 @@
       "ayuda": "Los límites de las búsquedas de Rutas y Ahora. Una búsqueda no puede pedir precios más antiguos que el tope de abajo: con más días entran precios más viejos y las búsquedas tardan más. Lo recomendado son 7 días, el valor de fábrica. Más abajo eliges qué tipos de estación trae marcados una búsqueda nueva.",
       "tope": "Antigüedad máxima que puede pedir una búsqueda (días)",
       "tope_ayuda": "De 1 a {maximo} días. Con más días entran precios más viejos de Spansh y las búsquedas tardan más.",
+      "limite": "Tiempo máximo de búsqueda (s)",
+      "limite_ayuda": "De {minimo} a {maximo} segundos. Solo cuenta para Varias paradas y Circuito: si se acaba el tiempo, LUNA enseña las mejores rutas que encontró y lo avisa. 8 segundos suele bastar.",
       "tipos": "Tipos de estación que trae marcados un perfil nuevo",
       "fleet_carrier": "Los Fleet Carriers no se buscan en esta versión: sus precios cambian sin aviso.",
       "guardar": "Guardar",
       "guardado": "Guardado. Rutas y Ahora lo usan desde la próxima búsqueda.",
       "errores": {
         "tope_antiguedad_dias": "Escribe un número entero de días, de 1 a {maximo}.",
+        "limite_busqueda_s": "Escribe un número entero de segundos, de {limite_minimo} a {limite_maximo}.",
         "tipos": "Marca al menos un tipo de estación."
       },
       "linea": "Límites de las búsquedas de Rutas y Ahora."

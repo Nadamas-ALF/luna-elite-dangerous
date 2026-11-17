@@ -191,9 +191,13 @@ def test_dos_hilos_que_guardan_campos_distintos_no_se_pisan(tmp_path):
 def nombres_de_columnas(modo):
     """Los nombres que `ui/js/rutas.js` define para un modo, en su orden."""
     codigo = RUTAS_JS.read_text(encoding="utf-8")
-    cuerpo = re.search(rf"\b{modo}: \[(.*?)\n  \],", codigo, re.DOTALL)
+    # Varias paradas y Circuito comparten una sola lista de columnas.
+    if re.search(rf"\b{modo}: columnasDeRuta\(\)", codigo):
+        cuerpo = re.search(r"const columnasDeRuta = \(\) => \[(.*?)\n\];", codigo, re.DOTALL)
+    else:
+        cuerpo = re.search(rf"\b{modo}: \[(.*?)\n  \],", codigo, re.DOTALL)
     assert cuerpo, f"no se encontró el modo {modo} en rutas.js"
-    return tuple(re.findall(r"^    \['(\w+)',", cuerpo.group(1), re.MULTILINE))
+    return tuple(re.findall(r"^ {2,4}\['(\w+)',", cuerpo.group(1), re.MULTILINE))
 
 
 @pytest.mark.parametrize("modo", list(aspecto.COLUMNAS_DISPONIBLES))

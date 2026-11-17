@@ -2,7 +2,7 @@
 // derecha. Python filtra, calcula y ordena; aquí solo se pinta lo que devuelve.
 import * as api from './api.js';
 import * as aspecto from './aspecto.js';
-import { antiguedad, estacionEnlazada, masViejo, origenes } from './celdas.js';
+import { antiguedad, crear, estacionEnlazada, masViejo, origenes } from './celdas.js';
 import { abrirDetalle, pintarDetalle } from './detalle.js';
 import { crearBuscadorDeEstaciones } from './estaciones.js';
 import * as formato from './formato.js';
@@ -11,6 +11,51 @@ import { ESENCIAL, pintarTabla, SECUNDARIA } from './tabla.js';
 
 const lados = (tramo) => [tramo.compra, tramo.venta];
 const ladosDe = (bucle) => [...lados(bucle.ida), ...lados(bucle.vuelta)];
+
+const ladosDeRuta = (ruta) => ruta.tramos.flatMap(lados);
+
+/** Las estaciones en el orden del recorrido; en un circuito la última no se repite. */
+function estacionesDe(ruta) {
+  const salidas = ruta.tramos.map((tramo) => tramo.compra);
+  return ruta.cerrada ? salidas : [...salidas, ruta.tramos.at(-1).venta];
+}
+
+function rutaEnLineas(ruta) {
+  const bloque = crear('div', 'lineas');
+  estacionesDe(ruta).forEach((lado, i) => {
+    const fila = crear('div', 'lineas__fila');
+    fila.append(crear('span', 'lineas__n', String(i + 1)), estacionEnlazada(lado));
+    bloque.append(fila);
+  });
+  if (ruta.cerrada) bloque.append(crear('span', 'lineas__vuelta', texto('comercio.rutas.vuelve')));
+  return bloque;
+}
+
+function mercanciasEnLineas(ruta) {
+  const bloque = crear('div', 'lineas');
+  bloque.append(...ruta.tramos.map((tramo) => crear('span', null, tramo.mercancia.nombre)));
+  return bloque;
+}
+
+/** Varias paradas y Circuito comparten columnas: solo cambia si la ruta vuelve al principio. */
+const columnasDeRuta = () => [
+  ['ruta', ESENCIAL, rutaEnLineas, (r) => estacionesDe(r)[0].estacion],
+  ['mercancias', null, mercanciasEnLineas, (r) => r.tramos[0].mercancia.nombre],
+  ['paradas', null, (r) => String(r.paradas), (r) => r.paradas],
+  ['ganancia_hora', ESENCIAL, (r) => formato.creditosPorHora(r.ganancia_hora), (r) => r.ganancia_hora],
+  ['antiguedad', ESENCIAL, (r) => antiguedad(masViejo(ladosDeRuta(r))), (r) => masViejo(ladosDeRuta(r)).horas],
+  ['ganancia_viaje', null, (r) => formato.creditos(r.ganancia_viaje), (r) => r.ganancia_viaje],
+  ['tiempo', null, (r) => formato.duracion(r.segundos), (r) => r.segundos],
+  ['saltos', null, (r) => String(r.saltos), (r) => r.saltos],
+  ['distancia_ly', SECUNDARIA, (r) => formato.anosLuz(r.distancia_ly), (r) => r.distancia_ly],
+  ['ganancia_sesion', null, (r) => formato.creditos(r.ganancia_sesion), (r) => r.ganancia_sesion],
+  ['origen', SECUNDARIA, (r) => origenes(ladosDeRuta(r)), (r) => origenes(ladosDeRuta(r))],
+];
+
+const MODOS_CON_PARADAS = new Set(['cadena', 'circuito']);
+// Las mismas que acepta Python (`PARADAS_MINIMAS` a `PARADAS_MAXIMAS`).
+const PARADAS = [3, 4, 5, 6];
+const PARADAS_POR_DEFECTO = 4;
 
 export const COLUMNAS = {
   un_salto: [
@@ -44,6 +89,8 @@ export const COLUMNAS = {
     ['ganancia_sesion', null, (b) => formato.creditos(b.ganancia_sesion), (b) => b.ganancia_sesion],
     ['origen', SECUNDARIA, (b) => origenes(ladosDe(b)), (b) => origenes(ladosDe(b))],
   ],
+  cadena: columnasDeRuta(),
+  circuito: columnasDeRuta(),
 };
 
 /**
@@ -131,6 +178,26 @@ export function crearVistaRutas(raiz, perfil) {
     resultados = [];
     mostrarTexto(c.resultados_error, null);
     mostrarTexto(c.resultados_explicacion, null);
+    mostrarTexto(c.resultados_cortada, null);
+  }
+
+  const modoElegido = () => new FormData(c.busqueda_formulario).get('modo');
+
+  /** «Paradas» solo se ve con los modos que la usan, y su ayuda dice si son exactas o un tope. */
+  function reflejarModo() {
+    const modo = modoElegido();
+    c.paradas_campo.hidden = !MODOS_CON_PARADAS.has(modo);
+    if (MODOS_CON_PARADAS.has(modo)) c.paradas_ayuda.textContent = texto(`comercio.rutas.paradas_ayuda_${modo}`);
+  }
+
+  /** El límite de Configuración, para decir cuánto puede tardar; sin él, el aviso genérico. */
+  async function limiteDeBusqueda() {
+    try {
+      return (await api.ajustesDeBusqueda()).limite_busqueda_s ?? null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
   /** Python cuenta los descartes aparte, para que la búsqueda no espere a los recuentos. */
@@ -174,6 +241,7 @@ export function crearVistaRutas(raiz, perfil) {
       c.resultados_estado,
       resultados.length === 0 ? texto('comercio.rutas.sin_resultados') : resumen,
     );
+    mostrarTexto(c.resultados_cortada, respuesta.cortada ? texto('comercio.rutas.cortada', { s: respuesta.limite_s }) : null);
   }
 
   function pintarError(respuesta) {
@@ -186,13 +254,19 @@ export function crearVistaRutas(raiz, perfil) {
     evento.preventDefault();
     // Una búsqueda nueva deja sin efecto la anterior: Python la cancela y aquí no se pinta.
     const mio = ++turno;
-    const modo = new FormData(c.busqueda_formulario).get('modo');
+    const modo = modoElegido();
+    const paradas = MODOS_CON_PARADAS.has(modo) ? Number(c.paradas.value) : null;
     const perfilUsado = perfil.leer();
     limpiar();
     mostrarTexto(c.resultados_estado, texto('comercio.rutas.buscando'));
+    if (paradas !== null) {
+      const limite = await limiteDeBusqueda();
+      if (mio !== turno) return;
+      if (limite !== null) mostrarTexto(c.resultados_estado, texto('comercio.rutas.buscando_largo', { s: limite }));
+    }
     let respuesta;
     try {
-      respuesta = await api.buscarRutas(modo, perfilUsado);
+      respuesta = await api.buscarRutas(modo, perfilUsado, paradas);
     } catch (error) {
       console.error(error);
       respuesta = { error: 'sin_respuesta' };
@@ -212,6 +286,16 @@ export function crearVistaRutas(raiz, perfil) {
     if (mostrada && resultados.length > 0) pintarLaTabla();
   });
   c.busqueda_formulario.addEventListener('submit', buscar);
+  c.busqueda_formulario.addEventListener('change', reflejarModo);
+  c.paradas.replaceChildren(
+    ...PARADAS.map((n) => {
+      const opcion = crear('option', null, String(n));
+      opcion.value = String(n);
+      opcion.selected = n === PARADAS_POR_DEFECTO;
+      return opcion;
+    }),
+  );
+  reflejarModo();
   crearBuscadorDeEstaciones(raiz, [
     ['comercio.estaciones.usar_origen', (estacion) => perfil.fijarOrigen(estacion.sistema)],
   ]);

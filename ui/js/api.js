@@ -40,13 +40,14 @@ export const perfilInicial = () => llamar('perfil_inicial');
 export const perfilesGuardados = () => llamar('perfiles_guardados');
 export const guardarPerfil = (nombre, perfil) => llamar('guardar_perfil', nombre, perfil);
 export const borrarPerfil = (nombre) => llamar('borrar_perfil', nombre);
-export const buscarRutas = (modo, perfil) => llamar('buscar_rutas', modo, perfil);
+export const buscarRutas = (modo, perfil, paradas = null) =>
+  llamar('buscar_rutas', modo, perfil, paradas);
 export const explicarBusqueda = (perfil) => llamar('explicar_busqueda', perfil);
 export const buscarEstaciones = (texto) => llamar('buscar_estaciones', texto);
 export const ahora = (perfil) => llamar('ahora', perfil);
 export const ajustesDeBusqueda = () => llamar('ajustes_de_busqueda');
-export const guardarAjustesDeBusqueda = (tope, tipos) =>
-  llamar('guardar_ajustes_de_busqueda', tope, tipos);
+export const guardarAjustesDeBusqueda = (tope, tipos, limite) =>
+  llamar('guardar_ajustes_de_busqueda', tope, tipos, limite);
 export const rendimiento = (sesion) => llamar('rendimiento', sesion);
 export const ajustesDeSesiones = () => llamar('ajustes_de_sesiones');
 export const guardarAjustesDeSesiones = (horas, porPartida) =>

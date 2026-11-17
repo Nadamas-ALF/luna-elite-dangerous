@@ -36,6 +36,14 @@ COLUMNAS_DISPONIBLES = {
         "ida", "vuelta", "estacion_a", "estacion_b", "ganancia_hora", "antiguedad",
         "ganancia_viaje", "distancia_ly", "tiempo", "ganancia_sesion", "origen",
     ),
+    "cadena": (
+        "ruta", "mercancias", "paradas", "ganancia_hora", "antiguedad", "ganancia_viaje",
+        "tiempo", "saltos", "distancia_ly", "ganancia_sesion", "origen",
+    ),
+    "circuito": (
+        "ruta", "mercancias", "paradas", "ganancia_hora", "antiguedad", "ganancia_viaje",
+        "tiempo", "saltos", "distancia_ly", "ganancia_sesion", "origen",
+    ),
 }  # fmt: skip
 COLUMNAS_POR_DEFECTO = {
     "un_salto": (
@@ -46,6 +54,8 @@ COLUMNAS_POR_DEFECTO = {
         "ida", "vuelta", "estacion_a", "estacion_b", "ganancia_hora", "antiguedad",
         "ganancia_viaje", "tiempo",
     ),
+    "cadena": ("ruta", "mercancias", "ganancia_hora", "antiguedad", "ganancia_viaje", "tiempo"),
+    "circuito": ("ruta", "mercancias", "ganancia_hora", "antiguedad", "ganancia_viaje", "tiempo"),
 }  # fmt: skip
 
 

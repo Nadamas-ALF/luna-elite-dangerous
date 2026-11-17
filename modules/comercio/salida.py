@@ -10,6 +10,7 @@ from __future__ import annotations
 import sqlite3
 
 from modules.comercio.engine.ahora import Venta
+from modules.comercio.engine.cadenas import Cadena
 from modules.comercio.engine.candidatos import Precio
 from modules.comercio.engine.rutas import Bucle
 from modules.comercio.engine.tramo import Tramo
@@ -84,6 +85,25 @@ def bucle(resultado: Bucle, nombres: dict[str, str], horas_sesion: float, tiempo
         "ganancia_tonelada": resultado.ganancia_tonelada,
         "ganancia_viaje": resultado.ganancia_viaje,
         "distancia_ly": resultado.distancia_ly,
+        "segundos": resultado.segundos,
+        "ganancia_hora": resultado.ganancia_hora,
+        "ganancia_sesion": resultado.ganancia_hora * horas_sesion,
+        "confianza": resultado.confianza,
+        "puntuacion": resultado.puntuacion,
+    }
+
+
+def cadena(
+    resultado: Cadena, nombres: dict[str, str], horas_sesion: float, tiempos: Tiempos
+) -> dict:
+    return {
+        "cerrada": resultado.cerrada,
+        "tramos": [tramo(t, nombres, horas_sesion, tiempos) for t in resultado.tramos],
+        "paradas": len(resultado.estaciones),
+        "ganancia_tonelada": resultado.ganancia_tonelada,
+        "ganancia_viaje": resultado.ganancia_viaje,
+        "distancia_ly": resultado.distancia_ly,
+        "saltos": resultado.saltos,
         "segundos": resultado.segundos,
         "ganancia_hora": resultado.ganancia_hora,
         "ganancia_sesion": resultado.ganancia_hora * horas_sesion,

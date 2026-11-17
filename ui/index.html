@@ -218,7 +218,14 @@
               <legend class="solo-lectores" data-i18n="comercio.rutas.modo"></legend>
               <label class="modo"><input type="radio" name="modo" value="un_salto" checked><span data-i18n="comercio.rutas.modos.un_salto"></span></label>
               <label class="modo"><input type="radio" name="modo" value="bucle"><span data-i18n="comercio.rutas.modos.bucle"></span></label>
+              <label class="modo"><input type="radio" name="modo" value="cadena"><span data-i18n="comercio.rutas.modos.cadena"></span></label>
+              <label class="modo"><input type="radio" name="modo" value="circuito"><span data-i18n="comercio.rutas.modos.circuito"></span></label>
             </fieldset>
+            <div class="paradas-campo" data-campo="paradas_campo" hidden>
+              <label for="rutas-paradas" data-i18n="comercio.rutas.paradas"></label>
+              <select id="rutas-paradas" class="entrada" data-campo="paradas" aria-describedby="rutas-paradas-ayuda"></select>
+              <p id="rutas-paradas-ayuda" class="motivo" data-campo="paradas_ayuda"></p>
+            </div>
             <button type="submit" class="boton boton--primario" data-i18n="comercio.rutas.buscar"></button>
         </form>
         <details class="plegable filtros" data-campo="perfil_plegable">
@@ -379,6 +386,7 @@
           <section class="resultados" aria-labelledby="titulo-resultados">
             <h2 id="titulo-resultados" class="solo-lectores" data-i18n="comercio.rutas.tabla"></h2>
             <p class="motivo" role="status" data-campo="resultados_estado"></p>
+            <p class="motivo" role="status" data-campo="resultados_cortada" hidden></p>
             <div class="motivo" role="status" data-campo="resultados_explicacion" hidden></div>
             <p class="franja franja--advertencia" role="alert" data-campo="resultados_error" hidden></p>
             <div class="tabla-contenedor" data-campo="tabla_contenedor" hidden>
@@ -843,6 +851,13 @@
                      aria-describedby="comercio-tope-ayuda">
               <p id="comercio-tope-ayuda" class="ayuda" data-campo="comercio_tope_ayuda"></p>
             </div>
+            <div class="campo">
+              <label for="comercio-limite" data-i18n="configuracion.comercio.limite"></label>
+              <input id="comercio-limite" class="entrada entrada--corta" type="number" min="3"
+                     max="30" step="1" inputmode="numeric" data-campo="comercio_limite"
+                     aria-describedby="comercio-limite-ayuda">
+              <p id="comercio-limite-ayuda" class="ayuda" data-campo="comercio_limite_ayuda"></p>
+            </div>
             <fieldset class="casillas" data-campo="comercio_tipos">
               <legend data-i18n="configuracion.comercio.tipos"></legend>
               <label class="casilla"><input type="checkbox" name="tipos" value="orbital"><span data-i18n="comercio.perfil.tipo.orbital"></span></label>
@@ -953,6 +968,14 @@
               <fieldset class="rejilla-casillas" aria-labelledby="lectura-columnas-bucle">
                 <legend id="lectura-columnas-bucle" class="campo__subtitulo" data-i18n="comercio.rutas.modos.bucle"></legend>
                 <div class="rejilla-casillas__lista" data-campo="lectura_columnas_bucle"></div>
+              </fieldset>
+              <fieldset class="rejilla-casillas" aria-labelledby="lectura-columnas-cadena">
+                <legend id="lectura-columnas-cadena" class="campo__subtitulo" data-i18n="comercio.rutas.modos.cadena"></legend>
+                <div class="rejilla-casillas__lista" data-campo="lectura_columnas_cadena"></div>
+              </fieldset>
+              <fieldset class="rejilla-casillas" aria-labelledby="lectura-columnas-circuito">
+                <legend id="lectura-columnas-circuito" class="campo__subtitulo" data-i18n="comercio.rutas.modos.circuito"></legend>
+                <div class="rejilla-casillas__lista" data-campo="lectura_columnas_circuito"></div>
               </fieldset>
             </fieldset>
           </div>

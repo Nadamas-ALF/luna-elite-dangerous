@@ -155,7 +155,7 @@ def test_la_busqueda_se_guarda_sin_perder_el_resto_de_comercio(tmp_path):
     config = escribir(
         tmp_path / "config.json", {"comercio": {"otro": 1}, "eddn": {"activado": True}}
     )
-    assert ajustes.guardar_busqueda(config, 30, ("orbital",))
+    assert ajustes.guardar_busqueda(config, 30, ("orbital",), 8)
     assert ajustes.tope_de_antiguedad_dias(config) == 30
     datos = json.loads(config.read_text(encoding="utf-8"))
     assert datos["comercio"]["otro"] == 1
@@ -178,7 +178,7 @@ def test_unos_tipos_de_estacion_invalidos_caen_a_todos(tmp_path, tipos):
 
 def test_los_tipos_de_estacion_se_leen_en_orden_canonico_junto_al_tope(tmp_path):
     config = tmp_path / "config.json"
-    assert ajustes.guardar_busqueda(config, 14, ("asentamiento", "orbital"))
+    assert ajustes.guardar_busqueda(config, 14, ("asentamiento", "orbital"), 12)
     assert ajustes.tipos_de_estacion(config) == ("orbital", "asentamiento")
     assert ajustes.tope_de_antiguedad_dias(config) == 14
 

@@ -17,6 +17,7 @@ import logging
 import math
 import sqlite3
 import threading
+import time
 from collections.abc import Callable, Iterator
 from contextlib import closing, contextmanager
 from dataclasses import MISSING, asdict, fields
@@ -42,7 +43,7 @@ from modules.comercio import (
     timing,
 )
 from modules.comercio.engine import ahora as modo_ahora
-from modules.comercio.engine import candidatos, descartes, rutas
+from modules.comercio.engine import cadenas, candidatos, descartes, rutas
 from modules.comercio.engine.calculo import Curva
 from modules.comercio.engine.candidatos import BusquedaCancelada, Posicion
 from modules.comercio.engine.perfil import CAMPOS, Perfil, PerfilInvalido, desde_dict
@@ -72,7 +73,16 @@ LARGO_MAXIMO_DE_SESION = 40
 # de Spansh puede tardar minutos, y el perfil se guarda igual cuando quede libre.
 ESPERA_DE_ESCRITURA = 5.0
 
-MODOS = {"un_salto": (rutas.un_salto, salida.tramo), "bucle": (rutas.bucle, salida.bucle)}
+MODOS = {
+    "un_salto": (rutas.un_salto, salida.tramo),
+    "bucle": (rutas.bucle, salida.bucle),
+    "cadena": (cadenas.cadena, salida.cadena),
+    "circuito": (cadenas.circuito, salida.cadena),
+}
+# Los que buscan con un límite de tiempo y un número de paradas.
+MODOS_CON_PARADAS = frozenset({"cadena", "circuito"})
+PARADAS_MINIMAS = 3
+PARADAS_MAXIMAS = 6
 
 Reloj = Callable[[], datetime]
 
@@ -117,8 +127,10 @@ class Comercio:
         escritor: Escritor | None,
         reloj: Reloj = lambda: datetime.now(UTC),
         probar_sonido: Callable[[int], None] | None = None,
+        cronometro: Callable[[], float] = time.monotonic,
     ) -> None:
         self._estado = estado
+        self._cronometro = cronometro
         self._probar_sonido = probar_sonido
         self._config = config
         self._base = base
@@ -145,17 +157,28 @@ class Comercio:
             "saldo": estado.creditos,
         }
 
-    def buscar_rutas(self, modo: object, datos: object) -> dict:
+    def buscar_rutas(self, modo: object, datos: object, paradas: object = None) -> dict:
         if not isinstance(modo, str) or modo not in MODOS:
             return {"error": ERROR_PARAMETRO, "campo": "modo"}
+        if not _son_paradas(modo, paradas):
+            return {"error": ERROR_PARAMETRO, "campo": "paradas"}
         buscar, convertir = MODOS[modo]
+        limite_s = ajustes.limite_de_busqueda(self._config)
         try:
             perfil, estado = self._entrada(datos)
             with self._turno_rutas.empezar() as parar, self._lectura() as conexion:
                 centro = _centro(conexion, perfil, estado)
                 cargados = candidatos.cargar(conexion, perfil, centro, self._reloj(), parar=parar)
                 tiempos = _tiempos(conexion, estado)
-                resultados = buscar(cargados, perfil, self._curva(), tiempos)
+                if modo in MODOS_CON_PARADAS:
+                    # Cuenta tras la lectura: con mucha antigüedad, leer podría gastarlo todo.
+                    limite = cadenas.Limite(self._cronometro() + limite_s, parar, self._cronometro)
+                    resultados, cortada = buscar(
+                        cargados, perfil, self._curva(), tiempos, paradas, limite
+                    )
+                else:
+                    resultados = buscar(cargados, perfil, self._curva(), tiempos)
+                    cortada = False
                 nombres = salida.nombres_de_mercancias(conexion)
                 _comprobar(parar)
         except _Rechazo as rechazo:
@@ -169,6 +192,8 @@ class Comercio:
                 for r in resultados
             ],
             "corta": len(resultados) < descartes.RESULTADOS_CORTOS,
+            "cortada": cortada,
+            "limite_s": limite_s,
         }
 
     def explicar_busqueda(self, datos: object) -> dict:
@@ -288,15 +313,22 @@ class Comercio:
             "tope_antiguedad_dias": ajustes.tope_de_antiguedad_dias(self._config),
             "tope_maximo_dias": ajustes.TOPE_ANTIGUEDAD_DIAS_MAXIMO,
             "tipos": list(ajustes.tipos_de_estacion(self._config)),
+            "limite_busqueda_s": ajustes.limite_de_busqueda(self._config),
+            "limite_minimo_s": ajustes.LIMITE_BUSQUEDA_S_MINIMO,
+            "limite_maximo_s": ajustes.LIMITE_BUSQUEDA_S_MAXIMO,
         }
 
-    def guardar_ajustes_de_busqueda(self, tope_dias: object, tipos: object) -> dict:
+    def guardar_ajustes_de_busqueda(
+        self, tope_dias: object, tipos: object, limite_s: object
+    ) -> dict:
         if not _es_tope(tope_dias):
             return {"error": ERROR_PARAMETRO, "campo": "tope_antiguedad_dias"}
         if not _son_tipos(tipos):
             return {"error": ERROR_PARAMETRO, "campo": "tipos"}
+        if not ajustes.es_limite_de_busqueda(limite_s):
+            return {"error": ERROR_PARAMETRO, "campo": "limite_busqueda_s"}
         canonicos = tuple(t for t in ajustes.TIPOS_DE_ESTACION if t in tipos)
-        if not ajustes.guardar_busqueda(self._config, tope_dias, canonicos):
+        if not ajustes.guardar_busqueda(self._config, tope_dias, canonicos, limite_s):
             return {"error": ERROR_NO_GUARDADO}
         return {"ok": True, **self.ajustes_de_busqueda()}
 
@@ -614,6 +646,15 @@ def _en_curso_con_estimacion(
         "estimacion": estimar.estimar(contexto, ruta),
         "id": claves.get(actual.clave),
     }
+
+
+def _son_paradas(modo: str, paradas: object) -> bool:
+    """Los modos con paradas piden de 3 a 6; los demás, ninguna."""
+    if modo not in MODOS_CON_PARADAS:
+        return paradas is None
+    if isinstance(paradas, bool) or not isinstance(paradas, int):
+        return False
+    return PARADAS_MINIMAS <= paradas <= PARADAS_MAXIMAS
 
 
 def _es_tope(dias: object) -> bool:

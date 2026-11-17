@@ -261,7 +261,7 @@ def test_guardar_los_ajustes_de_busqueda_no_borra_los_de_ruta_en_curso(base, tmp
     comercio = api(base, tmp_path)
     comercio.guardar_ajustes_de_ruta_en_curso(False, 35, True)
 
-    comercio.guardar_ajustes_de_busqueda(5, ["orbital"])
+    comercio.guardar_ajustes_de_busqueda(5, ["orbital"], 8)
 
     assert comercio.ajustes_de_ruta_en_curso()["aviso_mejor"] is False
 

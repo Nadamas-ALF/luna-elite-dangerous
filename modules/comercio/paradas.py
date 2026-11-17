@@ -11,6 +11,8 @@ from __future__ import annotations
 
 MODO_UN_SALTO = "un_salto"
 MODO_BUCLE = "bucle"
+MODO_CADENA = "cadena"
+MODO_CIRCUITO = "circuito"
 MODO_VENTA = "venta"
 
 _TOTALES_DE_COMERCIO = (
@@ -137,9 +139,11 @@ def detalle(modo: str, datos: dict) -> dict:
     """El detalle de un resultado de `salida`; `KeyError` o `ValueError` si no tiene la forma."""
     if modo == MODO_VENTA:
         return _de_venta(datos)
-    if modo not in (MODO_UN_SALTO, MODO_BUCLE):
+    if modo not in (MODO_UN_SALTO, MODO_BUCLE, MODO_CADENA, MODO_CIRCUITO):
         raise ValueError(f"modo desconocido: {modo!r}")
     totales = {clave: datos[clave] for clave in _TOTALES_DE_COMERCIO}
     if modo == MODO_UN_SALTO:
         return de_tramos([datos], False, totales)
-    return de_tramos([datos["ida"], datos["vuelta"]], True, totales)
+    if modo == MODO_BUCLE:
+        return de_tramos([datos["ida"], datos["vuelta"]], True, totales)
+    return de_tramos(datos["tramos"], datos["cerrada"], totales)

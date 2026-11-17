@@ -10,8 +10,9 @@ import time
 
 import pytest
 
+from core.config import ajustes
 from modules.comercio import timing
-from modules.comercio.engine import candidatos, rutas
+from modules.comercio.engine import cadenas, candidatos, rutas
 from modules.comercio.engine.calculo import Curva
 from tests.mercado_de_prueba import AHORA, base_vacia, hace, perfil
 
@@ -20,6 +21,7 @@ CON_MERCADO = 1_500
 MERCANCIAS = [f"m{n}" for n in range(120)]
 PRECIOS_POR_MERCADO = 20
 LIMITE = 2.0
+LIMITE_VARIAS_PARADAS = 10.0
 
 
 @pytest.fixture(scope="module")
@@ -73,3 +75,16 @@ def test_un_salto_y_bucle_responden_en_menos_de_2_s(base, modo):
     duracion = time.perf_counter() - inicio
     assert resultado, "la base sintética tiene que dar rutas"
     assert duracion < LIMITE, f"{duracion:.2f} s"
+
+
+@pytest.mark.parametrize("modo", [cadenas.cadena, cadenas.circuito], ids=["cadena", "circuito"])
+def test_seis_paradas_responden_en_menos_de_10_s_y_sin_cortar_con_el_limite_por_defecto(base, modo):
+    p = perfil(capacidad=720, rango=25.0, distancia_max_ly=50)
+    inicio = time.perf_counter()
+    cargados = candidatos.cargar(base, p, (0.0, 0.0, 0.0), AHORA)
+    limite = cadenas.Limite(time.monotonic() + ajustes.LIMITE_BUSQUEDA_S_POR_DEFECTO)
+    resultados, cortada = modo(cargados, p, Curva(), timing.POR_DEFECTO, 6, limite)
+    duracion = time.perf_counter() - inicio
+    assert resultados, "la base sintética tiene que dar rutas"
+    assert not cortada
+    assert duracion < LIMITE_VARIAS_PARADAS, f"{duracion:.2f} s"

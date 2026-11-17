@@ -390,7 +390,7 @@ def test_sin_datos_la_api_responde_que_no_esta_disponible(api):
     assert interfaz.guardar_perfil("x", {}) == esperado
     assert interfaz.borrar_perfil("x") == esperado
     assert interfaz.ajustes_de_busqueda() == esperado
-    assert interfaz.guardar_ajustes_de_busqueda(7, ["orbital"]) == esperado
+    assert interfaz.guardar_ajustes_de_busqueda(7, ["orbital"], 8) == esperado
     assert interfaz.rendimiento(None) == esperado
     assert interfaz.ajustes_de_sesiones() == esperado
     assert interfaz.guardar_ajustes_de_sesiones(1, False) == esperado

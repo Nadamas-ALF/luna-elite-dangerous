@@ -6,7 +6,7 @@ import { configurarPaginacion } from './tabla.js';
 
 const raiz = document.documentElement;
 // Hasta que llegan los ajustes, cada modo enseña todas sus columnas: mejor de más que una tabla vacía.
-const columnas = { un_salto: null, bucle: null };
+const columnas = { un_salto: null, bucle: null, cadena: null, circuito: null };
 const oyentes = new Set();
 
 /** Pone el tamaño de letra y la densidad en <html>; el CSS hace el resto con tokens. */

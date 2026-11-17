@@ -152,6 +152,17 @@
   gap: calc(var(--espacio) * 3);
 }
 
+.paradas-campo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--espacio) * 2);
+}
+
+.paradas-campo .motivo {
+  margin: 0;
+}
+
 .modos {
   display: flex;
   flex-wrap: wrap;
@@ -258,6 +269,25 @@
 }
 
 .estacion__sistema {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Una ruta de varias paradas: una estación por línea, numeradas en el orden del recorrido. */
+.lineas {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--espacio) * 1);
+}
+
+.lineas__fila {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--espacio) * 2);
+}
+
+.lineas__n,
+.lineas__vuelta {
   color: var(--text-muted);
   font-size: 0.875rem;
 }

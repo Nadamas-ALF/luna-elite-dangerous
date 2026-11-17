@@ -46,7 +46,11 @@ function marcadas(raiz) {
 /** Lo que pueden pedir las búsquedas de Rutas y Ahora; los tipos son los que trae un perfil nuevo. */
 export function crearPanelComercio(raiz) {
   const c = campos(raiz);
-  const entradas = { tope_antiguedad_dias: c.comercio_tope, tipos: c.comercio_tipos };
+  const entradas = {
+    tope_antiguedad_dias: c.comercio_tope,
+    limite_busqueda_s: c.comercio_limite,
+    tipos: c.comercio_tipos,
+  };
   let maximo = Number(c.comercio_tope.max);
 
   function limpiar() {
@@ -60,6 +64,13 @@ export function crearPanelComercio(raiz) {
     c.comercio_tope.max = String(maximo);
     c.comercio_tope.value = String(datos.tope_antiguedad_dias);
     c.comercio_tope_ayuda.textContent = texto('configuracion.comercio.tope_ayuda', { maximo });
+    c.comercio_limite.min = String(datos.limite_minimo_s);
+    c.comercio_limite.max = String(datos.limite_maximo_s);
+    c.comercio_limite.value = String(datos.limite_busqueda_s);
+    c.comercio_limite_ayuda.textContent = texto('configuracion.comercio.limite_ayuda', {
+      minimo: datos.limite_minimo_s,
+      maximo: datos.limite_maximo_s,
+    });
     for (const casilla of raiz.querySelectorAll('input[name="tipos"]')) {
       casilla.checked = datos.tipos.includes(casilla.value);
     }
@@ -72,7 +83,14 @@ export function crearPanelComercio(raiz) {
       return;
     }
     entrada.setAttribute('aria-invalid', 'true');
-    mostrarTexto(c.comercio_error, texto(`configuracion.comercio.errores.${respuesta.campo}`, { maximo }));
+    mostrarTexto(
+      c.comercio_error,
+      texto(`configuracion.comercio.errores.${respuesta.campo}`, {
+        maximo,
+        limite_minimo: c.comercio_limite.min,
+        limite_maximo: c.comercio_limite.max,
+      }),
+    );
     (entrada.querySelector('input') ?? entrada).focus();
   }
 
@@ -80,7 +98,8 @@ export function crearPanelComercio(raiz) {
     evento.preventDefault();
     limpiar();
     const tope = Number.isNaN(c.comercio_tope.valueAsNumber) ? null : c.comercio_tope.valueAsNumber;
-    const respuesta = await api.guardarAjustesDeBusqueda(tope, marcadas(raiz));
+    const limite = Number.isNaN(c.comercio_limite.valueAsNumber) ? null : c.comercio_limite.valueAsNumber;
+    const respuesta = await api.guardarAjustesDeBusqueda(tope, marcadas(raiz), limite);
     if (respuesta.error) {
       rechazar(respuesta);
       return;
