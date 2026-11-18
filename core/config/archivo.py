@@ -42,7 +42,8 @@ def leer(archivo: Path) -> dict:
     interpretar, para que quien escriba pueda distinguir los dos casos.
     """
     try:
-        texto = archivo.read_text(encoding="utf-8")
+        # Con BOM o sin él: PowerShell 5.1 y algunos editores lo añaden al guardar.
+        texto = archivo.read_text(encoding="utf-8-sig")
     except FileNotFoundError:
         return {}
     except UnicodeDecodeError as error:

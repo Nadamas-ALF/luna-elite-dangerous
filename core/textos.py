@@ -14,6 +14,7 @@ from core import recursos
 CLAVE_TITULO = ("ventana", "titulo")
 CLAVE_ERROR_ARRANQUE = ("errores", "arranque")
 CLAVE_SIN_WEBVIEW2 = ("errores", "sin_webview2")
+CLAVE_YA_ABIERTA = ("ventana", "ya_abierta")
 
 GRUPO_DATOS = "datos"
 

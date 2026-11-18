@@ -45,6 +45,8 @@
   --fundido: var(--bg);
   /* Fondo de los paneles que se abren sobre la tabla: sólido, para que ninguna fila se lea a través. */
   --panel-flotante: var(--surface);
+  /* La cabecera fija de las tablas es opaca aunque `--surface` no lo sea (tema Lunar). */
+  --cabecera-tabla: var(--surface);
 
   --espacio: 4px;
   --radio-panel: 16px;

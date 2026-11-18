@@ -24,8 +24,16 @@ const MEJOR_PEQUENO = new Set([
 
 const OPCIONES_DE_FILAS_DE_FABRICA = [10];
 
+// Columnas de ganancia (`ganancia_*`, `ingreso_*`): el tema Lunar las pinta en verde; el Sobrio no
+// da estilo a la clase. Por el nombre, para que una columna nueva no dependa de otra lista.
+const esDeGanancia = (nombre) => /^(ganancia|ingreso)_/.test(nombre);
+
 function clasesDe(nombre, prioridad) {
-  return [DE_TEXTO.has(nombre) ? null : 'cifra', prioridad && `col--${prioridad}`]
+  return [
+    DE_TEXTO.has(nombre) ? null : 'cifra',
+    esDeGanancia(nombre) && 'col--ganancia',
+    prioridad && `col--${prioridad}`,
+  ]
     .filter(Boolean)
     .join(' ');
 }

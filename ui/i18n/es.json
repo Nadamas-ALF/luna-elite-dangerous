@@ -4,7 +4,8 @@
     "descripcion": "Rutas de comercio para Elite Dangerous"
   },
   "ventana": {
-    "titulo": "LUNA"
+    "titulo": "LUNA",
+    "ya_abierta": "LUNA ya está abierta: búscala en la barra de tareas. Una segunda copia leería el mismo journal y escribiría a la vez en la misma base de datos."
   },
   "errores": {
     "arranque": "LUNA no pudo abrir su ventana: {error}",
@@ -786,7 +787,9 @@
       "base": "Base de datos",
       "descargas": "Descargas pendientes",
       "libre": "Libre en el disco",
-      "sin_dato": "Sin dato"
+      "sin_dato": "Sin dato",
+      "version": "Versión",
+      "version_valor": "LUNA {version}"
     },
     "errores": {
       "desconocido": "LUNA no conoce ese sistema todavía. Prueba con el Sol o con un sistema que hayas visitado, que haya llegado por EDDN o que ya esté en una descarga de Spansh.",
@@ -941,7 +944,7 @@
     },
     "lectura": {
       "titulo": "Lectura",
-      "ayuda": "Cómo se ve LUNA: el tamaño de la letra, el espacio entre filas y qué columnas enseñan las tablas de Rutas. Cada cambio se aplica al momento y se guarda solo, sin botón.",
+      "ayuda": "Cómo se ve LUNA: el tema, el tamaño de la letra, el espacio entre filas y qué columnas enseñan las tablas de Rutas. Cada cambio se aplica al momento y se guarda solo, sin botón.",
       "tamano_letra_titulo": "Tamaño de la letra",
       "tamano_letra": {
         "pequeno": "Pequeño",
@@ -956,13 +959,25 @@
         "compacta": "Compacta"
       },
       "densidad_ayuda": "Cómoda deja más aire alrededor de cada fila. Compacta enseña más datos a la vez en la misma ventana.",
+      "tema_titulo": "Tema",
+      "tema": {
+        "sobrio": "Sobrio",
+        "lunar": "Lunar"
+      },
+      "tema_ayuda": "Sobrio es el de siempre: liso, sin adornos y el que menos pide a la tarjeta gráfica. Lunar añade fondo ilustrado, superficies de vidrio y pequeñas animaciones; no mueve nada de sitio.",
+      "vidrio_titulo": "Vidrio del tema Lunar",
+      "vidrio": {
+        "desenfocado": "Desenfocado",
+        "liso": "Liso"
+      },
+      "vidrio_ayuda": "Desenfocado emborrona lo que queda detrás de cada panel. Liso lo sustituye por un fondo más opaco: se lee igual y la tarjeta gráfica trabaja menos, útil si juegas con LUNA en el segundo monitor.",
       "columnas_titulo": "Columnas de las tablas de Rutas",
       "columnas_ayuda": "Marca las columnas que quieres ver. Las que dejes sin marcar no se pierden: siguen en el detalle de la ruta, al pulsar una fila. La elección de «Un salto» vale también para «Comprar desde aquí» en Ahora.",
       "guardado": "Guardado.",
       "errores": {
         "columnas": "Deja al menos una columna marcada."
       },
-      "linea": "Tamaño de la letra, espacio entre filas y columnas de las tablas."
+      "linea": "Tema, tamaño de la letra, espacio entre filas y columnas de las tablas."
     },
     "ventana": {
       "titulo": "Ventana",
@@ -995,5 +1010,28 @@
         "no_disponible": "Esta función no está disponible ahora mismo."
       }
     }
+  },
+  "bienvenida": {
+    "titulo": "Te damos la bienvenida a LUNA",
+    "entrada": "LUNA calcula rutas de comercio con tu nave real y aprende lo que tardas tú en cada tramo.",
+    "journal": {
+      "titulo": "1 · Tu journal",
+      "encontrado": "Encontrado: CMDR {nombre}",
+      "encontrado_con_nave": "Encontrado: CMDR {nombre}, {nave}",
+      "sin_comandante": "Journal encontrado. Tu comandante aparecerá en cuanto el juego lo escriba.",
+      "sin_carpeta": "No se encontró la carpeta del journal. Si moviste Partidas guardadas, elígela.",
+      "sin_archivos": "La carpeta existe pero no tiene journals: abre el juego una vez.",
+      "elegir": "Elegir carpeta",
+      "elegir_otra": "Elegir otra carpeta"
+    },
+    "datos": {
+      "titulo": "2 · Los datos de mercado",
+      "esfera": "LUNA guarda los mercados de una zona del espacio, la esfera: un sistema de centro y un radio en años luz.",
+      "spansh": "Spansh es un archivo con los precios de toda la galaxia (unos 4,3 GiB). LUNA se queda con lo que cae en la esfera y borra el resto. Tarda de 6 a 19 minutos según el radio.",
+      "sin_descargar": "Sin descargar, LUNA empieza vacía y se llena sola con lo que publica EDDN y con los mercados que abras. Puedes descargar más tarde desde Configuración.",
+      "descargar": "Descargar los datos de Spansh",
+      "eddn": "Empezar solo con EDDN"
+    },
+    "historial": "Si llevas tiempo jugando, puedes importar tu historial en Configuración → Journal: LUNA aprende tus tiempos y tus ganancias pasadas."
   }
 }

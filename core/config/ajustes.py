@@ -447,6 +447,31 @@ def guardar_lateral_plegado(config: Path, plegado: bool) -> bool:
     return _guardar_de_interfaz(config, "lateral_plegado", plegado)
 
 
+def marcar_primer_arranque(config: Path) -> bool:
+    """Crea `config.json` con la bienvenida pendiente, solo si el archivo no existe.
+
+    «Primera vez» se decide por `config.json` y no por la base o el journal: quien actualiza
+    trae su base y quien juega desde hace años trae journals (`docs/primer-arranque.md`). Un
+    `config.json` ilegible existe, así que tampoco cuenta.
+    """
+    try:
+        if config.exists():
+            return False
+    except OSError:
+        registro.exception("no se pudo comprobar si existe %s", config)
+        return False
+    return _guardar_de_interfaz(config, "bienvenida_pendiente", True)
+
+
+def bienvenida_pendiente(config: Path) -> bool:
+    seccion = archivo.leer_o_vacio(config).get(CLAVE_INTERFAZ)
+    return isinstance(seccion, dict) and seccion.get("bienvenida_pendiente") is True
+
+
+def terminar_bienvenida(config: Path) -> bool:
+    return _guardar_de_interfaz(config, "bienvenida_pendiente", False)
+
+
 def _guardar_de_interfaz(config: Path, campo: str, valor: bool) -> bool:
     try:
         return archivo.fusionar_campo(config, CLAVE_INTERFAZ, campo, valor)

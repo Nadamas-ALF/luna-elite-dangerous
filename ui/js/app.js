@@ -2,6 +2,7 @@ import { crearVistaAhora } from './ahora.js';
 import { crearVistaAlertas } from './alertas.js';
 import * as api from './api.js';
 import { cargarAspecto } from './aspecto.js';
+import { crearVistaBienvenida } from './bienvenida.js';
 import { crearVistaConfiguracion } from './configuracion.js';
 import { crearVistaEstado } from './estado.js';
 import { crearVistaFijadas } from './fijadas.js';
@@ -69,6 +70,57 @@ function consultarEstado(alRecibir) {
   setInterval(una, INTERVALO_DE_CONSULTA);
 }
 
+/**
+ * La bienvenida del primer arranque (docs/primer-arranque.md). Se da por vista al salir de ella
+ * por cualquier camino; cerrar LUNA sin elegir la deja pendiente para la próxima vez.
+ */
+function crearBienvenida(configuracion, alCambiarDeVista) {
+  let pendiente = false;
+
+  function terminar() {
+    if (!pendiente) return;
+    pendiente = false;
+    api
+      .terminarBienvenida()
+      .then((respuesta) => {
+        if (!respuesta.guardado) console.error('no se guardó que la bienvenida ya se vio');
+      })
+      .catch((error) => console.error(error));
+  }
+
+  function irA(nombre) {
+    terminar();
+    mostrarVista(nombre);
+    alCambiarDeVista(nombre);
+  }
+
+  const vista = crearVistaBienvenida(document.getElementById('vista-bienvenida'), {
+    alDescargar: (centro) => {
+      irA('configuracion');
+      configuracion.prepararDescarga(centro);
+    },
+    alEmpezar: () => irA('estado'),
+  });
+
+  return {
+    terminar,
+    alEstado: vista.alEstado,
+    async ensenarSiToca() {
+      let respuesta;
+      try {
+        respuesta = await api.bienvenida();
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      // Si mientras tanto ya se fue a otra pantalla, no se le quita de ella.
+      if (!respuesta.pendiente || document.getElementById(`vista-${VISTA_INICIAL}`).hidden) return;
+      pendiente = true;
+      mostrarVista('bienvenida');
+    },
+  };
+}
+
 async function arrancar() {
   aplicarTextos(document);
   vigilarDesplazamiento(document);
@@ -86,7 +138,8 @@ async function arrancar() {
     mostrarVista,
   );
 
-  conectarNavegacion((nombre) => {
+  /** Arranca y para lo que cada pantalla necesita. */
+  function alCambiarDeVista(nombre) {
     if (nombre === 'configuracion') configuracion.cargar();
     else configuracion.salir();
     if (nombre === 'rutas') perfil.cargar();
@@ -97,6 +150,12 @@ async function arrancar() {
     if (nombre === 'alertas') alertas.mostrar();
     else alertas.salir();
     if (nombre === 'rendimiento') rendimiento.mostrar();
+  }
+
+  const bienvenida = crearBienvenida(configuracion, alCambiarDeVista);
+  conectarNavegacion((nombre) => {
+    bienvenida.terminar();
+    alCambiarDeVista(nombre);
   });
   mostrarVista(VISTA_INICIAL);
 
@@ -105,10 +164,12 @@ async function arrancar() {
 
   await api.esperarPuente();
   cargarAspecto();
+  bienvenida.ensenarSiToca();
   crearBarraLateral(document.querySelector('.app'), document.querySelector('[data-campo="lateral_plegar"]'));
   alertas.vigilar();
   consultarEstado((datos) => {
     estado.mostrar(datos);
+    bienvenida.alEstado(datos);
     ahora.alEstado(datos);
     fijadas.alEstado(datos);
   });

@@ -89,13 +89,18 @@ function pintarUbicacion(c, ubicacion) {
   );
 }
 
+/** El modelo de la nave, con el nombre que le puso el comandante si lo tiene. */
+export function nombreDeNave(nave) {
+  return nave.nombre
+    ? texto('estado.nave.modelo_con_nombre', { modelo: nave.modelo, nombre: nave.nombre })
+    : nave.modelo;
+}
+
 function pintarNave(c, nave) {
   ponerPanelAusente(c, 'nave', !nave.presente, nave.motivo);
   if (!nave.presente) return;
 
-  c.nave_modelo.textContent = nave.nombre
-    ? texto('estado.nave.modelo_con_nombre', { modelo: nave.modelo, nombre: nave.nombre })
-    : nave.modelo;
+  c.nave_modelo.textContent = nombreDeNave(nave);
   c.nave_bodega.textContent = formato.toneladas(nave.capacidad_carga);
   poner(
     c.nave_plataforma,

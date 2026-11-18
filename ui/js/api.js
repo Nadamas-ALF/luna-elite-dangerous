@@ -78,8 +78,12 @@ export const guardarSeccionesAbiertas = (secciones) =>
   llamar('guardar_secciones_abiertas', secciones);
 export const borrarDatosDeMercado = () => llamar('borrar_datos_de_mercado');
 export const espacioEnDisco = () => llamar('espacio_en_disco');
+export const bienvenida = () => llamar('bienvenida');
+export const terminarBienvenida = () => llamar('terminar_bienvenida');
 export const ajustesDeAspecto = () => llamar('ajustes_de_aspecto');
 export const guardarTamanoDeLetra = (tamano) => llamar('guardar_tamano_de_letra', tamano);
 export const guardarDensidad = (densidad) => llamar('guardar_densidad', densidad);
+export const guardarTema = (tema) => llamar('guardar_tema', tema);
+export const guardarVidrio = (vidrio) => llamar('guardar_vidrio', vidrio);
 export const guardarFilasPorPagina = (filas) => llamar('guardar_filas_por_pagina', filas);
 export const guardarColumnas = (modo, columnas) => llamar('guardar_columnas', modo, columnas);

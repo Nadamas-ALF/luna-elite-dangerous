@@ -1,4 +1,4 @@
-// Ajustes de lectura (prefase 8, bloque 2): tamaño de letra, densidad, filas por página y qué
+// Ajustes de lectura (prefase 8, bloque 2): tamaño de letra, densidad, tema, filas por página y qué
 // columnas enseña cada tabla de Rutas. Se aplican al arrancar y en el momento de elegirlos.
 // Se guardan en config.json (Python los valida); la ventana no recuerda nada por su cuenta.
 import * as api from './api.js';
@@ -9,11 +9,21 @@ const raiz = document.documentElement;
 const columnas = { un_salto: null, bucle: null, cadena: null, circuito: null };
 const oyentes = new Set();
 
-/** Pone el tamaño de letra y la densidad en <html>; el CSS hace el resto con tokens. */
-export function aplicar({ tamano_letra: letra, densidad }) {
+/** Pone el tamaño de letra, la densidad, el tema y el vidrio en <html>; el CSS hace el resto con tokens. */
+export function aplicar({ tamano_letra: letra, densidad, tema, vidrio }) {
   if (letra !== undefined) raiz.dataset.letra = letra;
   if (densidad !== undefined) raiz.dataset.densidad = densidad;
+  if (tema !== undefined) raiz.dataset.tema = tema;
+  if (vidrio !== undefined) raiz.dataset.vidrio = vidrio;
 }
+
+// `main.py` pone el tema y el vidrio en el fragmento de la URL: aplicarlos al cargar el módulo evita ver el Sobrio
+// hasta que responde Python. Lo que no sea un valor conocido se ignora.
+const ARRANQUE = new URLSearchParams(location.hash.slice(1));
+const TEMAS = ['sobrio', 'lunar'];
+const VIDRIOS = ['desenfocado', 'liso'];
+if (TEMAS.includes(ARRANQUE.get('tema'))) raiz.dataset.tema = ARRANQUE.get('tema');
+if (VIDRIOS.includes(ARRANQUE.get('vidrio'))) raiz.dataset.vidrio = ARRANQUE.get('vidrio');
 
 /** Las columnas que el usuario eligió para un modo, o `null` si aún no se conocen. */
 export const elegidas = (modo) => columnas[modo];

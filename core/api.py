@@ -22,6 +22,7 @@ from core.datos import Datos
 from core.journal import carpeta
 from core.nucleo import Nucleo
 from core.state import vista
+from core.version import VERSION
 
 if TYPE_CHECKING:
     from modules.comercio.api import Comercio
@@ -47,6 +48,7 @@ class Api:
         avisos_de_base: Callable[[], tuple[str, ...]] = tuple,
         comercio: Comercio | None = None,
         aplicar_siempre_encima: Callable[[bool], None] | None = None,
+        aplicar_tema: Callable[[str], None] | None = None,
     ) -> None:
         self._nucleo = nucleo
         self._ubicacion = ubicacion
@@ -58,6 +60,7 @@ class Api:
         self._avisos_de_base = avisos_de_base
         self._comercio = comercio
         self._aplicar_siempre_encima = aplicar_siempre_encima
+        self._aplicar_tema = aplicar_tema
 
     def estado(self) -> dict:
         contexto = vista.Contexto(
@@ -85,7 +88,7 @@ class Api:
                 "automatica": elegida is None,
                 "elegida_no_existe": elegida is not None and not Path(elegida).is_dir(),
             },
-            "datos": {"carpeta": str(self._ubicacion.carpeta)},
+            "datos": {"carpeta": str(self._ubicacion.carpeta), "version": VERSION},
         }
 
     def elegir_carpeta_journal(self) -> dict:
@@ -270,16 +273,26 @@ class Api:
             return {"error": "no_guardado"}
         return {"lateral_plegado": plegado}
 
+    def bienvenida(self) -> dict:
+        return {"pendiente": ajustes.bienvenida_pendiente(self._config)}
+
+    def terminar_bienvenida(self) -> dict:
+        return {"guardado": ajustes.terminar_bienvenida(self._config)}
+
     def ajustes_de_aspecto(self) -> dict:
         """Lo que la interfaz aplica al arrancar y lo que Configuración deja elegir."""
         actual = aspecto.leer(self._config)
         return {
             "tamano_letra": actual.tamano_letra,
             "densidad": actual.densidad,
+            "tema": actual.tema,
+            "vidrio": actual.vidrio,
             "filas_por_pagina": actual.filas_por_pagina,
             "opciones": {
                 "tamanos": list(aspecto.TAMANOS_DE_LETRA),
                 "densidades": list(aspecto.DENSIDADES),
+                "temas": list(aspecto.TEMAS),
+                "vidrios": list(aspecto.VIDRIOS),
                 "filas": list(aspecto.FILAS_POR_PAGINA),
             },
             "columnas": {
@@ -304,6 +317,27 @@ class Api:
         if not aspecto.guardar_densidad(self._config, densidad):
             return {"error": "no_guardado"}
         return {"densidad": densidad}
+
+    def guardar_tema(self, tema: str) -> dict:
+        """Guarda el tema y tiñe la barra de título con él.
+
+        El orden de dos cambios seguidos lo garantiza la interfaz, que espera a uno para mandar
+        el siguiente (`lectura.js`): un candado aquí no ordenaría y retendría hilos en `Invoke`.
+        """
+        if not aspecto.es_tema(tema):
+            return _PARAMETRO
+        if not aspecto.guardar_tema(self._config, tema):
+            return {"error": "no_guardado"}
+        if self._aplicar_tema is not None:
+            self._aplicar_tema(tema)
+        return {"tema": tema}
+
+    def guardar_vidrio(self, vidrio: str) -> dict:
+        if not aspecto.es_vidrio(vidrio):
+            return _PARAMETRO
+        if not aspecto.guardar_vidrio(self._config, vidrio):
+            return {"error": "no_guardado"}
+        return {"vidrio": vidrio}
 
     def guardar_filas_por_pagina(self, filas: int) -> dict:
         if not aspecto.es_filas_por_pagina(filas):

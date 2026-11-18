@@ -1,0 +1,76 @@
+LUNA
+====
+
+Rutas de comercio para Elite Dangerous (Live), calculadas con tu nave real, tu
+journal y los precios de EDDN y Spansh.
+
+
+Abrir
+-----
+
+Descomprime la carpeta entera donde quieras y abre LUNA.exe. No saques LUNA.exe
+de su carpeta: necesita lo que hay en _internal.
+
+
+El aviso de Windows
+-------------------
+
+La primera vez Windows puede decir «Windows protegió su PC», porque LUNA no está
+firmado. Pulsa «Más información» y luego «Ejecutar de todas formas».
+
+Si quieres comprobar que el .zip es el publicado, compara su SHA-256 con el que
+acompaña a la descarga. En PowerShell:
+
+    Get-FileHash LUNA-<versión>-win64.zip
+
+
+Requisitos
+----------
+
+- Windows 10 u 11.
+- Elite Dangerous (Live).
+- WebView2, que viene con Windows 11 y con casi todos los Windows 10. Si falta,
+  LUNA lo dice al arrancar.
+
+
+Tus datos
+---------
+
+LUNA lo guarda todo en su misma carpeta: luna.db (la base de datos), config.json
+(tus ajustes), luna.log (el registro) y descargas/ (la descarga de Spansh
+mientras se importa).
+
+Si no puede escribir en su carpeta, guarda en %LOCALAPPDATA%\LUNA y lo dice en
+la pantalla Estado.
+
+LUNA no envía nada a nadie: solo recibe precios de EDDN y, si lo pides,
+descarga los datos de Spansh. Tu journal solo se lee, nunca se modifica.
+
+
+Actualizar
+----------
+
+1. Cierra LUNA.
+2. Descomprime la versión nueva en una carpeta nueva. No la descomprimas encima
+   de la anterior.
+3. Copia a la carpeta nueva luna.db y config.json de la anterior.
+
+
+Desinstalar
+-----------
+
+Borra la carpeta. Si LUNA avisó de que guardaba en otro sitio, borra también
+%LOCALAPPDATA%\LUNA.
+
+
+Si algo falla
+-------------
+
+luna.log, en la misma carpeta, dice qué pasó.
+
+
+Licencia
+--------
+
+LUNA es software libre bajo la GPLv3 (archivo LICENSE). Las licencias de lo que
+incluye de terceros están en la carpeta licencias.

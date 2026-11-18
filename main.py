@@ -6,8 +6,10 @@ empaquetado con PyInstaller no hay consola donde ver una traza.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import sys
+import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
@@ -17,7 +19,7 @@ import webview
 
 from core import events, plataforma, recursos, textos
 from core.api import Api, metodos_expuestos
-from core.config import ajustes, rutas, ventana
+from core.config import ajustes, aspecto, rutas, ventana
 from core.config.rutas import Ubicacion
 from core.datos import Datos
 from core.db.escritor import Escritor, NoSePudoAbrir
@@ -103,9 +105,13 @@ def restaurar_al_abrir(win: webview.Window, geometria: ventana.Geometria) -> Non
 def crear_ventana(ubicacion: Ubicacion, titulo: str, api: Api | None = None) -> webview.Window:
     config = rutas.archivo_de_config(ubicacion)
     guardada = ventana.cargar(config, webview.screens)
+    tema = aspecto.leer(config)
+    # En el fragmento de la URL para que la página lo aplique antes de pintar, a la vez que la
+    # barra de título. Una consulta (`?`) no sirve: con ella la página local no llega a cargar.
+    consulta = urllib.parse.urlencode({"tema": tema.tema, "vidrio": tema.vidrio})
     win = webview.create_window(
         titulo,
-        url=recursos.url_de_la_interfaz(),
+        url=f"{recursos.url_de_la_interfaz()}#{consulta}",
         width=guardada.ancho,
         height=guardada.alto,
         min_size=ventana.TAMANO_MINIMO,
@@ -116,18 +122,24 @@ def crear_ventana(ubicacion: Ubicacion, titulo: str, api: Api | None = None) -> 
     if api is not None:
         win.expose(*metodos_expuestos(api))
     restaurar_al_abrir(win, guardada)
-    win.events.shown += lambda: tenir_barra(win)
+    win.events.shown += lambda: tenir_barra(win, tema.tema)
     guardar_al_cerrar(win, config)
     return win
 
 
-def tenir_barra(win: webview.Window) -> None:
+def tenir_barra(win: webview.Window, tema: str) -> None:
     try:
         plataforma.en_el_hilo_de_la_interfaz(
-            win.native, lambda: plataforma.tenir_barra_de_titulo(win.native)
+            win.native, lambda: plataforma.tenir_barra_de_titulo(win.native, tema)
         )
     except Exception:  # noqa: BLE001 - una barra sin teñir no es fatal
         registro.exception("no se pudo teñir la barra de titulo")
+
+
+def aplicar_tema(tema: str) -> None:
+    """La API llama desde su propio hilo; sin ventana o sin teñir, la barra cambia al reiniciar."""
+    if webview.windows:
+        tenir_barra(webview.windows[0], tema)
 
 
 def aplicar_siempre_encima(activado: bool) -> None:
@@ -180,6 +192,8 @@ def arrancar(funcion=None, argumentos=None) -> None:
 def preparar() -> tuple[Ubicacion, dict]:
     ubicacion = rutas.resolver()
     configurar_registro(ubicacion.carpeta)
+    if ajustes.marcar_primer_arranque(rutas.archivo_de_config(ubicacion)):
+        registro.info("primer arranque: se enseña la bienvenida")
     registro.info(
         "datos en %s (portable=%s, motivo=%s, avisos=%s)",
         ubicacion.carpeta,
@@ -278,6 +292,7 @@ def montar(
         avisos_de_base=lambda: escritor.avisos if escritor else (),
         comercio=comercio,
         aplicar_siempre_encima=aplicar_siempre_encima,
+        aplicar_tema=aplicar_tema,
     )
     return Partes(config, bus, escritor, nucleo, eddn, mantenimiento, gestor, sonido, alertas, api)
 
@@ -308,6 +323,13 @@ def _mantenimiento_y_gestor(
     return mantenimiento, gestor
 
 
+def nombre_de_instancia(ubicacion: Ubicacion) -> str:
+    """Uno por carpeta de datos: dos LUNA con datos distintos (como `verificar_interfaz.py` con
+    los suyos) no se estorban; dos sobre la misma base, sí."""
+    carpeta = str(ubicacion.carpeta.resolve()).casefold()
+    return "Local\\LUNA-" + hashlib.sha256(carpeta.encode("utf-8")).hexdigest()[:32]
+
+
 def main() -> int:
     try:
         ubicacion, diccionario = preparar()
@@ -317,6 +339,11 @@ def main() -> int:
         return 1
 
     titulo = textos.texto(textos.CLAVE_TITULO, diccionario) or "LUNA"
+    if plataforma.hay_otra_instancia(nombre_de_instancia(ubicacion)):
+        registro.info("ya hay un LUNA abierto con estos datos; esta copia se cierra")
+        aviso = textos.texto(textos.CLAVE_YA_ABIERTA, diccionario) or titulo
+        plataforma.mostrar_error(titulo, aviso, plataforma.MB_ICONINFORMATION)
+        return 0
     partes = montar(ubicacion, abrir_base(ubicacion))
     try:
         comprobar_motor()

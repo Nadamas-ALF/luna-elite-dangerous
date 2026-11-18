@@ -128,3 +128,15 @@
   gap: calc(var(--espacio) * 3);
   margin-top: calc(var(--espacio) * 4);
 }
+
+/* --- Bienvenida (primer arranque) --- */
+
+/* Una columna estrecha: son dos bloques que se leen de arriba abajo, no una pantalla de datos. */
+.bienvenida {
+  --ancho-vista: 40rem;
+}
+
+.bienvenida__entrada {
+  margin: 0;
+  color: var(--text-muted);
+}

@@ -1,0 +1,489 @@
+/* Tema Lunar (docs/tema-lunar.md). Una capa sobre los CSS reales de LUNA: todo cuelga de
+   html[data-tema="lunar"] y no cambia ni la posición ni el tamaño de nada. Lo que hace:
+   1) cambia los tokens de color, 2) pone la atmósfera detrás, 3) vuelve vidrio las superficies,
+   4) añade luz solo a lo que se pulsa o está elegido, 5) tres animaciones pequeñas. */
+
+/* ---------- 1. Tokens ---------- */
+
+html[data-tema="lunar"] {
+  --bg: #060d1c;
+  --surface: rgba(14, 27, 52, 0.74);
+  --surface-raised: rgba(34, 60, 104, 0.72);
+  --glass: rgba(120, 175, 240, 0.1);
+  --glass-fuerte: rgba(120, 190, 255, 0.2);
+  --glass-border: rgba(150, 208, 255, 0.24);
+  --linea-tenue: rgba(150, 208, 255, 0.09);
+  --accent: #7fdcff;
+  --accent-soft: #8fb6ff;
+  --text: #eef6ff;
+  --text-muted: #b4c8e2;
+  --text-subtle: #97adc9;
+  --positive: #8ff0c2;
+  --on-accent: #04202f;
+  --desplazador: rgba(140, 195, 245, 0.35);
+  --desplazador-activo: rgba(140, 195, 245, 0.6);
+  --fundido: rgba(6, 13, 28, 0.9);
+  --panel-flotante: #0e1b34;
+  --cabecera-tabla: #0f1d38;
+
+  /* Solo del tema Lunar. */
+  --lunar-desenfoque: blur(16px) saturate(1.25);
+  --lunar-desenfoque-elegido: blur(28px) saturate(1.6) brightness(1.12);
+  --lunar-desenfoque-leve: blur(10px);
+  --lunar-cambio: 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --lunar-brillo: rgba(110, 205, 255, 0.55);
+  --lunar-filo: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --lunar-sombra: 0 20px 44px -26px rgba(0, 0, 0, 0.7);
+}
+
+/* Vidrio liso (Configuración → Lectura): sin desenfoque y con las superficies más opacas para que
+   el texto se lea igual. Las imágenes, la luz y las animaciones no cambian. */
+html[data-tema="lunar"][data-vidrio="liso"] {
+  --surface: rgba(14, 27, 52, 0.95);
+  --surface-raised: rgba(34, 60, 104, 0.95);
+  --lunar-desenfoque: none;
+  --lunar-desenfoque-elegido: none;
+  --lunar-desenfoque-leve: none;
+}
+
+html[data-tema="lunar"][data-vidrio="liso"] .lateral::before {
+  background: rgba(9, 19, 40, 0.92);
+}
+
+/* El pulso de la flor obliga a recomponer la ventana en cada fotograma: «liso» promete menos
+   trabajo a la tarjeta gráfica, así que también lo quita. */
+html[data-tema="lunar"][data-vidrio="liso"] .app::before {
+  animation: none;
+}
+
+/* ---------- 2. Atmósfera ---------- */
+
+html[data-tema="lunar"] body {
+  background:
+    radial-gradient(90% 70% at 90% -10%, rgba(84, 146, 255, 0.24), transparent 62%),
+    radial-gradient(70% 60% at -5% 105%, rgba(98, 92, 226, 0.2), transparent 60%),
+    linear-gradient(180deg, #081327 0%, #050b18 100%);
+}
+
+/* `isolation` deja las capas de adorno por encima del fondo y por debajo de todo lo demás. */
+html[data-tema="lunar"] .app,
+html[data-tema="lunar"] .contenido {
+  position: relative;
+  isolation: isolate;
+}
+
+html[data-tema="lunar"] .app::before,
+html[data-tema="lunar"] .app::after,
+html[data-tema="lunar"] .contenido::before,
+html[data-tema="lunar"] .contenido::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  /* «Pantalla»: lo oscuro de la imagen desaparece y lo claro se suma al fondo, sin borde. */
+  mix-blend-mode: screen;
+}
+
+/* Flor de la esquina inferior izquierda, por debajo de la barra lateral de vidrio.
+   Tope de 30rem: nunca se pinta más grande que sus píxeles reales. */
+html[data-tema="lunar"] .app::before {
+  left: 0;
+  bottom: 0;
+  width: clamp(15rem, 27vw, 30rem);
+  aspect-ratio: 1312 / 1199;
+  background-image: url("../assets/atmosphere/flower-corner-left.png");
+  background-size: contain;
+  background-position: left bottom;
+  opacity: 0.6;
+  -webkit-mask-image: radial-gradient(125% 125% at 0% 100%, #000 50%, transparent 82%);
+  mask-image: radial-gradient(125% 125% at 0% 100%, #000 50%, transparent 82%);
+  animation: lunar-respira 9s ease-in-out infinite;
+}
+
+/* Velo superior: forma difusa, se puede estirar al ancho sin que se note. */
+html[data-tema="lunar"] .app::after {
+  inset: 0 0 auto 0;
+  height: min(20rem, 30vw);
+  background-image: url("../assets/atmosphere/petal-haze-top.png");
+  background-size: 100% auto;
+  background-position: center top;
+  opacity: 0.26;
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+}
+
+/* Flor de la esquina inferior derecha del contenido. */
+html[data-tema="lunar"] .contenido::before {
+  right: 0;
+  bottom: 0;
+  width: clamp(16rem, 30vw, 34rem);
+  aspect-ratio: 1514 / 1039;
+  background-image: url("../assets/atmosphere/flower-corner-right.png");
+  background-size: contain;
+  background-position: right bottom;
+  opacity: 0.42;
+  -webkit-mask-image: radial-gradient(125% 125% at 100% 100%, #000 45%, transparent 80%);
+  mask-image: radial-gradient(125% 125% at 100% 100%, #000 45%, transparent 80%);
+}
+
+html[data-tema="lunar"] .contenido::after {
+  inset: auto 0 0 0;
+  height: min(16rem, 26vw);
+  background-image: url("../assets/atmosphere/petal-haze-bottom.png");
+  background-size: 100% auto;
+  background-position: center bottom;
+  opacity: 0.3;
+  -webkit-mask-image: linear-gradient(to top, #000 25%, transparent 90%);
+  mask-image: linear-gradient(to top, #000 25%, transparent 90%);
+}
+
+/* Curvas orbitales, redibujadas en vector, detrás del título de la pantalla. */
+html[data-tema="lunar"] .vista__fija {
+  background: url("../assets/atmosphere/orbitas.svg") right -3rem top -2.5rem / min(46rem, 62%) auto no-repeat;
+}
+
+/* La marca: la flor en lugar de la luna dibujada, sin tocar el HTML. */
+html[data-tema="lunar"] .lateral__luna {
+  background: url("../assets/brandings/LUNA-flor-vectorial.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(110, 205, 255, 0.45));
+}
+
+html[data-tema="lunar"] .lateral__luna path {
+  display: none;
+}
+
+/* ---------- 3. Vidrio ---------- */
+
+/* El vidrio de la barra lateral va en una capa propia y no en `.lateral`: un elemento con
+   desenfoque no deja que sus hijos desenfoquen lo que hay detrás de él, y la sección elegida
+   necesita su propio desenfoque, más fuerte, encima del de la barra. */
+/* `z-index` le da su propio contexto: sin él, el velo superior (`.app::after`, también en -1 y
+   posterior en el árbol) se pintaría encima del vidrio de la barra. */
+html[data-tema="lunar"] .lateral {
+  position: relative;
+  z-index: 0;
+  background: none;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+html[data-tema="lunar"] .lateral::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(9, 19, 40, 0.5);
+  -webkit-backdrop-filter: var(--lunar-desenfoque);
+  backdrop-filter: var(--lunar-desenfoque);
+  pointer-events: none;
+}
+
+html[data-tema="lunar"] .tabla-contenedor,
+html[data-tema="lunar"] .panel,
+html[data-tema="lunar"] .parada,
+html[data-tema="lunar"] .dinero__dato {
+  -webkit-backdrop-filter: var(--lunar-desenfoque);
+  backdrop-filter: var(--lunar-desenfoque);
+  box-shadow: var(--lunar-filo), var(--lunar-sombra);
+}
+
+/* Una tarjeta dentro de un panel ya tiene vidrio detrás: no se desenfoca dos veces. */
+html[data-tema="lunar"] .panel .parada {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(22, 42, 78, 0.5);
+  box-shadow: var(--lunar-filo);
+}
+
+html[data-tema="lunar"] .tabla td.col--ganancia {
+  color: var(--positive);
+}
+
+html[data-tema="lunar"] .entrada {
+  background: rgba(20, 38, 70, 0.72);
+  transition:
+    border-color var(--duracion),
+    box-shadow var(--duracion);
+}
+
+html[data-tema="lunar"] .grupo-plegable > summary,
+html[data-tema="lunar"] .boton--vidrio {
+  -webkit-backdrop-filter: var(--lunar-desenfoque-leve);
+  backdrop-filter: var(--lunar-desenfoque-leve);
+  box-shadow: var(--lunar-filo);
+}
+
+/* El grupo de modos es solo un tinte: el vidrio de verdad lo lleva la píldora elegida. */
+html[data-tema="lunar"] .modos {
+  box-shadow: var(--lunar-filo);
+}
+
+/* ---------- 4. Luz: solo en lo que se pulsa o está elegido ---------- */
+
+html[data-tema="lunar"] .boton {
+  transition:
+    background var(--duracion),
+    border-color var(--duracion),
+    box-shadow var(--duracion);
+}
+
+html[data-tema="lunar"] .boton--primario {
+  background: linear-gradient(180deg, #a4e9ff 0%, #62c7f1 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 8px 22px -10px var(--lunar-brillo);
+}
+
+html[data-tema="lunar"] .boton--primario:hover {
+  background: linear-gradient(180deg, #b9efff 0%, #76d2f6 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 10px 30px -8px var(--lunar-brillo);
+}
+
+html[data-tema="lunar"] .boton--vidrio:hover,
+html[data-tema="lunar"] .grupo-plegable > summary:hover {
+  border-color: rgba(150, 215, 255, 0.5);
+  box-shadow:
+    var(--lunar-filo),
+    0 0 18px -6px var(--lunar-brillo);
+}
+
+/* Selectores (secciones de la barra lateral y modos de Rutas): el cambio se ve. Colores lisos
+   y sombras, que sí se pueden animar; un degradado saltaría de golpe. */
+html[data-tema="lunar"] .lateral__enlace,
+html[data-tema="lunar"] .modo {
+  transition:
+    background-color var(--lunar-cambio),
+    border-color var(--lunar-cambio),
+    color var(--lunar-cambio),
+    box-shadow var(--lunar-cambio),
+    -webkit-backdrop-filter var(--lunar-cambio),
+    backdrop-filter var(--lunar-cambio),
+    transform 120ms ease-out;
+}
+
+html[data-tema="lunar"] .lateral__enlace:hover,
+html[data-tema="lunar"] .modo:hover {
+  background-color: rgba(120, 190, 255, 0.1);
+  color: var(--text);
+}
+
+html[data-tema="lunar"] .lateral__enlace:active,
+html[data-tema="lunar"] .modo:active {
+  transform: scale(0.97);
+}
+
+/* El elegido: vidrio más esmerilado que el resto, con su filo y un halo corto al elegirlo. */
+html[data-tema="lunar"] .lateral__enlace[aria-current="page"],
+html[data-tema="lunar"] .modo:has(input:checked) {
+  background-color: rgba(125, 200, 255, 0.2);
+  border-color: rgba(160, 220, 255, 0.5);
+  color: var(--text);
+  -webkit-backdrop-filter: var(--lunar-desenfoque-elegido);
+  backdrop-filter: var(--lunar-desenfoque-elegido);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -10px 18px -12px rgba(125, 205, 255, 0.35),
+    0 0 22px -8px var(--lunar-brillo);
+}
+
+/* El halo solo al elegir: la opción recién pulsada tiene el foco. Sin esto se repetiría cada vez
+   que una pantalla oculta (`display: none`) vuelve a verse. */
+html[data-tema="lunar"] .lateral__enlace[aria-current="page"]:focus,
+html[data-tema="lunar"] .modo:has(input:checked:focus) {
+  animation: lunar-elige 480ms ease-out;
+}
+
+html[data-tema="lunar"] .lateral__enlace[aria-current="page"] {
+  color: var(--accent);
+}
+
+/* `.modo` no tiene borde en el Sobrio y añadirlo lo agrandaría: su contorno es una sombra interior. */
+html[data-tema="lunar"] .modo:has(input:checked) {
+  box-shadow:
+    inset 0 0 0 1px rgba(160, 220, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -10px 18px -12px rgba(125, 205, 255, 0.35),
+    0 0 22px -8px var(--lunar-brillo);
+}
+
+html[data-tema="lunar"] .entrada:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(127, 220, 255, 0.2);
+}
+
+html[data-tema="lunar"] .resultado[aria-current="true"] {
+  background: linear-gradient(90deg, rgba(110, 200, 255, 0.2), rgba(110, 200, 255, 0.04) 70%);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    inset 0 0 0 1px rgba(127, 220, 255, 0.22);
+}
+
+/* La cifra que manda en el detalle (ganancia por hora), en el verde de la referencia. */
+html[data-tema="lunar"] .totales__lista > div:first-child dd {
+  color: var(--positive);
+  text-shadow: 0 0 18px rgba(143, 240, 194, 0.28);
+}
+
+html[data-tema="lunar"] .cabecera__comandante {
+  text-shadow: 0 0 24px rgba(110, 190, 255, 0.25);
+}
+
+/* ---------- 5. Movimiento: tres cosas pequeñas ---------- */
+
+@keyframes lunar-respira {
+  0%,
+  100% {
+    opacity: 0.52;
+  }
+
+  50% {
+    opacity: 0.68;
+  }
+}
+
+@keyframes lunar-aparece {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Al elegir: un halo que sale de la píldora y se apaga. Solo sombra, no mueve nada. */
+@keyframes lunar-elige {
+  from {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 0 22px rgba(150, 220, 255, 0.45),
+      0 0 0 0 rgba(127, 220, 255, 0.45);
+  }
+
+  60% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -10px 18px -12px rgba(125, 205, 255, 0.35),
+      0 0 0 7px rgba(127, 220, 255, 0);
+  }
+}
+
+html[data-tema="lunar"] .detalle {
+  animation: lunar-aparece 220ms ease-out;
+}
+
+/* Despliegue de contenido, al abrir y al cerrar. Se anima `::details-content`, la caja que
+   envuelve lo que un <details> enseña: `content-visibility` con `allow-discrete` mantiene el
+   contenido a la vista mientras dura el cierre. Hace falta un WebView2 reciente (Chromium 131);
+   en uno más viejo el panel abre y cierra de golpe, como en el tema Sobrio. */
+html[data-tema="lunar"] {
+  interpolate-size: allow-keywords;
+}
+
+/* Paneles de la barra de filtros: salen de su píldora y vuelven a ella. */
+html[data-tema="lunar"] .grupo-plegable::details-content {
+  position: relative;
+  z-index: 5;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top left;
+  transition:
+    opacity 170ms ease-in,
+    transform 170ms ease-in,
+    content-visibility 170ms allow-discrete;
+}
+
+html[data-tema="lunar"] .grupo-plegable--derecha::details-content {
+  transform-origin: top right;
+}
+
+html[data-tema="lunar"] .grupo-plegable[open]::details-content {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    content-visibility 200ms allow-discrete;
+}
+
+/* Aspecto del panel de filtros en vidrio; su posición flotante vive en `comercio.css`. */
+html[data-tema="lunar"] .grupo-plegable > .grupo-plegable__cuerpo {
+  box-shadow: var(--lunar-filo), 0 24px 48px -20px rgba(0, 0, 0, 0.75);
+}
+
+/* El aviso flota sobre las tablas: fondo sólido para que ninguna fila se lea a través. */
+html[data-tema="lunar"] .aviso-alerta {
+  background: var(--panel-flotante);
+  animation: lunar-aparece 220ms ease-out;
+}
+
+/* Lo que se abre dentro de la página (el desglose del tiempo y las secciones de Configuración)
+   se pliega en altura. */
+html[data-tema="lunar"] .plegable::details-content,
+html[data-tema="lunar"] .trayecto__tiempo::details-content {
+  height: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    height 200ms ease,
+    opacity 200ms ease,
+    content-visibility 200ms allow-discrete;
+}
+
+html[data-tema="lunar"] .plegable[open]::details-content,
+html[data-tema="lunar"] .trayecto__tiempo[open]::details-content {
+  height: auto;
+  opacity: 1;
+}
+
+/* Botones: se hunden un poco al apretarlos y sueltan el brillo al soltar. */
+html[data-tema="lunar"] .boton,
+html[data-tema="lunar"] .grupo-plegable > summary {
+  transition:
+    background var(--duracion),
+    border-color var(--duracion),
+    box-shadow var(--duracion),
+    transform 120ms ease-out;
+}
+
+html[data-tema="lunar"] .boton:active:not(:disabled),
+html[data-tema="lunar"] .grupo-plegable > summary:active {
+  transform: scale(0.96);
+}
+
+html[data-tema="lunar"] .boton--primario:active:not(:disabled) {
+  box-shadow:
+    inset 0 2px 6px rgba(4, 32, 47, 0.35),
+    0 2px 10px -6px var(--lunar-brillo);
+}
+
+html[data-tema="lunar"] .grupo-plegable[open] > summary {
+  border-color: rgba(160, 220, 255, 0.5);
+  box-shadow:
+    var(--lunar-filo),
+    0 0 18px -6px var(--lunar-brillo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-tema="lunar"] .app::before,
+  html[data-tema="lunar"] .detalle,
+  html[data-tema="lunar"] .aviso-alerta,
+  html[data-tema="lunar"] .lateral__enlace[aria-current="page"]:focus,
+  html[data-tema="lunar"] .modo:has(input:checked:focus) {
+    animation: none;
+  }
+
+  html[data-tema="lunar"] .grupo-plegable::details-content,
+  html[data-tema="lunar"] .grupo-plegable[open]::details-content,
+  html[data-tema="lunar"] .plegable::details-content,
+  html[data-tema="lunar"] .trayecto__tiempo::details-content {
+    transition: none;
+  }
+
+  html[data-tema="lunar"] .lateral__enlace:active,
+  html[data-tema="lunar"] .modo:active,
+  html[data-tema="lunar"] .boton:active:not(:disabled),
+  html[data-tema="lunar"] .grupo-plegable > summary:active {
+    transform: none;
+  }
+}

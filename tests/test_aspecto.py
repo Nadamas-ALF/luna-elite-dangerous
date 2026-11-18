@@ -15,7 +15,7 @@ RUTAS_JS = RAIZ / "ui" / "js" / "rutas.js"
 ES_JSON = RAIZ / "ui" / "i18n" / "es.json"
 
 
-def interfaz(tmp_path):
+def interfaz(tmp_path, **extra):
     config = tmp_path / "config.json"
     api = Api(
         Nucleo(config, events.Bus(), None),
@@ -23,6 +23,7 @@ def interfaz(tmp_path):
         config,
         base_disponible=True,
         elegir_carpeta=lambda: None,
+        **extra,
     )
     return api, config
 
@@ -34,6 +35,7 @@ def test_sin_config_todo_es_de_fabrica(tmp_path):
     assert actual.densidad == "comoda"
     assert actual.filas_por_pagina == 10
     assert actual.columnas == aspecto.COLUMNAS_POR_DEFECTO
+    assert (actual.tema, actual.vidrio) == ("sobrio", "desenfocado")
 
 
 def test_las_columnas_de_un_salto_de_fabrica_son_las_que_pidio_el_usuario(tmp_path):
@@ -83,6 +85,8 @@ def test_la_api_devuelve_lo_elegido_y_lo_que_se_puede_elegir(tmp_path):
         "tamanos": ["pequeno", "normal", "grande", "muy_grande"],
         "densidades": ["comoda", "compacta"],
         "filas": [5, 10, 25],
+        "temas": ["sobrio", "lunar"],
+        "vidrios": ["desenfocado", "liso"],
     }
     assert datos["columnas"]["bucle"]["elegidas"] == ["ida", "vuelta"]
     assert datos["columnas"]["bucle"]["disponibles"] == list(aspecto.COLUMNAS_DISPONIBLES["bucle"])
@@ -233,3 +237,48 @@ def test_el_resumen_de_la_paginacion_acepta_sus_valores():
     marcadores = set(re.findall(r"\{(\w+)\}", _texto("comercio.paginacion.resumen")))
 
     assert marcadores == {"desde", "hasta", "total"}
+
+
+def test_el_tema_y_el_vidrio_se_guardan_y_se_leen_de_vuelta(tmp_path):
+    api, config = interfaz(tmp_path)
+
+    assert api.guardar_tema("lunar") == {"tema": "lunar"}
+    assert api.guardar_vidrio("liso") == {"vidrio": "liso"}
+
+    leido = aspecto.leer(config)
+    assert (leido.tema, leido.vidrio) == ("lunar", "liso")
+    assert api.ajustes_de_aspecto()["tema"] == "lunar"
+    assert api.ajustes_de_aspecto()["vidrio"] == "liso"
+
+
+def test_cambiar_de_tema_tine_la_barra_en_vivo(tmp_path):
+    pedidos = []
+    api, _ = interfaz(tmp_path, aplicar_tema=pedidos.append)
+
+    assert api.guardar_tema("lunar") == {"tema": "lunar"}
+    assert pedidos == ["lunar"]
+
+
+@pytest.mark.parametrize("valor", ["Lunar", "oscuro", "", None, 1, True, ["lunar"]])
+def test_un_tema_desconocido_se_rechaza_sin_escribir(tmp_path, valor):
+    api, config = interfaz(tmp_path)
+
+    assert api.guardar_tema(valor) == {"error": "parametro"}
+    assert not config.exists()
+
+
+@pytest.mark.parametrize("valor", ["borroso", "", None, 0, False])
+def test_un_vidrio_desconocido_se_rechaza_sin_escribir(tmp_path, valor):
+    api, config = interfaz(tmp_path)
+
+    assert api.guardar_vidrio(valor) == {"error": "parametro"}
+    assert not config.exists()
+
+
+def test_un_tema_roto_en_config_vuelve_al_sobrio(tmp_path):
+    config = tmp_path / "config.json"
+    config.write_text('{"interfaz": {"tema": "dorado", "vidrio": 3}}')
+
+    leido = aspecto.leer(config)
+
+    assert (leido.tema, leido.vidrio) == ("sobrio", "desenfocado")

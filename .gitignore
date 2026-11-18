@@ -37,6 +37,7 @@ galaxy*.json
 build/
 dist/
 *.spec
+!luna.spec
 
 # --- Windows / editores ---
 Desktop.ini

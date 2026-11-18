@@ -178,8 +178,12 @@ export function crearPanelEsfera(raiz, alAplicar) {
   c.propuesta_cancelar.addEventListener('click', cerrarPropuesta);
 
   return {
-    /** «Descargar» no descarga a ciegas: lleva al radio, que es lo que decide qué se guarda. */
-    prepararDescarga() {
+    /**
+     * «Descargar» no descarga a ciegas: lleva al radio, que es lo que decide qué se guarda.
+     * `centro` (opcional, desde la bienvenida) solo rellena el campo: nada se guarda hasta revisar.
+     */
+    prepararDescarga(centro = null) {
+      if (centro) c.esfera_centro.value = centro;
       c.esfera_antes_de_descargar.hidden = false;
       c.esfera_radio.scrollIntoView({ block: 'center' });
       c.esfera_radio.focus();

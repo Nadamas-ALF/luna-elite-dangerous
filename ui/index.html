@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/estado.css">
   <link rel="stylesheet" href="css/configuracion.css">
   <link rel="stylesheet" href="css/comercio.css">
+  <link rel="stylesheet" href="css/lunar.css">
 </head>
 <body>
   <div class="app">
@@ -163,6 +164,38 @@
         </div>
 
         <ul class="avisos" data-campo="avisos"></ul>
+        </div></div>
+      </section>
+
+      <section id="vista-bienvenida" class="vista bienvenida" aria-labelledby="titulo-bienvenida" hidden>
+        <div class="vista__fija">
+        <header class="cabecera">
+          <h1 id="titulo-bienvenida" class="cabecera__comandante" data-i18n="bienvenida.titulo"></h1>
+        </header>
+        <p class="bienvenida__entrada" data-i18n="bienvenida.entrada"></p>
+        </div>
+
+        <div class="vista__zona"><div class="vista__cuerpo">
+        <section class="panel" aria-labelledby="titulo-bienvenida-journal">
+          <h2 id="titulo-bienvenida-journal" class="panel__titulo" data-i18n="bienvenida.journal.titulo"></h2>
+          <p role="status"><span class="indicador" data-campo="bienvenida_indicador"></span><span data-campo="bienvenida_journal"></span></p>
+          <div class="acciones" data-campo="bienvenida_elegir_bloque" hidden>
+            <button type="button" class="boton boton--vidrio" data-campo="bienvenida_elegir"></button>
+          </div>
+          <p class="franja franja--advertencia" role="alert" data-campo="bienvenida_no_guardado" data-i18n="configuracion.journal.no_guardado" hidden></p>
+        </section>
+
+        <section class="panel" aria-labelledby="titulo-bienvenida-datos">
+          <h2 id="titulo-bienvenida-datos" class="panel__titulo" data-i18n="bienvenida.datos.titulo"></h2>
+          <p data-i18n="bienvenida.datos.esfera"></p>
+          <p data-i18n="bienvenida.datos.spansh"></p>
+          <p data-i18n="bienvenida.datos.sin_descargar"></p>
+          <div class="acciones">
+            <button type="button" class="boton boton--primario" data-campo="bienvenida_descargar" data-i18n="bienvenida.datos.descargar"></button>
+            <button type="button" class="boton boton--vidrio" data-campo="bienvenida_eddn" data-i18n="bienvenida.datos.eddn"></button>
+          </div>
+          <p class="ayuda" data-i18n="bienvenida.historial"></p>
+        </section>
         </div></div>
       </section>
 
@@ -958,6 +991,16 @@
               <fieldset class="modos" aria-labelledby="lectura-densidad-titulo" aria-describedby="lectura-densidad-ayuda" data-campo="lectura_densidad"></fieldset>
               <p id="lectura-densidad-ayuda" class="motivo" data-i18n="configuracion.lectura.densidad_ayuda"></p>
             </div>
+            <div class="campo">
+              <p class="campo__titulo" id="lectura-tema-titulo" data-i18n="configuracion.lectura.tema_titulo"></p>
+              <fieldset class="modos" aria-labelledby="lectura-tema-titulo" aria-describedby="lectura-tema-ayuda" data-campo="lectura_tema"></fieldset>
+              <p id="lectura-tema-ayuda" class="motivo" data-i18n="configuracion.lectura.tema_ayuda"></p>
+            </div>
+            <div class="campo" data-campo="lectura_vidrio_campo" hidden>
+              <p class="campo__titulo" id="lectura-vidrio-titulo" data-i18n="configuracion.lectura.vidrio_titulo"></p>
+              <fieldset class="modos" aria-labelledby="lectura-vidrio-titulo" aria-describedby="lectura-vidrio-ayuda" data-campo="lectura_vidrio"></fieldset>
+              <p id="lectura-vidrio-ayuda" class="motivo" data-i18n="configuracion.lectura.vidrio_ayuda"></p>
+            </div>
             <fieldset class="campo" aria-describedby="lectura-columnas-ayuda">
               <legend class="campo__titulo" data-i18n="configuracion.lectura.columnas_titulo"></legend>
               <p id="lectura-columnas-ayuda" class="motivo" data-i18n="configuracion.lectura.columnas_ayuda"></p>
@@ -1034,6 +1077,8 @@
             <dd data-campo="espacio_descargas"></dd>
             <dt data-i18n="configuracion.datos.libre"></dt>
             <dd data-campo="espacio_libre"></dd>
+            <dt data-i18n="configuracion.datos.version"></dt>
+            <dd data-campo="config_version"></dd>
           </dl>
           <h3 class="campo__subtitulo" data-i18n="configuracion.borrar.titulo"></h3>
           <p class="ayuda" data-i18n="configuracion.borrar.ayuda"></p>

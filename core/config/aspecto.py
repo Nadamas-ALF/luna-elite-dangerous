@@ -23,6 +23,10 @@ DENSIDADES = ("comoda", "compacta")
 DENSIDAD_POR_DEFECTO = "comoda"
 FILAS_POR_PAGINA = (5, 10, 25)
 FILAS_POR_DEFECTO = 10
+TEMAS = ("sobrio", "lunar")
+TEMA_POR_DEFECTO = "sobrio"
+VIDRIOS = ("desenfocado", "liso")
+VIDRIO_POR_DEFECTO = "desenfocado"
 
 # Los nombres coinciden con las columnas de `ui/js/rutas.js`; `test_aspecto.py` lo comprueba.
 # El orden de cada lista es el orden en que salen en la tabla.
@@ -65,6 +69,16 @@ class Aspecto:
     densidad: str
     filas_por_pagina: int
     columnas: dict[str, tuple[str, ...]]
+    tema: str
+    vidrio: str
+
+
+def es_tema(valor: object) -> bool:
+    return isinstance(valor, str) and valor in TEMAS
+
+
+def es_vidrio(valor: object) -> bool:
+    return isinstance(valor, str) and valor in VIDRIOS
 
 
 def es_tamano_de_letra(valor: object) -> bool:
@@ -103,7 +117,10 @@ def leer(config: Path) -> Aspecto:
     seccion = seccion if isinstance(seccion, dict) else {}
     tamano, densidad = seccion.get("tamano_letra"), seccion.get("densidad")
     filas = seccion.get("filas_por_pagina")
+    tema, vidrio = seccion.get("tema"), seccion.get("vidrio")
     return Aspecto(
+        tema=tema if es_tema(tema) else TEMA_POR_DEFECTO,
+        vidrio=vidrio if es_vidrio(vidrio) else VIDRIO_POR_DEFECTO,
         tamano_letra=tamano if es_tamano_de_letra(tamano) else TAMANO_POR_DEFECTO,
         densidad=densidad if es_densidad(densidad) else DENSIDAD_POR_DEFECTO,
         filas_por_pagina=filas if es_filas_por_pagina(filas) else FILAS_POR_DEFECTO,
@@ -125,6 +142,14 @@ def guardar_tamano_de_letra(config: Path, tamano: str) -> bool:
 
 def guardar_densidad(config: Path, densidad: str) -> bool:
     return _guardar(config, "densidad", densidad)
+
+
+def guardar_tema(config: Path, tema: str) -> bool:
+    return _guardar(config, "tema", tema)
+
+
+def guardar_vidrio(config: Path, vidrio: str) -> bool:
+    return _guardar(config, "vidrio", vidrio)
 
 
 def guardar_filas_por_pagina(config: Path, filas: int) -> bool:

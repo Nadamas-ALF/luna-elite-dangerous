@@ -1,4 +1,4 @@
-// Panel «Lectura» de Configuración: tamaño de letra, densidad y columnas de Rutas. Cada cambio se
+// Panel «Lectura» de Configuración: tamaño de letra, densidad, tema y columnas de Rutas. Cada cambio se
 // aplica al momento y se guarda sin botón; si Python no lo guarda, la elección vuelve a como estaba.
 import * as api from './api.js';
 import * as aspecto from './aspecto.js';
@@ -71,23 +71,37 @@ export function crearPanelLectura(raiz) {
     return true;
   }
 
+  /** El vidrio liso solo tiene sentido con el tema Lunar: con el Sobrio no hay vidrio que alisar. */
+  function mostrarVidrio() {
+    c.lectura_vidrio_campo.hidden = ajustes.tema?.actual !== 'lunar';
+  }
+
   /** Un control segmentado (tamaño o densidad) que se aplica al elegir y se deshace si no se guarda. */
   function construirAjuste(campo, contenedor, valores, guardarEnPython) {
     const entradas = new Map();
-    const ajuste = { actual: null, cambios: 0, entradas };
+    // Las llamadas de un mismo ajuste van en fila: pywebview atiende cada una en un hilo propio y
+    // sin la fila un clic viejo podría llegar a Python después del último.
+    // `confirmado` es lo último que Python guardó: a eso se vuelve si falla un guardado.
+    const ajuste = { actual: null, confirmado: null, cambios: 0, enCamino: 0, entradas, fila: Promise.resolve() };
     for (const valor of valores) {
       const { etiqueta, entrada } = opcionDeRadio(`lectura_${campo}`, valor, texto(`configuracion.lectura.${campo}.${valor}`));
       entrada.addEventListener('change', async () => {
-        const anterior = ajuste.actual;
         const mio = ++ajuste.cambios;
+        ajuste.enCamino += 1;
         ajuste.actual = valor;
         aspecto.aplicar({ [campo]: valor });
-        if (await guardar(() => guardarEnPython(valor))) return;
+        mostrarVidrio();
+        const guardado = ajuste.fila.then(() => guardar(() => guardarEnPython(valor)));
+        ajuste.fila = guardado;
+        const bien = await guardado;
+        ajuste.enCamino -= 1;
+        if (bien) ajuste.confirmado = valor;
         // Si ya se eligió otra cosa después, ese cambio manda: no se deshace por uno viejo.
-        if (mio !== ajuste.cambios) return;
-        ajuste.actual = anterior;
-        aspecto.aplicar({ [campo]: anterior });
-        entradas.get(anterior).checked = true;
+        if (bien || mio !== ajuste.cambios) return;
+        ajuste.actual = ajuste.confirmado;
+        aspecto.aplicar({ [campo]: ajuste.confirmado });
+        mostrarVidrio();
+        entradas.get(ajuste.confirmado).checked = true;
       });
       entradas.set(valor, entrada);
       contenedor.append(etiqueta);
@@ -123,14 +137,20 @@ export function crearPanelLectura(raiz) {
     const { opciones } = datos;
     ajustes.tamano_letra = construirAjuste('tamano_letra', c.lectura_letra, opciones.tamanos, api.guardarTamanoDeLetra);
     ajustes.densidad = construirAjuste('densidad', c.lectura_densidad, opciones.densidades, api.guardarDensidad);
+    ajustes.tema = construirAjuste('tema', c.lectura_tema, opciones.temas, api.guardarTema);
+    ajustes.vidrio = construirAjuste('vidrio', c.lectura_vidrio, opciones.vidrios, api.guardarVidrio);
     for (const modo of MODOS_DE_COLUMNAS) columnas[modo] = construirColumnas(modo, datos.columnas[modo].disponibles);
   }
 
   function reflejar(datos) {
-    for (const campo of Object.keys(ajustes)) {
-      ajustes[campo].actual = datos[campo];
-      ajustes[campo].entradas.get(datos[campo]).checked = true;
+    for (const [campo, ajuste] of Object.entries(ajustes)) {
+      // Con un guardado en camino, lo leído es anterior a él: la elección en pantalla manda.
+      if (ajuste.enCamino > 0) continue;
+      ajuste.actual = ajuste.confirmado = datos[campo];
+      ajuste.entradas.get(datos[campo]).checked = true;
+      aspecto.aplicar({ [campo]: datos[campo] });
     }
+    mostrarVidrio();
     for (const modo of MODOS_DE_COLUMNAS) {
       for (const [nombre, entrada] of columnas[modo]) {
         entrada.checked = datos.columnas[modo].elegidas.includes(nombre);

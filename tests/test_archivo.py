@@ -174,3 +174,14 @@ def test_si_sigue_bloqueado_se_rinde_sin_dejar_temporales(tmp_path, monkeypatch)
 
     assert archivo.leer(config) == {"a": 1}
     assert list(tmp_path.glob("*.tmp")) == []
+
+
+def test_un_config_guardado_con_bom_se_lee_y_no_se_aparta(tmp_path):
+    """PowerShell 5.1 (`Set-Content -Encoding UTF8`) y algunos editores añaden el BOM."""
+    config = tmp_path / "config.json"
+    config.write_bytes(b"\xef\xbb\xbf" + b'{"esfera": {"radio": 250}}')
+
+    assert archivo.leer(config) == {"esfera": {"radio": 250}}
+    assert archivo.fusionar(config, "otra", 1)
+    assert archivo.leer(config) == {"esfera": {"radio": 250}, "otra": 1}
+    assert list(tmp_path.glob("config.json.roto*")) == []

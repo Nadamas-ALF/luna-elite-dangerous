@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" fill="none">
+  <!-- Curvas orbitales de LUNA, dibujadas en vector: escalan a cualquier tamaño sin bordes
+       ni recorte. Los extremos se desvanecen por el degradado del trazo, no por una máscara. -->
+  <defs>
+    <linearGradient id="trazo" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7FDCFF" stop-opacity="0"/>
+      <stop offset=".3" stop-color="#7FDCFF" stop-opacity=".75"/>
+      <stop offset=".62" stop-color="#8FA8FF" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#8FA8FF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#BFF0FF" stop-opacity=".9"/>
+      <stop offset=".35" stop-color="#7FDCFF" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#7FDCFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="difuso" x="-10%" y="-40%" width="120%" height="180%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <g id="curvas">
+      <path d="M60 330C300 60 760 20 1150 150"/>
+      <path d="M180 400C480 180 860 150 1190 300"/>
+      <path d="M-20 220C260 140 520 260 780 400"/>
+      <ellipse cx="905" cy="205" rx="270" ry="88" transform="rotate(-11 905 205)"/>
+    </g>
+  </defs>
+
+  <use href="#curvas" stroke="url(#trazo)" stroke-width="7" opacity=".28" filter="url(#difuso)"/>
+  <use href="#curvas" stroke="url(#trazo)" stroke-width="1.2"/>
+
+  <g>
+    <circle cx="549" cy="90" r="16" fill="url(#halo)"/>
+    <circle cx="549" cy="90" r="2.6" fill="#EAF9FF"/>
+    <circle cx="674" cy="211" r="20" fill="url(#halo)"/>
+    <circle cx="674" cy="211" r="3.2" fill="#EAF9FF"/>
+    <circle cx="388" cy="228" r="12" fill="url(#halo)"/>
+    <circle cx="388" cy="228" r="2" fill="#EAF9FF"/>
+    <circle cx="1012" cy="122" r="11" fill="url(#halo)"/>
+    <circle cx="1012" cy="122" r="1.8" fill="#EAF9FF"/>
+  </g>
+</svg>

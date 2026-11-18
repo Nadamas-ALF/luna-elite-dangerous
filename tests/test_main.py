@@ -180,3 +180,40 @@ def test_eddn_arranca_por_defecto_y_empieza_conectando(tmp_path):
         assert suscriptor.estado() == "conectando"
     finally:
         escritor.detener()
+
+
+def test_preparar_marca_la_bienvenida_solo_la_primera_vez(tmp_path, monkeypatch):
+    from core.config import ajustes, rutas
+
+    monkeypatch.setenv(rutas.VARIABLE_DE_DESARROLLO, str(tmp_path))
+    monkeypatch.setattr(main, "configurar_registro", lambda _carpeta: None)
+    config = tmp_path / "config.json"
+
+    main.preparar()
+    assert ajustes.bienvenida_pendiente(config)
+
+    ajustes.terminar_bienvenida(config)
+    main.preparar()
+    assert not ajustes.bienvenida_pendiente(config)
+
+
+def test_una_segunda_instancia_con_los_mismos_datos_se_detecta(tmp_path):
+    from core import plataforma
+    from core.config.rutas import Ubicacion
+
+    nombre = main.nombre_de_instancia(Ubicacion(tmp_path, portable=True))
+
+    assert not plataforma.hay_otra_instancia(nombre)
+    assert plataforma.hay_otra_instancia(nombre)
+
+
+def test_carpetas_de_datos_distintas_no_se_estorban(tmp_path):
+    from core.config.rutas import Ubicacion
+
+    una = main.nombre_de_instancia(Ubicacion(tmp_path / "a", portable=True))
+    otra = main.nombre_de_instancia(Ubicacion(tmp_path / "b", portable=True))
+    misma = main.nombre_de_instancia(Ubicacion(tmp_path / "A", portable=True))
+
+    assert una != otra
+    assert una == misma  # Windows no distingue mayúsculas en las rutas
+    assert una.startswith("Local\\LUNA-")

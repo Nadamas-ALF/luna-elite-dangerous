@@ -86,7 +86,7 @@ def test_la_barra_se_tine_con_modo_oscuro_y_los_tres_colores_en_windows_11(monke
     llamadas = []
     monkeypatch.setattr(plataforma, "_atributo", lambda h, a, v: llamadas.append((h, a, v)) or True)
 
-    assert plataforma.tenir_barra_de_titulo(Forma, compilacion=26100)
+    assert plataforma.tenir_barra_de_titulo(Forma, "sobrio", compilacion=26100)
 
     assert [a for _, a, _ in llamadas] == [20, 35, 36, 34]
     assert llamadas[1][2] == 0x20120A  # COLORREF es 0x00BBGGRR
@@ -97,7 +97,7 @@ def test_en_windows_10_solo_se_pide_el_modo_oscuro(monkeypatch):
     llamadas = []
     monkeypatch.setattr(plataforma, "_atributo", lambda h, a, v: llamadas.append(a) or True)
 
-    assert plataforma.tenir_barra_de_titulo(Forma, compilacion=19045)
+    assert plataforma.tenir_barra_de_titulo(Forma, "sobrio", compilacion=19045)
 
     assert llamadas == [20]
 
@@ -105,7 +105,7 @@ def test_en_windows_10_solo_se_pide_el_modo_oscuro(monkeypatch):
 def test_si_windows_rechaza_la_barra_se_queda_como_estaba(monkeypatch):
     monkeypatch.setattr(plataforma, "_atributo", lambda *_: False)
 
-    assert plataforma.tenir_barra_de_titulo(Forma, compilacion=26100) is False
+    assert plataforma.tenir_barra_de_titulo(Forma, "sobrio", compilacion=26100) is False
 
 
 def test_una_excepcion_al_tenir_no_se_propaga(monkeypatch):
@@ -114,7 +114,7 @@ def test_una_excepcion_al_tenir_no_se_propaga(monkeypatch):
 
     monkeypatch.setattr(plataforma, "_atributo", falla)
 
-    assert plataforma.tenir_barra_de_titulo(Forma, compilacion=26100) is False
+    assert plataforma.tenir_barra_de_titulo(Forma, "sobrio", compilacion=26100) is False
 
 
 def token(css: str, nombre: str) -> tuple[int, int, int]:
@@ -125,8 +125,22 @@ def token(css: str, nombre: str) -> tuple[int, int, int]:
 def test_los_colores_de_la_barra_son_los_tokens_del_tema():
     css = (Path(recursos.carpeta_de_recursos()) / "ui" / "css" / "base.css").read_text("utf-8")
 
-    assert token(css, "bg") == plataforma.COLOR_BARRA
-    assert token(css, "text") == plataforma.COLOR_TEXTO_BARRA
+    assert (token(css, "bg"), token(css, "text")) == plataforma.COLORES_DE_BARRA["sobrio"]
+
+
+def test_los_colores_de_la_barra_lunar_son_los_tokens_del_tema_lunar():
+    css = (Path(recursos.carpeta_de_recursos()) / "ui" / "css" / "lunar.css").read_text("utf-8")
+
+    assert (token(css, "bg"), token(css, "text")) == plataforma.COLORES_DE_BARRA["lunar"]
+
+
+def test_la_barra_lunar_se_tine_con_los_colores_del_tema_lunar(monkeypatch):
+    llamadas = []
+    monkeypatch.setattr(plataforma, "_atributo", lambda h, a, v: llamadas.append((a, v)) or True)
+
+    assert plataforma.tenir_barra_de_titulo(Forma, "lunar", compilacion=26100)
+
+    assert llamadas[1] == (35, 0x1C0D06)  # COLORREF es 0x00BBGGRR
 
 
 def test_dos_hilos_que_guardan_campos_distintos_no_se_pisan(tmp_path):
@@ -248,3 +262,15 @@ def test_una_seccion_desconocida_guardada_a_mano_se_ignora(tmp_path):
     config.write_text('{"interfaz": {"secciones_abiertas": ["datos", "borrada", 3]}}')
 
     assert ajustes.secciones_abiertas(config) == ("datos",)
+
+
+def test_un_tema_sin_colores_deja_la_barra_como_estaba(monkeypatch):
+    monkeypatch.setattr(plataforma, "_atributo", lambda *_: True)
+
+    assert plataforma.tenir_barra_de_titulo(Forma, "dorado", compilacion=26100) is False
+
+
+def test_cada_tema_tiene_colores_de_barra():
+    from core.config import aspecto
+
+    assert set(plataforma.COLORES_DE_BARRA) == set(aspecto.TEMAS)

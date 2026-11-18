@@ -36,9 +36,12 @@ DWMWA_COLOR_BARRA = 35
 DWMWA_COLOR_TEXTO = 36
 COMPILACION_CON_COLORES = 22000
 
-# Los de `--bg` y `--text` de ui/css/base.css; una prueba comprueba que siguen iguales.
-COLOR_BARRA = (0x0A, 0x12, 0x20)
-COLOR_TEXTO_BARRA = (0xEA, 0xF4, 0xFF)
+# Los de `--bg` y `--text` de ui/css/base.css y de ui/css/lunar.css (por tema); una prueba
+# comprueba que siguen iguales.
+COLORES_DE_BARRA = {
+    "sobrio": ((0x0A, 0x12, 0x20), (0xEA, 0xF4, 0xFF)),
+    "lunar": ((0x06, 0x0D, 0x1C), (0xEE, 0xF6, 0xFF)),
+}
 
 
 def _colorref(rgb: tuple[int, int, int]) -> int:
@@ -69,7 +72,7 @@ def en_el_hilo_de_la_interfaz(forma, funcion: Callable[[], None]) -> None:
     forma.Invoke(Action(funcion))
 
 
-def tenir_barra_de_titulo(forma, compilacion: int | None = None) -> bool:
+def tenir_barra_de_titulo(forma, tema: str, compilacion: int | None = None) -> bool:
     """Colorea la barra nativa sin quitarle el marco; si Windows no puede, queda como estaba.
 
     Hay que llamarla desde el hilo de la interfaz (`en_el_hilo_de_la_interfaz`).
@@ -77,13 +80,14 @@ def tenir_barra_de_titulo(forma, compilacion: int | None = None) -> bool:
     if compilacion is None:
         compilacion = sys.getwindowsversion().build
     try:
+        color_barra, color_texto = COLORES_DE_BARRA[tema]
         manejador = int(forma.Handle.ToInt64())
         acierto = _atributo(manejador, DWMWA_MODO_OSCURO, 1)
         if compilacion >= COMPILACION_CON_COLORES:
             acierto = (
-                _atributo(manejador, DWMWA_COLOR_BARRA, _colorref(COLOR_BARRA))
-                and _atributo(manejador, DWMWA_COLOR_TEXTO, _colorref(COLOR_TEXTO_BARRA))
-                and _atributo(manejador, DWMWA_COLOR_BORDE, _colorref(COLOR_BARRA))
+                _atributo(manejador, DWMWA_COLOR_BARRA, _colorref(color_barra))
+                and _atributo(manejador, DWMWA_COLOR_TEXTO, _colorref(color_texto))
+                and _atributo(manejador, DWMWA_COLOR_BORDE, _colorref(color_barra))
             )
     except Exception:  # noqa: BLE001 - una barra sin teñir no es fatal
         registro.exception("no se pudo teñir la barra de título")
@@ -149,13 +153,41 @@ def copiar_al_portapapeles(texto: str) -> bool:
         user32.CloseClipboard()
 
 
-def mostrar_error(titulo: str, mensaje: str) -> None:
+MB_ICONERROR = 0x10
+MB_ICONINFORMATION = 0x40
+
+
+def mostrar_error(titulo: str, mensaje: str, icono: int = MB_ICONERROR) -> None:
     """Empaquetado con PyInstaller no hay consola donde ver una traza."""
-    MB_ICONERROR = 0x10
     try:
-        ctypes.windll.user32.MessageBoxW(None, mensaje, titulo, MB_ICONERROR)
+        ctypes.windll.user32.MessageBoxW(None, mensaje, titulo, icono)
     except (AttributeError, OSError):
         registro.exception("no se pudo mostrar el aviso nativo: %s", mensaje)
+
+
+ERROR_ALREADY_EXISTS = 183
+# Windows libera el mutex al morir el proceso; la referencia solo evita cerrarlo antes.
+_instancia: list[int] = []
+
+
+def hay_otra_instancia(nombre: str) -> bool:
+    """Toma un mutex con nombre; True si otro proceso ya lo tenía.
+
+    Si Windows no deja crearlo, se dice que no hay otra: mejor arrancar dos veces que no
+    arrancar ninguna.
+    """
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateMutexW.argtypes = [ctypes.c_void_p, ctypes.c_bool, ctypes.c_wchar_p]
+    kernel32.CreateMutexW.restype = ctypes.c_void_p
+    manejador = kernel32.CreateMutexW(None, False, nombre)
+    if not manejador:
+        registro.warning(
+            "no se pudo crear el mutex de instancia (error %s)", ctypes.get_last_error()
+        )
+        return False
+    otra = ctypes.get_last_error() == ERROR_ALREADY_EXISTS
+    _instancia.append(manejador)
+    return otra
 
 
 def geometria_de_forma(forma) -> Geometria:

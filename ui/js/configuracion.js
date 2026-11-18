@@ -88,6 +88,7 @@ export function crearVistaConfiguracion(raiz) {
       ? texto('configuracion.journal.no_existe')
       : '';
     c.config_datos.textContent = almacen.carpeta;
+    c.config_version.textContent = texto('configuracion.datos.version_valor', { version: almacen.version });
     c.config_no_guardado.hidden = !datos.no_guardado;
     c.config_no_guardado.textContent = datos.no_guardado
       ? texto('configuracion.journal.no_guardado')
@@ -99,25 +100,45 @@ export function crearVistaConfiguracion(raiz) {
     pintar(await api.usarCarpetaAutomatica()),
   );
 
+  let carga = Promise.resolve();
+
+  async function cargar() {
+    await aplicarSecciones();
+    const datos = await api.configuracion();
+    pintar(datos);
+    if (datos.esfera) esfera.cargar(datos.esfera);
+    if (datos.retencion) retencion.cargar(datos.retencion);
+    if (datos.eddn) eddn.cargar(datos.eddn);
+    comercio.cargar();
+    sesiones.cargar();
+    sonido.cargar();
+    lectura.cargar();
+    ventana.cargar();
+    datosGuardados.cargar();
+    spansh.empezar();
+  }
+
   return {
-    async cargar() {
-      await aplicarSecciones();
-      const datos = await api.configuracion();
-      pintar(datos);
-      if (datos.esfera) esfera.cargar(datos.esfera);
-      if (datos.retencion) retencion.cargar(datos.retencion);
-      if (datos.eddn) eddn.cargar(datos.eddn);
-      comercio.cargar();
-      sesiones.cargar();
-      sonido.cargar();
-      lectura.cargar();
-      ventana.cargar();
-      datosGuardados.cargar();
-      spansh.empezar();
+    cargar() {
+      carga = cargar();
+      return carga;
     },
     salir() {
       spansh.parar();
       datosGuardados.parar();
+    },
+    /**
+     * Desde la bienvenida: abre Esfera y deja el foco en el radio, con `centro` propuesto. Espera
+     * a la carga en curso, que si no pisaría el centro con el de la esfera guardada.
+     */
+    async prepararDescarga(centro) {
+      try {
+        await carga;
+      } catch (error) {
+        console.error(error);
+      }
+      abrirSeccion('esfera');
+      esfera.prepararDescarga(centro);
     },
   };
 }

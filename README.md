@@ -11,21 +11,31 @@ estima la **ganancia por hora** de cada ruta ajustada a cómo juegas tú.
 Está en español, funciona en local y no abre ningún puerto: solo hace
 conexiones salientes a EDDN y, si lo pides, una descarga de Spansh.
 
-## Estado: en construcción
+## Descargar
 
-El proyecto se construye en nueve fases y ahora mismo va por el final de la
-primera. **Todavía no sirve para jugar.** Lo que ya funciona:
+La versión 1.0.0 está en [Releases](https://github.com/Nadamas-ALF/luna-elite-dangerous/releases/latest):
+`LUNA-1.0.0-win64.zip`, con su SHA-256 al lado.
 
-- Ventana nativa redimensionable que recuerda su tamaño y posición.
-- Cálculo del rango de salto de cualquier nave, validado contra 448
-  configuraciones reales de journal con un desvío del 0.0000 %, propulsores SCO
-  y potenciadores Guardian incluidos.
-- Lectura de la configuración, modo portable y detección de los problemas que
-  impedirían que la base de datos funcione (unidad de red, carpeta
-  sincronizada, sin permisos de escritura).
+1. Descomprime la carpeta entera donde quieras y abre `LUNA.exe`. No hace
+   falta instalar nada ni tener Python.
+2. La primera vez Windows puede decir «Windows protegió su PC», porque LUNA no
+   está firmado: «Más información» y «Ejecutar de todas formas».
+3. La pantalla de bienvenida te explica el journal y los datos de mercado.
 
-Lo que falta: lector del journal en vivo, mercados propios, EDDN, descarga de
-Spansh, el motor de rutas, el modelo de tiempos, las alertas y el ejecutable.
+El `LEEME.txt` del `.zip` explica cómo actualizar y desinstalar.
+
+## Qué hace
+
+- Lee el journal en vivo: tu nave, su rango real con carga, tu bodega, dónde
+  estás y lo que compras y vendes.
+- Guarda los mercados de una zona del espacio (la esfera) con lo que publica
+  EDDN, lo que visitas y, si quieres, una descarga de Spansh.
+- Busca rutas de un salto, bucles de ida y vuelta, rutas de varias paradas y
+  circuitos, ordenadas por ganancia por hora.
+- Aprende lo que tardas tú en cada parte del viaje y lo usa para estimar.
+- Alertas con sonido cuando aparece una ruta mejor, rutas fijadas y el
+  rendimiento real de tus sesiones.
+- Dos temas: Sobrio (el de fábrica) y Lunar.
 
 ## Requisitos
 
@@ -34,6 +44,18 @@ Spansh, el motor de rutas, el modelo de tiempos, las alertas y el ejecutable.
 - El componente **WebView2** de Microsoft, que ya viene en Windows 11 y en
   Windows 10 actualizado. Si falta, LUNA te lo dice al arrancar.
 - Para ejecutarlo desde el código fuente, Python 3.12.
+
+## Construir el ejecutable
+
+Con las dependencias de desarrollo instaladas:
+
+```
+.venv\Scripts\python.exe empaquetar.py
+```
+
+Comprueba las pruebas y el linter, construye con PyInstaller (`luna.spec`), añade
+`LEEME.txt`, la licencia y las de terceros, y deja en `dist/` el `.zip` con su
+SHA-256.
 
 ## Ejecutar desde el código
 
@@ -72,6 +94,9 @@ cubre el código de LUNA, no los datos del juego.
 
 Elite Dangerous es una marca de Frontier Developments plc. Este proyecto no
 está afiliado ni respaldado por Frontier.
+
+Las ilustraciones del tema Lunar (las flores y los velos de
+`ui/assets/atmosphere/`) están generadas por IA a partir de ideas del autor.
 
 Gracias a [EDCD](https://github.com/EDCD) por EDDN y por mantener los datos de
 la comunidad, a [Spansh](https://spansh.co.uk) por sus volcados de la galaxia,
